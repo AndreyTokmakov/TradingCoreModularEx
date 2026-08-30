@@ -144,6 +144,8 @@ add_executable(${PROJECT_NAME}
         ${EXECUTION}/execution_report_source.hpp
         ${EXECUTION}/execution_module.cpp
         ${EXECUTION}/execution_module.hpp
+        ${EXECUTION}/execution_report_module.hpp
+        ${EXECUTION}/execution_report_module.cpp
         ${EXECUTION}/execution_work_item.hpp
 
         ${BINANCE}/binance_market_data_source.hpp

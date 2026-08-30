@@ -28,16 +28,15 @@ Description : application.hpp
 #define FINANCETECHNOLOGYPROJECTS_APPLICATION_HPP
 
 #include "config.hpp"
-
-#include "book_builder_module.hpp"
 #include "condition_variable_queue.hpp"
 
 #include "execution_module.hpp"
+#include "execution_report_module.hpp"
+#include "book_builder_module.hpp"
 #include "market_data_module.hpp"
 #include "recording_module.hpp"
 #include "strategy_module.hpp"
 
-#include "interfaces/snapshot_provider.hpp"
 
 namespace trading::app
 {
@@ -66,11 +65,12 @@ namespace trading::app
         concurrency::ConditionVariableQueue<recording::RecordingEvent> recordingEventQueue;
         concurrency::ConditionVariableQueue<execution::ExecutionWorkItem> executionQueue;
 
-        market_data::MarketDataModule  marketDataModule;
+        market_data::MarketDataModule marketDataModule;
         market_data::BookBuilderModule bookBuilderModule;
-        strategy::StrategyModule       strategyModule;
-        execution::ExecutionModule     executionModule;
-        recording::RecordingModule     recordingModule;
+        strategy::StrategyModule  strategyModule;
+        execution::ExecutionModule executionModule;
+        recording::RecordingModule recordingModule;
+        execution::ExecutionReportModule  executionReportModule;
 
         bool running { false };
     };

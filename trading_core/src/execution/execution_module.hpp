@@ -45,8 +45,6 @@ namespace trading::execution
         concurrency::Queue<recording::RecordingEvent>& recordingQueue;
 
         std::unique_ptr<IExecutionGateway> executionGateway;
-        std::unique_ptr<IExecutionReportSource> executionReportSource;
-
         OrderManager orderManager;
 
         std::shared_ptr<logging::ILogger> logger;

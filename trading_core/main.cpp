@@ -45,6 +45,13 @@ void e2eTests();
 //  - Put Collection on CPU-5
 //  - Grafana
 
+// TODO: Execution
+//  - ExecutionReport --> model
+//  - OrderRequest --> model
+//  - Order --> model
+//  - ExecutionWorkItem --> model
+
+
 namespace
 {
     [[maybe_unused]]

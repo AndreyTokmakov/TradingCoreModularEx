@@ -10,7 +10,6 @@ Description : Sends orders to the exchange on the execution thread.
 #include "config_utils.hpp"
 #include "execution_module.hpp"
 #include "binance_execution_gateway.hpp"
-#include "binance_execution_report_source.hpp"
 
 
 namespace trading::execution
@@ -33,9 +32,6 @@ namespace trading::execution
         },
         executionGateway {
             std::make_unique<binance::BinanceExecutionGateway>(findExchange(config, "binance").executionEndpoint)
-        },
-        executionReportSource {
-            std::make_unique<binance::BinanceExecutionReportSource>(findExchange(config, "binance").executionEndpoint, executionQueue)
         },
         orderManager {
             *riskManager, positionManager, *executionGateway

@@ -46,6 +46,9 @@ namespace trading::app
         },
         recordingModule {
             config.recording, recordingEventQueue, runtimeContext
+        },
+        executionReportModule {
+            config, executionQueue, runtimeContext
         }
     {
         // TODO
@@ -65,6 +68,7 @@ namespace trading::app
         strategyModule.start();
         bookBuilderModule.start();
         executionModule.start();
+        executionReportModule.start();
         recordingModule.start();
 
         marketDataModule.start();
@@ -79,6 +83,7 @@ namespace trading::app
 
         recordingModule.stop();
         bookBuilderModule.stop();
+        executionReportModule.stop();
         executionModule.stop();
         strategyModule.stop();
 
