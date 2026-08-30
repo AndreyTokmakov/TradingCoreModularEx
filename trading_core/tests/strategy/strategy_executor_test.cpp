@@ -11,8 +11,8 @@ Description : StrategyExecutor unit tests.
 #include "test_support/testing.hpp"
 
 #include "order_manager.hpp"
-#include "order.hpp"
-#include "execution_gateway.hpp"
+#include "model/order.hpp"
+#include "interfaces/execution_gateway.hpp"
 #include "risk_manager.hpp"
 #include "position_manager.hpp"
 

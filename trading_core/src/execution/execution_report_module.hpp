@@ -11,7 +11,7 @@ Description : execution_report_module.hpp
 #define TRADINGCOREMODULAREX_EXECUTION_REPORT_MODULE_HPP
 
 #include "model/execution_work_item.hpp"
-#include "execution_report_source.hpp"
+#include "interfaces/execution_report_source.hpp"
 #include "queue.hpp"
 #include "runtime_context.hpp"
 #include "worker.hpp"

@@ -10,7 +10,7 @@ Description : mock_execution_gateway.сpp
 #ifndef FINANCETECHNOLOGYPROJECTS_TEST_EXECUTION_GATEWAY_HPP
 #define FINANCETECHNOLOGYPROJECTS_TEST_EXECUTION_GATEWAY_HPP
 
-#include "execution_gateway.hpp"
+#include "interfaces/execution_gateway.hpp"
 
 #include <vector>
 
