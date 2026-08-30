@@ -1,2 +1,2 @@
-# TradingCoreModularEx
-And extension of TradingCoreModular (Next step)
+# TradingCoreModular
+TradingCore Multithreaded and Modular

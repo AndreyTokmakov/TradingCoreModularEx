@@ -1,0 +1,29 @@
+{
+    "instrument": 42,
+    "strategy": {
+        "orderQuantity": 100000000,
+        "thresholdNumerator": 7,
+        "thresholdDenominator": 10
+    },
+    "risk": {
+        "maxOrderQuantity": 500000000,
+        "maxPositionQuantity": 1000000000,
+        "maxNotional": 2500000000000
+    },
+    "exchanges": [
+        {
+            "name": "binance",
+            "marketDataEndpoint": "wss://market-data.example",
+            "executionEndpoint": "https://execution.example"
+        },
+        {
+            "name": "test-exchange",
+            "marketDataEndpoint": "wss://test-market.example",
+            "executionEndpoint": "https://test-execution.example"
+        }
+    ],
+    "recording": {
+        "enabled": false,
+        "directory": "/tmp/trading-records"
+    }
+}
