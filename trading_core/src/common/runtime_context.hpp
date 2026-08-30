@@ -17,7 +17,7 @@ namespace trading::common
 {
     struct RuntimeContext
     {
-        logging::ILogger& logger;
+        std::shared_ptr<logging::ILogger> logger;
         metrics::MetricsCollector& metricsCollector;
     };
 }

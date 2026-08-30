@@ -29,6 +29,16 @@ Description : application.hpp
 
 #include "config.hpp"
 
+#include "book_builder_module.hpp"
+#include "condition_variable_queue.hpp"
+
+#include "execution_module.hpp"
+#include "market_data_module.hpp"
+#include "recording_module.hpp"
+#include "strategy_module.hpp"
+
+#include "interfaces/snapshot_provider.hpp"
+
 namespace trading::app
 {
     class Application final
@@ -49,6 +59,18 @@ namespace trading::app
     private:
 
         config::Config config;
+        common::RuntimeContext runtimeContext;
+
+        concurrency::ConditionVariableQueue<market_data::BookUpdates> bookUpdateQueue;
+        concurrency::ConditionVariableQueue<market_data::MarketEvent> strategyEventQueue;
+        concurrency::ConditionVariableQueue<recording::RecordingEvent> recordingEventQueue;
+        concurrency::ConditionVariableQueue<execution::ExecutionWorkItem> executionQueue;
+
+        market_data::MarketDataModule  marketDataModule;
+        market_data::BookBuilderModule bookBuilderModule;
+        strategy::StrategyModule       strategyModule;
+        execution::ExecutionModule     executionModule;
+        recording::RecordingModule     recordingModule;
 
         bool running { false };
     };

@@ -13,6 +13,7 @@ Description : Dispatches MarketEvents to independent pipeline consumers.
 #include "interfaces/market_event_handler.hpp"
 #include "model/market_event.hpp"
 #include "queue.hpp"
+#include "recording_event.hpp"
 
 namespace trading::market_data
 {
@@ -20,13 +21,13 @@ namespace trading::market_data
     {
     public:
         MarketEventDispatcher(concurrency::Queue<MarketEvent>& strategyQueue,
-                              concurrency::Queue<MarketEvent>& recordingQueue) noexcept;
+                              concurrency::Queue<recording::RecordingEvent>& recordingEventQueue) noexcept;
 
         void onMarketEvent(const MarketEvent& event) override;
 
     private:
         concurrency::Queue<MarketEvent>& strategyQueue;
-        concurrency::Queue<MarketEvent>& recordingQueue;
+        concurrency::Queue<recording::RecordingEvent>& recordingEventQueue;
     };
 }
 

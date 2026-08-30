@@ -192,11 +192,11 @@ namespace trading::execution
     */
     struct OrderRequest
     {
-        InstrumentId instrument;
-        Side side;
-        OrderType type;
-        Price price;
-        Quantity quantity;
+        InstrumentId instrument {};
+        Side side { Side::Buy };
+        OrderType type { OrderType::Limit };
+        Price price { 0 };
+        Quantity quantity { 0};
     };
 
     /*

@@ -11,9 +11,13 @@ Description : Processes market-data book updates on the BookBuilder thread.
 #define FINANCETECHNOLOGYPROJECTS_BOOK_BUILDER_MODULE_HPP
 
 #include "book_builder.hpp"
+#include "config.hpp"
+#include "condition_variable_queue.hpp"
+#include "market_event_dispatcher.hpp"
+#include "order_book.hpp"
+#include "recording_event.hpp"
 #include "interfaces/market_data_parser.hpp"
 #include "interfaces/snapshot_provider.hpp"
-#include "queue.hpp"
 #include "worker.hpp"
 
 namespace trading::market_data
@@ -21,17 +25,20 @@ namespace trading::market_data
     class BookBuilderModule final: public common::Worker<BookBuilderModule>
     {
     public:
-        BookBuilderModule(BookBuilder& bookBuilder,
-                          ISnapshotProvider& snapshotProvider,
-                          concurrency::Queue<BookUpdates>& queue);
+        BookBuilderModule(const config::Config& config,
+                          concurrency::ConditionVariableQueue<BookUpdates>& bookUpdateQueue,
+                          concurrency::ConditionVariableQueue<MarketEvent>& strategyEventQueue,
+                          concurrency::ConditionVariableQueue<recording::RecordingEvent>& recordingQueue) noexcept;
 
-        void run() const;
+        void run();
 
     private:
+        concurrency::ConditionVariableQueue<BookUpdates>& bookUpdateQueue;
 
-        BookBuilder& bookBuilder;
-        ISnapshotProvider& snapshotProvider;
-        concurrency::Queue<BookUpdates>& queue;
+        OrderBook orderBook;
+        MarketEventDispatcher marketEventDispatcher;
+        BookBuilder bookBuilder;
+        std::unique_ptr<ISnapshotProvider> snapshotProvider;
     };
 }
 

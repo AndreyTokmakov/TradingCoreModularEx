@@ -25,12 +25,12 @@ namespace trading::testing::stubs
     {
         metrics = &metricsCollector.getThreadMetrics();
 
-        logger.info("{} [{}] Connecting to '{}' ...",__PRETTY_FUNCTION__, __LINE__, endpoint);
+        logger->info("{} [{}] Connecting to '{}' ...",__PRETTY_FUNCTION__, __LINE__, endpoint);
         metrics->increment<metrics::MetricType::MarketDataReceived>();
 
         running = true;
 
-        logger.info("{} [{}] Got MargetData", __PRETTY_FUNCTION__, __LINE__);
+        logger->info("{} [{}] Got MargetData", __PRETTY_FUNCTION__, __LINE__);
         messageHandler->onMessage("1,1000001,1640995200000,Buy,98765,100,1000");
 
         // TODO: Connect to endpoint.

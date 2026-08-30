@@ -16,52 +16,72 @@ Description : application.cpp
 */
 
 #include "application.hpp"
-#include "json_config_loader.hpp"
+#include "config_utils.hpp"
 #include "logger_factory.hpp"
-
-namespace
-{
-    using trading::config::Config;
-    using trading::config::Error;
-    using trading::config::ExchangeConfig;
-    using trading::config::JsonConfigLoader;
-
-    [[nodiscard]]
-    Config loadConfig(const std::filesystem::path& configPath)
-    {
-        if (const std::expected<Config, Error> result = JsonConfigLoader::load(configPath))
-            return *result;
-        throw std::runtime_error {"Failed to load configuration: " +configPath.string()};
-    }
-
-    [[nodiscard]]
-    const ExchangeConfig& findExchange(const Config& config,
-                                       const std::string_view name)
-    {
-        for (const ExchangeConfig& exchange : config.exchanges)
-        {
-            if (exchange.name == name)
-                return exchange;
-        }
-
-        throw std::runtime_error {
-            "Exchange configuration not found: " + std::string { name }
-        };
-    }
-}
+#include "binance_snapshot_provider.hpp"
 
 namespace trading::app
 {
-    Application::Application(const std::filesystem::path&) {
+    Application::Application(const std::filesystem::path& configPath):
+        config { config::loadConfig(configPath) },
+        runtimeContext {
+            .logger = logging::LoggerFactory::createLogger({}, {}),
+            .metricsCollector = metrics::MetricsCollector::getCollector()
+        },
+        bookUpdateQueue {},
+        strategyEventQueue {},
+        recordingEventQueue {},
+        executionQueue {},
+        marketDataModule {
+            findExchange(config, "binance").marketDataEndpoint, bookUpdateQueue
+        },
+        bookBuilderModule {
+            config, bookUpdateQueue, strategyEventQueue, recordingEventQueue
+        },
+        strategyModule {
+            config.strategy, strategyEventQueue, executionQueue, runtimeContext
+        },
+        executionModule {
+            config, executionQueue, recordingEventQueue, runtimeContext
+        },
+        recordingModule {
+            config.recording, recordingEventQueue, runtimeContext
+        }
+    {
+        // TODO
     }
 
     Application::~Application() {
         stop();
     }
 
-    void Application::start() {
+    void Application::start()
+    {
+        if (running)
+            return;
+
+        running = true;
+
+        strategyModule.start();
+        bookBuilderModule.start();
+        executionModule.start();
+        recordingModule.start();
+
+        marketDataModule.start();
     }
 
-    void Application::stop() {
+    void Application::stop()
+    {
+        if (!running)
+            return;
+
+        marketDataModule.stop();
+
+        recordingModule.stop();
+        bookBuilderModule.stop();
+        executionModule.stop();
+        strategyModule.stop();
+
+        running = false;
     }
 }

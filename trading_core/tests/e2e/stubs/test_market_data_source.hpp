@@ -34,8 +34,8 @@ namespace trading::testing::stubs
         market_data::IMarketDataMessageHandler* messageHandler { nullptr };
         bool running { false };
 
-        logging::ILogger& logger;
-        metrics::MetricsCollector& metricsCollector;
+        std::shared_ptr<logging::ILogger> logger;
+        metrics::MetricsCollector& metricsCollector; // TODO: Refactor: Не нужно навенрное MetricsCollector или Metrics
         metrics::Metrics* metrics { nullptr };
     };
 }

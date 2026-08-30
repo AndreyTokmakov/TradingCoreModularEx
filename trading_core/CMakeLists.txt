@@ -88,6 +88,8 @@ add_executable(${PROJECT_NAME}
         ${CONFIG}/config.hpp
         ${CONFIG}/json_config_loader.hpp
         ${CONFIG}/json_config_loader.cpp
+        ${CONFIG}/config_utils.cpp
+        ${CONFIG}/config_utils.hpp
 
         ${CORE}/price.hpp
         ${CORE}/quantity.hpp
@@ -125,6 +127,8 @@ add_executable(${PROJECT_NAME}
         ${MARKET_DATA}/book_builder_module.cpp
         ${MARKET_DATA}/book_builder.hpp
         ${MARKET_DATA}/book_builder.cpp
+        ${MARKET_DATA}/market_data_module.cpp
+        ${MARKET_DATA}/market_data_module.hpp
 
         ${LOGGING}/logger.hpp
         ${LOGGING}/spdlog_logger.hpp

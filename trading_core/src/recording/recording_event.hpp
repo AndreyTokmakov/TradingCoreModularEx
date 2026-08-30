@@ -4,68 +4,68 @@ Created on  : 19.08.2026
 Author      : Andrei Tokmakov
 Version     : 1.0
 Copyright   : Your copyright notice
-Description : recording_event.hpp
+Description : Event passed to the recording module.
 ============================================================================**/
 
 /*
-    RecordingEvent contains the common metadata associated with a recorded trading-system event.
-    Recording is intended to preserve events required for debugging, replay, analysis and later backtesting.
+    RecordingEvent represents an event that should be persisted by RecordingModule.
+
+    Recording is executed outside the processing modules. Market-data and execution
+    modules publish events into a recording queue, while RecordingModule is the only
+    component responsible for invoking the recorder.
 
     Data Flow:
 
-        MarketDataSource
+        BookBuilderModule
+               |
+               | MarketEvent
+               v
+        recordingEventQueue
                |
                v
-        MarketData processing
+        RecordingModule
                |
                v
-          MarketEvent
+            Recorder
+
+
+        ExecutionModule
                |
-               +-------------------+
-                                   |
-        ExecutionGateway           |
-               |                   |
-               v                   |
-        ExecutionReport            |
-               |                   |
-               +-------------------+
-                                   |
-                                   v
-                              Recorder
-                                   |
-                                   v
-                            Recorded Event
+               | ExecutionReport
+               v
+        recordingEventQueue
+               |
+               v
+        RecordingModule
+               |
+               v
+            Recorder
 
     Responsibilities:
 
-        - identify the type of recorded event;
-        - preserve event timestamps;
-        - provide common metadata for recorded events.
+        - provide a common queue item for events that must be recorded;
+        - preserve the original domain event;
+        - decouple event producers from the recorder implementation.
 
-    RecordingEvent does not contain the complete domain object. Domain-specific
-    data remains in the corresponding event structures.
+    RecordingEvent is a transport object. It does not perform recording itself.
 */
 
 #ifndef FINANCETECHNOLOGYPROJECTS_RECORDING_EVENT_HPP
 #define FINANCETECHNOLOGYPROJECTS_RECORDING_EVENT_HPP
 
-#include "timestamp.hpp"
+#include "execution_report.hpp"
+#include "order.hpp"
+#include "model/market_event.hpp"
 
-#include <cstdint>
+#include <variant>
 
 namespace trading::recording
 {
-    enum class EventType : uint8_t
-    {
-        MarketEvent,
-        ExecutionReport
-    };
-
-    struct RecordingEvent
-    {
-        EventType type { EventType::MarketEvent };
-        Timestamp timestamp {};
-    };
+    using RecordingEvent = std::variant<
+        market_data::MarketEvent,
+        execution::OrderRequest,
+        execution::ExecutionReport
+    >;
 }
 
 #endif //FINANCETECHNOLOGYPROJECTS_RECORDING_EVENT_HPP

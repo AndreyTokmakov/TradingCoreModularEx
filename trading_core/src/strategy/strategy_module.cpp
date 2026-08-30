@@ -11,12 +11,20 @@ Description : Executes strategy processing on the strategy thread.
 
 namespace trading::strategy
 {
-    StrategyModule::StrategyModule(concurrency::Queue<market_data::MarketEvent>& marketEventQueue,
-                                         IStrategy& strategy,
-                                         StrategyExecutor& executor) noexcept :
-        marketEventQueue { marketEventQueue },
-        strategy { strategy },
-        executor { executor }
+    StrategyModule::StrategyModule(const config::StrategyConfig& strategyConfig,
+                                   concurrency::Queue<market_data::MarketEvent>& strategyEventQueue,
+                                   concurrency::Queue<execution::ExecutionWorkItem>& executionQueue,
+                                   const common::RuntimeContext&):
+        strategy {
+            strategyConfig.thresholdNumerator,
+            strategyConfig.thresholdDenominator
+        },
+        executor {
+            executionQueue,
+            strategyConfig.orderQuantity
+        },
+        marketEventQueue { strategyEventQueue },
+        executionQueue { executionQueue }
     {
     }
 

@@ -8,21 +8,39 @@ Description : Records market events on the recording thread.
 ============================================================================**/
 
 #include "recording_module.hpp"
+#include "trade_recorder.hpp"
 
 namespace trading::recording
 {
-    RecordingModule::RecordingModule(IRecorder& recorder,
-                                     concurrency::Queue<market_data::MarketEvent>& queue):
-        recorder { recorder },
-        queue { queue }
+    RecordingModule::RecordingModule(const config::RecordingConfig&,
+                                     concurrency::Queue<RecordingEvent>& recordingQueue,
+                                     const common::RuntimeContext&) noexcept:
+        recorder { std::make_unique<TradeRecorder>() },
+        recordingQueue { recordingQueue }
     {
     }
 
     void RecordingModule::run() const
     {
-        market_data::MarketEvent event;
-        while (queue.waitPop(event)) {
-            recorder.record(event);
+        RecordingEvent event;
+
+        while (recordingQueue.waitPop(event))
+        {
+            std::visit([this](const auto& item) {
+                process(item);
+            }, event);
         }
     }
+
+    void RecordingModule::process(const market_data::MarketEvent& event) const {
+        recorder->record(event);
+    }
+
+    void RecordingModule::process(const execution::ExecutionReport& report) const {
+        recorder->record(report);
+    }
+
+    void RecordingModule::process(const execution::OrderRequest&) const {
+    }
+
 }
