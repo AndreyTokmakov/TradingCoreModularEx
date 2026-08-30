@@ -37,7 +37,7 @@ Description : Binance execution report source.
 #include <string>
 
 #include "execution_report_source.hpp"
-#include "execution_work_item.hpp"
+#include "model/execution_work_item.hpp"
 #include "queue.hpp"
 
 

@@ -77,7 +77,7 @@ Description : Strategy signal execution component.
 #ifndef FINANCETECHNOLOGYPROJECTS_STRATEGY_EXECUTOR_HPP
 #define FINANCETECHNOLOGYPROJECTS_STRATEGY_EXECUTOR_HPP
 
-#include "execution_work_item.hpp"
+#include "model/execution_work_item.hpp"
 #include "signal.hpp"
 #include "types.hpp"
 #include "quantity.hpp"

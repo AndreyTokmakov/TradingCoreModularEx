@@ -10,7 +10,7 @@ Description : execution_report_module.hpp
 #ifndef TRADINGCOREMODULAREX_EXECUTION_REPORT_MODULE_HPP
 #define TRADINGCOREMODULAREX_EXECUTION_REPORT_MODULE_HPP
 
-#include "execution_work_item.hpp"
+#include "model/execution_work_item.hpp"
 #include "execution_report_source.hpp"
 #include "queue.hpp"
 #include "runtime_context.hpp"

@@ -10,7 +10,7 @@ Description : Sends orders to the exchange on the execution thread.
 #ifndef FINANCETECHNOLOGYPROJECTS_EXECUTION_MODULE_HPP
 #define FINANCETECHNOLOGYPROJECTS_EXECUTION_MODULE_HPP
 
-#include "execution_work_item.hpp"
+#include "model/execution_work_item.hpp"
 #include "execution_report_source.hpp"
 #include "order_manager.hpp"
 #include "queue.hpp"

@@ -53,8 +53,8 @@ Description : Event passed to the recording module.
 #ifndef FINANCETECHNOLOGYPROJECTS_RECORDING_EVENT_HPP
 #define FINANCETECHNOLOGYPROJECTS_RECORDING_EVENT_HPP
 
-#include "execution_report.hpp"
-#include "order.hpp"
+#include "model/execution_report.hpp"
+#include "model/order.hpp"
 #include "model/market_event.hpp"
 
 #include <variant>

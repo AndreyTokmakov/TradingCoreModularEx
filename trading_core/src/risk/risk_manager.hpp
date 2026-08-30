@@ -64,7 +64,7 @@ Description : risk_manager.hpp
 #ifndef FINANCETECHNOLOGYPROJECTS_RISK_MANAGER_HPP
 #define FINANCETECHNOLOGYPROJECTS_RISK_MANAGER_HPP
 
-#include "order.hpp"
+#include "model/order.hpp"
 #include "position.hpp"
 #include "risk.hpp"
 #include "risk_limits.hpp"

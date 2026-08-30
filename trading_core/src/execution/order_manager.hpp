@@ -246,8 +246,8 @@ Description : order_manager.hpp
 #include <map>
 
 #include "execution_gateway.hpp"
-#include "execution_report.hpp"
-#include "order.hpp"
+#include "model/execution_report.hpp"
+#include "model/order.hpp"
 #include "risk_manager.hpp"
 #include "position_manager.hpp"
 
