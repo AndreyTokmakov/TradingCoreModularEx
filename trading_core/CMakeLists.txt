@@ -70,6 +70,7 @@ include_directories(${RECORDING})
 include_directories(${PNL})
 include_directories(${RISK})
 include_directories(${TESTS})
+include_directories(${EXCHANGES})
 include_directories(${BINANCE})
 include_directories(${LOGGING})
 
@@ -148,6 +149,11 @@ add_executable(${PROJECT_NAME}
         ${EXECUTION}/execution_report_module.hpp
         ${EXECUTION}/execution_report_module.cpp
 
+        ${EXCHANGES}/exchange_factory.hpp
+        ${EXCHANGES}/exchange_factory_registry.hpp
+        ${EXCHANGES}/exchange_factory_registry.cpp
+
+
         ${BINANCE}/binance_market_data_source.hpp
         ${BINANCE}/binance_market_data_source.cpp
         ${BINANCE}/binance_market_data_parser.cpp
@@ -158,6 +164,9 @@ add_executable(${PROJECT_NAME}
         ${BINANCE}/binance_execution_report_source.cpp
         ${BINANCE}/binance_snapshot_provider.hpp
         ${BINANCE}/binance_snapshot_provider.cpp
+        ${BINANCE}/binance_exchange_factory.hpp
+        ${BINANCE}/binance_exchange_factory.cpp
+
 
         ${POSITION}/position.hpp
         ${POSITION}/position.cpp
