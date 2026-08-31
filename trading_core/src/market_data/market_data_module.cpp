@@ -7,28 +7,32 @@ Copyright   : Your copyright notice
 Description : Market-data pipeline module implementation.
 ============================================================================**/
 
+#include "config_utils.hpp"
 #include "market_data_module.hpp"
+#include "binance_market_data_parser.hpp"
+#include "binance_market_data_source.hpp"
 
-#include <utility>
 
 namespace trading::market_data
 {
-    MarketDataModule::MarketDataModule(std::string endpoint,
+    namespace binance = exchanges::binance;
+
+    MarketDataModule::MarketDataModule(const config::Config& config,
                                        concurrency::Queue<BookUpdates>& bookUpdateQueue) noexcept:
-        parser {},
-        messageHandler { parser, bookUpdateQueue },
-        source { std::move(endpoint) }
+        marketDataParser { std::make_unique<binance::BinanceMarketDataParser>() },
+        marketDataSource { std::make_unique<binance::BinanceMarketDataSource>(config::findExchange(config, "binance").marketDataEndpoint) },
+        messageHandler { *marketDataParser, bookUpdateQueue }
     {
-        source.setMessageHandler(messageHandler);
+        marketDataSource->setMessageHandler(messageHandler);
     }
 
     void MarketDataModule::start()
     {
-        source.start();
+        marketDataSource->start();
     }
 
     void MarketDataModule::stop()
     {
-        source.stop();
+        marketDataSource->stop();
     }
 }

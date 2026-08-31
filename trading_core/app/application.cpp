@@ -18,7 +18,6 @@ Description : application.cpp
 #include "application.hpp"
 #include "config_utils.hpp"
 #include "logger_factory.hpp"
-#include "binance_snapshot_provider.hpp"
 
 namespace trading::app
 {
@@ -33,7 +32,7 @@ namespace trading::app
         recordingEventQueue {},
         executionQueue {},
         marketDataModule {
-            findExchange(config, "binance").marketDataEndpoint, bookUpdateQueue
+            config, bookUpdateQueue
         },
         bookBuilderModule {
             config, bookUpdateQueue, strategyEventQueue, recordingEventQueue

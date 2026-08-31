@@ -51,7 +51,7 @@ Description : Execution report source interface.
 #ifndef FINANCETECHNOLOGYPROJECTS_EXECUTION_REPORT_SOURCE_HPP
 #define FINANCETECHNOLOGYPROJECTS_EXECUTION_REPORT_SOURCE_HPP
 
-#include "../model/execution_report.hpp"
+#include "model/execution_report.hpp"
 
 namespace trading::execution
 {

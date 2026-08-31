@@ -12,10 +12,10 @@ Description : trading_test_environment.hpp
 
 #include "trading_test_configuration.hpp"
 #include "book_builder.hpp"
-#include "execution_report_handler.hpp"
+//#include "interfaces/execution_report_handler.hpp"
 #include "market_data_message_handler.hpp"
 #include "market_event_handler.hpp"
-#include "market_data_source.hpp"
+#include "interfaces/market_data_source.hpp"
 #include "order_book.hpp"
 #include "imbalance_strategy.hpp"
 #include "strategy_executor.hpp"

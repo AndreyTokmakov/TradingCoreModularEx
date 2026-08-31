@@ -10,20 +10,17 @@ Description : Market-data pipeline module.
 #ifndef FINANCETECHNOLOGYPROJECTS_MARKET_DATA_MODULE_HPP
 #define FINANCETECHNOLOGYPROJECTS_MARKET_DATA_MODULE_HPP
 
-#include "binance_market_data_parser.hpp"
-#include "binance_market_data_source.hpp"
+#include "interfaces/market_data_parser.hpp"
+#include "interfaces/market_data_source.hpp"
 #include "condition_variable_queue.hpp"
 #include "market_data_message_handler.hpp"
-#include "model/book_update.hpp"
-
-#include <string>
 
 namespace trading::market_data
 {
     class MarketDataModule final
     {
     public:
-        MarketDataModule(std::string endpoint,
+        MarketDataModule(const config::Config& config,
                          concurrency::Queue<BookUpdates>& bookUpdateQueue) noexcept;
 
         MarketDataModule(const MarketDataModule&) = delete;
@@ -36,9 +33,9 @@ namespace trading::market_data
         void stop();
 
     private:
-        exchanges::binance::BinanceMarketDataParser parser; // TODO: --> std::unique_ptr< market_data::IMarketDataParser>
+        std::unique_ptr<IMarketDataParser> marketDataParser;
+        std::unique_ptr<IMarketDataSource> marketDataSource;
         MarketDataMessageHandler messageHandler;
-        exchanges::binance::BinanceMarketDataSource source; // TODO: --> std::unique_ptr< market_data::IMarketDataSource>
     };
 }
 

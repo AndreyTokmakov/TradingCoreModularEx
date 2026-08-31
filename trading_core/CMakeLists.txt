@@ -136,17 +136,17 @@ add_executable(${PROJECT_NAME}
         ${LOGGING}/logger_factory.hpp
         ${LOGGING}/logger_factory.cpp
 
-        ${EXECUTION}/order.hpp
-        ${EXECUTION}/execution_gateway.hpp
-        ${EXECUTION}/execution_report.hpp
+        ${EXECUTION}/model/order.hpp
+        ${EXECUTION}/model/execution_work_item.hpp
+        ${EXECUTION}/model/execution_report.hpp
+        ${EXECUTION}/interfaces/execution_gateway.hpp
+        ${EXECUTION}/interfaces/execution_report_source.hpp
         ${EXECUTION}/order_manager.hpp
         ${EXECUTION}/order_manager.cpp
-        ${EXECUTION}/execution_report_source.hpp
         ${EXECUTION}/execution_module.cpp
         ${EXECUTION}/execution_module.hpp
         ${EXECUTION}/execution_report_module.hpp
         ${EXECUTION}/execution_report_module.cpp
-        ${EXECUTION}/execution_work_item.hpp
 
         ${BINANCE}/binance_market_data_source.hpp
         ${BINANCE}/binance_market_data_source.cpp

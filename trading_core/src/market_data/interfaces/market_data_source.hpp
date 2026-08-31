@@ -53,6 +53,8 @@ Description : market_data_source.hpp
 #ifndef FINANCETECHNOLOGYPROJECTS_MARKET_DATA_SOURCE_HPP
 #define FINANCETECHNOLOGYPROJECTS_MARKET_DATA_SOURCE_HPP
 
+#include "market_data_message_handler.hpp"
+
 namespace trading::market_data
 {
     struct IMarketDataSource
