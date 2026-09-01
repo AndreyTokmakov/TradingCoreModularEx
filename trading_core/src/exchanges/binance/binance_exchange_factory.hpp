@@ -22,28 +22,28 @@ namespace trading::exchanges::binance
         [[nodiscard]]
         std::unique_ptr<execution::IExecutionGateway>
         createExecutionGateway(const config::Config& config,
-                               const common::RuntimeContext& runtimeContext) noexcept override;
+                               const common::RuntimeContext& runtimeContext) const noexcept override;
 
         [[nodiscard]]
         std::unique_ptr<execution::IExecutionReportSource>
         createExecutionReportSource(const config::Config& config,
                                     concurrency::Queue<execution::ExecutionWorkItem>& executionQueue,
-                                    const common::RuntimeContext& runtimeContext) noexcept override;
+                                    const common::RuntimeContext& runtimeContext) const noexcept override;
 
         [[nodiscard]]
         std::unique_ptr<market_data::IMarketDataParser>
         createMarketDataParser(const config::Config& config,
-                               const common::RuntimeContext& runtimeContext) noexcept override;
+                               const common::RuntimeContext& runtimeContext) const noexcept override;
 
         [[nodiscard]]
         std::unique_ptr<market_data::IMarketDataSource>
         createMarketDataSource(const config::Config& config,
-                               const common::RuntimeContext& runtimeContext) noexcept override;
+                               const common::RuntimeContext& runtimeContext) const noexcept override;
 
         [[nodiscard]]
         std::unique_ptr<market_data::ISnapshotProvider>
         createSnapshotProvider(const config::Config& config,
-                               const common::RuntimeContext& runtimeContext) noexcept override;
+                               const common::RuntimeContext& runtimeContext) const noexcept override;
     };
 }
 #endif //TRADINGCOREMODULAREX_BINANCE_EXCHANGE_FACTORY_HPP

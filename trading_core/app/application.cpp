@@ -18,9 +18,12 @@ Description : application.cpp
 #include "application.hpp"
 #include "config_utils.hpp"
 #include "logger_factory.hpp"
+#include "exchange_factory_registry.hpp"
 
 namespace trading::app
 {
+    using exchanges::ExchangeFactoryRegistry;
+
     Application::Application(const std::filesystem::path& configPath):
         config { config::loadConfig(configPath) },
         runtimeContext {
@@ -31,23 +34,26 @@ namespace trading::app
         strategyEventQueue {},
         recordingEventQueue {},
         executionQueue {},
+        exchangeFactory {
+            ExchangeFactoryRegistry::createFactory(exchanges::ExchangeType::Binance)
+        },
         marketDataModule {
-            config, bookUpdateQueue
+            config, bookUpdateQueue, *exchangeFactory, runtimeContext
         },
         bookBuilderModule {
-            config, bookUpdateQueue, strategyEventQueue, recordingEventQueue
+            config, bookUpdateQueue, strategyEventQueue, recordingEventQueue, *exchangeFactory, runtimeContext
         },
         strategyModule {
             config.strategy, strategyEventQueue, executionQueue, runtimeContext
         },
         executionModule {
-            config, executionQueue, recordingEventQueue, runtimeContext
+            config, executionQueue, recordingEventQueue, *exchangeFactory, runtimeContext
         },
         recordingModule {
             config.recording, recordingEventQueue, runtimeContext
         },
         executionReportModule {
-            config, executionQueue, runtimeContext
+            config, executionQueue, *exchangeFactory, runtimeContext
         }
     {
         // TODO

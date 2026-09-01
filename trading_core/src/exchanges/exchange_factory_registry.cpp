@@ -7,6 +7,7 @@ Copyright   : Your copyright notice
 Description : exchange_factory_registry.cpp
 ============================================================================**/
 
+#include "exchange_type.hpp"
 #include "exchange_factory_registry.hpp"
 
 #include "binance_exchange_factory.hpp"
@@ -14,14 +15,27 @@ Description : exchange_factory_registry.cpp
 
 namespace trading::exchanges
 {
-    std::unique_ptr<IExchangeFactory>
-    ExchangeFactoryRegistry::createFactory(const std::string_view exchangeName)
+    [[nodiscard]]
+    static constexpr std::string_view toString(const ExchangeType exchangeType) noexcept
     {
-        if ("Binance" == exchangeName)
+        switch (exchangeType)
+        {
+            case ExchangeType::Binance:
+                return "Binance";
+        }
+        return "Unknown";
+    }
+
+
+    std::unique_ptr<IExchangeFactory>
+    ExchangeFactoryRegistry::createFactory(const ExchangeType exchangeType)
+    {
+        if (ExchangeType::Binance == exchangeType)
             return std::make_unique<binance::BinanceExchangeFactory>();
 
+
         throw std::invalid_argument {
-            "Unsupported exchange: " + std::string { exchangeName }
+            "Unsupported exchange: " + std::string { toString(exchangeType) }
         };
     }
 }

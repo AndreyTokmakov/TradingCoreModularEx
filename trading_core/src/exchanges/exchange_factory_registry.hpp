@@ -10,17 +10,17 @@ Description : exchange_factory_registry.hpp
 #ifndef TRADINGCOREMODULAREX_EXCHANGE_FACTORY_REGISTRY_HPP
 #define TRADINGCOREMODULAREX_EXCHANGE_FACTORY_REGISTRY_HPP
 
+#include "exchange_type.hpp"
 #include "exchange_factory.hpp"
 
 #include <memory>
-#include <string_view>
 
 namespace trading::exchanges
 {
     struct ExchangeFactoryRegistry final
     {
         [[nodiscard]]
-        static std::unique_ptr<IExchangeFactory> createFactory(std::string_view exchangeName);
+        static std::unique_ptr<IExchangeFactory> createFactory(ExchangeType exchangeType);
     };
 }
 

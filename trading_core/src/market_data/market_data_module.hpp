@@ -14,6 +14,9 @@ Description : Market-data pipeline module.
 #include "interfaces/market_data_source.hpp"
 #include "condition_variable_queue.hpp"
 #include "market_data_message_handler.hpp"
+#include "exchange_factory.hpp"
+#include "runtime_context.hpp"
+
 
 namespace trading::market_data
 {
@@ -21,7 +24,9 @@ namespace trading::market_data
     {
     public:
         MarketDataModule(const config::Config& config,
-                         concurrency::Queue<BookUpdates>& bookUpdateQueue) noexcept;
+                         concurrency::Queue<BookUpdates>& bookUpdateQueue,
+                         const exchanges::IExchangeFactory& exchangeFactory,
+                         const common::RuntimeContext& runtimeContext) noexcept;
 
         MarketDataModule(const MarketDataModule&) = delete;
         MarketDataModule& operator=(const MarketDataModule&) = delete;

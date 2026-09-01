@@ -65,6 +65,8 @@ namespace trading::app
         concurrency::ConditionVariableQueue<recording::RecordingEvent> recordingEventQueue;
         concurrency::ConditionVariableQueue<execution::ExecutionWorkItem> executionQueue;
 
+        std::unique_ptr<exchanges::IExchangeFactory> exchangeFactory;
+
         market_data::MarketDataModule marketDataModule;
         market_data::BookBuilderModule bookBuilderModule;
         strategy::StrategyModule  strategyModule;

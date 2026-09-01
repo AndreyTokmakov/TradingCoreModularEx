@@ -9,15 +9,15 @@ Description : Processes market-data book updates on the BookBuilder thread.
 
 #include "book_builder_module.hpp"
 #include "config_utils.hpp"
-#include "binance_snapshot_provider.hpp"
 
 namespace trading::market_data
 {
-
     BookBuilderModule::BookBuilderModule(const config::Config& config,
                                          concurrency::ConditionVariableQueue<BookUpdates>& bookUpdateQueue,
                                          concurrency::ConditionVariableQueue<MarketEvent>& strategyEventQueue,
-                                         concurrency::ConditionVariableQueue<recording::RecordingEvent>& recordingQueue) noexcept :
+                                         concurrency::ConditionVariableQueue<recording::RecordingEvent>& recordingQueue,
+                                         const exchanges::IExchangeFactory& exchangeFactory,
+                                         const common::RuntimeContext& runtimeContext) noexcept :
         bookUpdateQueue { bookUpdateQueue },
         orderBook {},
         marketEventDispatcher {
@@ -27,7 +27,7 @@ namespace trading::market_data
             config.instrument, orderBook, marketEventDispatcher
         },
         snapshotProvider {
-            std::make_unique<exchanges::binance::BinanceSnapshotProvider>(config::findExchange(config, "binance").marketDataEndpoint)
+            exchangeFactory.createSnapshotProvider(config, runtimeContext)
         }
     {
     }

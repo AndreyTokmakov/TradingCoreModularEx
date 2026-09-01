@@ -34,22 +34,22 @@ void trading_integration_test();
 void trading_inbound_integration_test();
 void e2eTests();
 
-// TODO: - Worker --> Modules
-//  - Rename files
-//  - Add new description for Apps
 
 // TODO: - Improvements
 //  - Заменить std::map<K,V> для PriceLevel-ов ---> DenseMap
 
 // TODO: Metics
 //  - Put Collection on CPU-5
-//  - Grafana
+//  - Grafana / Prometheus ?
 
 // TODO: Execution
 //  - ExecutionReport --> model
 //  - OrderRequest --> model
 //  - Order --> model
 //  - ExecutionWorkItem --> model
+
+// TODO:
+//  - vector of MarketDataModule, BookBuilderModule, ExecutionReportModule ... per Exchange ??
 
 
 namespace

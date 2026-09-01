@@ -9,24 +9,20 @@ Description : execution_report_module.cpp
 
 #include "config_utils.hpp"
 #include "execution_report_module.hpp"
-#include "binance_execution_report_source.hpp"
 
 namespace trading::execution
 {
-    namespace binance = exchanges::binance;
-    using BinanceExecutionReportSource = binance::BinanceExecutionReportSource;
-
     ExecutionReportModule::ExecutionReportModule(const config::Config& config,
                               concurrency::Queue<ExecutionWorkItem>& executionQueue,
-                              const common::RuntimeContext& ) noexcept:
+                              const exchanges::IExchangeFactory& exchangeFactory,
+                              const common::RuntimeContext& runtimeContext) noexcept:
     executionQueue {
         executionQueue
     },
     executionReportSource {
-        std::make_unique<BinanceExecutionReportSource>(findExchange(config, "binance").executionEndpoint, executionQueue)
-    }
-    {
-
+        exchangeFactory.createExecutionReportSource(config, executionQueue, runtimeContext)
+    } {
+        /** **/
     }
 
     void ExecutionReportModule::run() const

@@ -149,6 +149,7 @@ add_executable(${PROJECT_NAME}
         ${EXECUTION}/execution_report_module.hpp
         ${EXECUTION}/execution_report_module.cpp
 
+        ${EXCHANGES}/exchange_type.hpp
         ${EXCHANGES}/exchange_factory.hpp
         ${EXCHANGES}/exchange_factory_registry.hpp
         ${EXCHANGES}/exchange_factory_registry.cpp

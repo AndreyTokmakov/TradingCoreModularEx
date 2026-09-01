@@ -31,28 +31,28 @@ namespace trading::exchanges
         [[nodiscard]]
         virtual std::unique_ptr<execution::IExecutionGateway>
         createExecutionGateway(const config::Config& config,
-                               const common::RuntimeContext& runtimeContext) noexcept = 0;
+                               const common::RuntimeContext& runtimeContext) const noexcept = 0;
 
         [[nodiscard]]
         virtual std::unique_ptr<execution::IExecutionReportSource>
         createExecutionReportSource(const config::Config& config,
                                     concurrency::Queue<execution::ExecutionWorkItem>& executionQueue,
-                                    const common::RuntimeContext& runtimeContext) noexcept = 0;
+                                    const common::RuntimeContext& runtimeContext) const noexcept = 0;
 
         [[nodiscard]]
         virtual std::unique_ptr<market_data::IMarketDataParser>
         createMarketDataParser(const config::Config& config,
-                               const common::RuntimeContext& runtimeContext) noexcept = 0;
+                               const common::RuntimeContext& runtimeContext) const noexcept = 0;
 
         [[nodiscard]]
         virtual std::unique_ptr<market_data::IMarketDataSource>
         createMarketDataSource(const config::Config& config,
-                               const common::RuntimeContext& runtimeContext) noexcept = 0;
+                               const common::RuntimeContext& runtimeContext) const noexcept = 0;
 
         [[nodiscard]]
         virtual std::unique_ptr<market_data::ISnapshotProvider>
         createSnapshotProvider(const config::Config& config,
-                               const common::RuntimeContext& runtimeContext) noexcept = 0;
+                               const common::RuntimeContext& runtimeContext) const noexcept = 0;
     };
 }
 

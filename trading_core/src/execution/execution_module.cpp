@@ -7,18 +7,14 @@ Copyright   : Your copyright notice
 Description : Sends orders to the exchange on the execution thread.
 ============================================================================**/
 
-#include "config_utils.hpp"
 #include "execution_module.hpp"
-#include "binance_execution_gateway.hpp"
-
 
 namespace trading::execution
 {
-    namespace binance = exchanges::binance;
-
     ExecutionModule::ExecutionModule(const config::Config& config,
                                      concurrency::Queue<ExecutionWorkItem>& executionQueue,
                                      concurrency::Queue<recording::RecordingEvent>& recordingQueue,
+                                     const exchanges::IExchangeFactory& exchangeFactory,
                                      const common::RuntimeContext& runtimeContext) noexcept:
         positionManager{},
         riskManager {
@@ -31,7 +27,7 @@ namespace trading::execution
             recordingQueue
         },
         executionGateway {
-            std::make_unique<binance::BinanceExecutionGateway>(findExchange(config, "binance").executionEndpoint)
+            exchangeFactory.createExecutionGateway(config, runtimeContext)
         },
         orderManager {
             *riskManager, positionManager, *executionGateway

@@ -18,6 +18,7 @@ Description : Sends orders to the exchange on the execution thread.
 #include "runtime_context.hpp"
 #include "worker.hpp"
 #include "config.hpp"
+#include "exchange_factory.hpp"
 
 namespace trading::execution
 {
@@ -27,6 +28,7 @@ namespace trading::execution
         ExecutionModule(const config::Config& config,
                         concurrency::Queue<ExecutionWorkItem>& executionQueue,
                         concurrency::Queue<recording::RecordingEvent>& recordingQueue,
+                        const exchanges::IExchangeFactory& exchangeFactory,
                         const common::RuntimeContext& runtimeContext) noexcept;
 
         void run();

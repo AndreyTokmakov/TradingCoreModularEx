@@ -19,6 +19,8 @@ Description : Processes market-data book updates on the BookBuilder thread.
 #include "interfaces/market_data_parser.hpp"
 #include "interfaces/snapshot_provider.hpp"
 #include "worker.hpp"
+#include "exchange_factory.hpp"
+#include "runtime_context.hpp"
 
 namespace trading::market_data
 {
@@ -28,7 +30,9 @@ namespace trading::market_data
         BookBuilderModule(const config::Config& config,
                           concurrency::ConditionVariableQueue<BookUpdates>& bookUpdateQueue,
                           concurrency::ConditionVariableQueue<MarketEvent>& strategyEventQueue,
-                          concurrency::ConditionVariableQueue<recording::RecordingEvent>& recordingQueue) noexcept;
+                          concurrency::ConditionVariableQueue<recording::RecordingEvent>& recordingQueue,
+                          const exchanges::IExchangeFactory& exchangeFactory,
+                          const common::RuntimeContext& runtimeContext) noexcept;
 
         void run();
 
