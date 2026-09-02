@@ -28,7 +28,6 @@ namespace trading::app
         config { config::loadConfig(configPath) },
         runtimeContext {
             .logger = logging::LoggerFactory::createLogger({}, {}),
-            .metricsCollector = metrics::MetricsCollector::getCollector()
         },
         bookUpdateQueue {},
         strategyEventQueue {},

@@ -12,13 +12,16 @@ Description : Registers per-thread metrics and aggregates them in the slow path.
 
 #include "metrics.hpp"
 
-#include <list>
+#include <map>
 #include <mutex>
+#include <thread>
 
 namespace trading::metrics
 {
     class MetricsCollector
     {
+        using CpuId = int32_t;
+
     public:
         MetricsCollector(const MetricsCollector&) = delete;
         MetricsCollector& operator=(const MetricsCollector&) = delete;
@@ -26,8 +29,10 @@ namespace trading::metrics
         MetricsCollector(MetricsCollector&&) = delete;
         MetricsCollector& operator=(MetricsCollector&&) = delete;
 
+
+        // TODO: Add description -> result shall be thread_local
         [[nodiscard]]
-        Metrics& getThreadMetrics() noexcept;
+        Metrics& getThreadLocalMetrics() noexcept;
 
         [[nodiscard]]
         static MetricsCollector& getCollector() noexcept;
@@ -40,7 +45,7 @@ namespace trading::metrics
         MetricsCollector() = default;
 
         mutable std::mutex mutex;
-        std::list<Metrics> allMetrics {};
+        std::map<CpuId, Metrics> allMetrics {};
     };
 }
 

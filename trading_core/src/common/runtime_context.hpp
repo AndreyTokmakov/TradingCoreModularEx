@@ -11,14 +11,12 @@ Description : Shared runtime services context.
 #define TRADINGCOREBASE_RUNTIME_CONTEXT_HPP
 
 #include "logger.hpp"
-#include "metrics_collector.hpp"
 
 namespace trading::common
 {
     struct RuntimeContext
     {
         std::shared_ptr<logging::ILogger> logger;
-        metrics::MetricsCollector& metricsCollector;
     };
 }
 

@@ -34,9 +34,6 @@ namespace trading::execution
         },
         logger {
             runtimeContext.logger
-        },
-        metricsCollector {
-            runtimeContext.metricsCollector
         }
     {
         /** TODO **/
@@ -44,7 +41,6 @@ namespace trading::execution
 
     void ExecutionModule::run()
     {
-        metrics = &metricsCollector.getThreadMetrics();
         ExecutionWorkItem workItem;
         while (executionQueue.waitPop(workItem))
         {
@@ -57,7 +53,7 @@ namespace trading::execution
     void ExecutionModule::process(const OrderRequest& request)
     {
         logger->info("{} [{}]", __PRETTY_FUNCTION__, __LINE__);
-        metrics->increment<metrics::MetricType::OrderRequests>();
+        metrics.increment<metrics::MetricType::OrderRequests>();
         recordingQueue.push(request);
 
         [[maybe_unused]]
@@ -69,7 +65,7 @@ namespace trading::execution
 
     void ExecutionModule::process(const ExecutionReport& report)
     {
-        metrics->increment<metrics::MetricType::ExecutionReport>();
+        metrics.increment<metrics::MetricType::ExecutionReport>();
         recordingQueue.push(report);
 
         [[maybe_unused]]

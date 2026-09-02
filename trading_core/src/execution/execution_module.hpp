@@ -19,6 +19,7 @@ Description : Sends orders to the exchange on the execution thread.
 #include "worker.hpp"
 #include "config.hpp"
 #include "exchange_factory.hpp"
+#include "metrics_collector.hpp"
 
 namespace trading::execution
 {
@@ -50,8 +51,7 @@ namespace trading::execution
         OrderManager orderManager;
 
         std::shared_ptr<logging::ILogger> logger;
-        metrics::MetricsCollector& metricsCollector; // TODO: Refactor: Не нужно навенрное MetricsCollector или Metrics
-        metrics::Metrics* metrics { nullptr };
+        static inline thread_local metrics::Metrics& metrics  = metrics::MetricsCollector::getCollector().getThreadLocalMetrics();
     };
 }
 

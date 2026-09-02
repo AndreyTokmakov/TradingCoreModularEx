@@ -13,7 +13,7 @@ Description : Test market data source.
 #include "market_data_message_handler.hpp"
 #include "interfaces/market_data_source.hpp"
 
-#include "recorder.hpp"
+#include "metrics_collector.hpp"
 #include "runtime_context.hpp"
 
 namespace trading::testing::stubs
@@ -35,8 +35,7 @@ namespace trading::testing::stubs
         bool running { false };
 
         std::shared_ptr<logging::ILogger> logger;
-        metrics::MetricsCollector& metricsCollector; // TODO: Refactor: Не нужно навенрное MetricsCollector или Metrics
-        metrics::Metrics* metrics { nullptr };
+        static inline thread_local metrics::Metrics& metrics  = metrics::MetricsCollector::getCollector().getThreadLocalMetrics();
     };
 }
 

@@ -16,17 +16,15 @@ namespace trading::testing::stubs
     TestMarketDataSource::TestMarketDataSource(std::string endpoint,
                                                const common::RuntimeContext& runtimeContext) noexcept :
         endpoint { std::move(endpoint) },
-        logger { runtimeContext.logger },
-        metricsCollector { runtimeContext.metricsCollector }
+        logger { runtimeContext.logger }
     {
     }
 
     void TestMarketDataSource::start()
     {
-        metrics = &metricsCollector.getThreadMetrics();
 
         logger->info("{} [{}] Connecting to '{}' ...",__PRETTY_FUNCTION__, __LINE__, endpoint);
-        metrics->increment<metrics::MetricType::MarketDataReceived>();
+        metrics.increment<metrics::MetricType::MarketDataReceived>();
 
         running = true;
 

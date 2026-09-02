@@ -52,16 +52,13 @@ void e2eTests();
 //  - vector of MarketDataModule, BookBuilderModule, ExecutionReportModule ... per Exchange ??
 
 
-
 // TODO:
-//  - Удалить struct IBookUpdateHandler
-//  - Удалить struct MarketEvenHandlper.cpp из market_data
 //  - удалить public IMarketEventHandler или заменить на CRTP ?
-
-
 
 namespace
 {
+
+
     [[maybe_unused]]
     void runApp(const std::vector<std::string_view>& parameters)
     {
@@ -114,7 +111,7 @@ int main([[maybe_unused]] const int argc,
 {
     const std::vector<std::string_view> parameters(argv + 1, argv + argc);
 
-    // runApp(parameters);
+    runApp(parameters);
     // runTests(parameters);
     // runIntegrationTests(parameters);
     // e2eTests();

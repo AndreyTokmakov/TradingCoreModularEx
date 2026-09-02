@@ -9,13 +9,16 @@ Description : Registers per-thread metrics and aggregates them in the slow path.
 
 #include "metrics_collector.hpp"
 
+#include <ranges>
+
+
 namespace trading::metrics
 {
-    Metrics& MetricsCollector::getThreadMetrics() noexcept
+    Metrics& MetricsCollector::getThreadLocalMetrics() noexcept
     {
-        std::lock_guard<std::mutex> lock{mutex};
-        thread_local Metrics& metrics = allMetrics.emplace_back();
-        return metrics;
+        std::lock_guard lock { mutex };
+        const CpuId cpuId = ::sched_getcpu();
+        return allMetrics.try_emplace(cpuId).first->second;
     }
 
     MetricsCollector& MetricsCollector::getCollector() noexcept
@@ -29,7 +32,7 @@ namespace trading::metrics
         Metrics stats;
         {
             std::lock_guard<std::mutex> lock{mutex};
-            for (const auto& metric : allMetrics)
+            for (const Metrics &metric: allMetrics | std::views::values)
             {
                 stats += metric;
             }
