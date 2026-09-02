@@ -27,9 +27,6 @@ Description : market_data_parser.hpp
         BookUpdates
                |
                v
-        IBookUpdateHandler
-               |
-               v
         BookBuilder
                |
                v
@@ -51,7 +48,7 @@ Description : market_data_parser.hpp
     The parser must clear the supplied BookUpdates buffer before filling it.
 
     IMarketDataParser does not:
-        - know about IBookUpdateHandler;
+        - know about BookBuilder;
         - forward BookUpdate instances;
         - modify OrderBook;
         - generate MarketEvent;

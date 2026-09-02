@@ -26,9 +26,6 @@ Description : market_data_message_handler.cpp
         BookUpdates
                |
                v
-        IBookUpdateHandler
-               |
-               v
         BookBuilder
 
     The BookUpdates buffer is reused between messages to avoid allocations

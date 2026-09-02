@@ -32,9 +32,6 @@ Description : Binance market data source.
            |
            | BookUpdate
            v
-        IBookUpdateHandler
-           |
-           v
         BookBuilder
            |
            v

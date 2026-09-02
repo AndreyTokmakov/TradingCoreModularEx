@@ -30,7 +30,7 @@ Description : parse_result.hpp
       BookUpdates
           |
           v
-    IBookUpdateHandler
+      BookBuilder
 
     ParseResult is intentionally a simple enum.
 

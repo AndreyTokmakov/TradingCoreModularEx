@@ -32,9 +32,6 @@ Description : market_data_message_handler.hpp
                |
                | onBookUpdate()
                v
-        IBookUpdateHandler
-               |
-               v
         BookBuilder
                |
                v
@@ -46,7 +43,7 @@ Description : market_data_message_handler.hpp
         - provide a reusable BookUpdates buffer to the parser;
         - invoke IMarketDataParser;
         - handle the ParseResult;
-        - forward parsed BookUpdate instances to IBookUpdateHandler.
+        - forward parsed BookUpdate  to BookBuilder.
 
     The BookUpdates buffer is owned by MarketDataMessageHandler and reused
     between messages.
@@ -74,7 +71,6 @@ Description : market_data_message_handler.hpp
 
 #include <string_view>
 
-#include "interfaces/book_update_handler.hpp"
 #include "interfaces/market_data_parser.hpp"
 #include "queue.hpp"
 

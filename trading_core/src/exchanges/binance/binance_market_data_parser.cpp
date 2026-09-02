@@ -26,7 +26,7 @@ Description : binance_market_data_parser.cpp
         MarketDataMessageHandler
                |
                v
-        IBookUpdateHandler
+          BookBuilder
 
     Binance-specific JSON parsing remains entirely inside this class.
 */

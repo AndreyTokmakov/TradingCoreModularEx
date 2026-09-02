@@ -112,14 +112,13 @@ Description : Order book builder.
 #ifndef FINANCETECHNOLOGYPROJECTS_BOOK_BUILDER_HPP
 #define FINANCETECHNOLOGYPROJECTS_BOOK_BUILDER_HPP
 
-#include "interfaces/book_update_handler.hpp"
 #include "interfaces/market_event_handler.hpp"
 #include "model/snapshot.hpp"
 #include "order_book.hpp"
 
 namespace trading::market_data
 {
-    class BookBuilder final : public IBookUpdateHandler
+    class BookBuilder final
     {
     public:
         BookBuilder(InstrumentId instrument,
@@ -129,7 +128,7 @@ namespace trading::market_data
         [[nodiscard]]
         bool applySnapshot(const Snapshot& snapshot) const;
 
-        void onBookUpdate(const BookUpdate& update) override;
+        void onBookUpdate(const BookUpdate& update);
 
     private:
         void publishMarketEvent(SequenceNumber sequence,

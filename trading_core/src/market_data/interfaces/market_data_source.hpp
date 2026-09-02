@@ -33,9 +33,6 @@ Description : market_data_source.hpp
            |
            | BookUpdate
            v
-        IBookUpdateHandler
-           |
-           v
         BookBuilder
 
     Responsibilities:

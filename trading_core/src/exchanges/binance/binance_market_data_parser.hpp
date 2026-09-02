@@ -27,9 +27,6 @@ Description : binance_market_data_parser.hpp
         BookUpdates
           |
           v
-    IBookUpdateHandler
-          |
-          v
       BookBuilder
                |
                v
@@ -42,7 +39,7 @@ Description : binance_market_data_parser.hpp
         - convert Binance data into BookUpdate objects;
         - return the parsing result.
 
-    The parser does not know about IBookUpdateHandler or BookBuilder.
+    The parser does not know about BookBuilder.
 
     The supplied BookUpdates buffer is reused between calls. The parser must
     clear it before adding new updates.

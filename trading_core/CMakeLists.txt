@@ -115,7 +115,6 @@ add_executable(${PROJECT_NAME}
         ${MARKET_DATA}/interfaces/market_event_handler.hpp
         ${MARKET_DATA}/interfaces/market_data_parser.hpp
         ${MARKET_DATA}/interfaces/market_data_source.hpp
-        ${MARKET_DATA}/interfaces/book_update_handler.hpp
         ${MARKET_DATA}/interfaces/snapshot_provider.hpp
 
         ${MARKET_DATA}/market_data_message_handler.cpp

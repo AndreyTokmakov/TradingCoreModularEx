@@ -52,6 +52,14 @@ void e2eTests();
 //  - vector of MarketDataModule, BookBuilderModule, ExecutionReportModule ... per Exchange ??
 
 
+
+// TODO:
+//  - Удалить struct IBookUpdateHandler
+//  - Удалить struct MarketEvenHandlper.cpp из market_data
+//  - удалить public IMarketEventHandler или заменить на CRTP ?
+
+
+
 namespace
 {
     [[maybe_unused]]
