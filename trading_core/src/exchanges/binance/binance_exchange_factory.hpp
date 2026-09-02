@@ -12,8 +12,6 @@ Description : binance_exchange_factory.hpp
 
 #include "exchange_factory.hpp"
 
-#include "binance_execution_gateway.hpp"
-
 namespace trading::exchanges::binance
 {
     struct BinanceExchangeFactory final : IExchangeFactory
@@ -21,29 +19,24 @@ namespace trading::exchanges::binance
 
         [[nodiscard]]
         std::unique_ptr<execution::IExecutionGateway>
-        createExecutionGateway(const config::Config& config,
-                               const common::RuntimeContext& runtimeContext) const noexcept override;
+        createExecutionGateway(const config::Config& config) const noexcept override;
 
         [[nodiscard]]
         std::unique_ptr<execution::IExecutionReportSource>
         createExecutionReportSource(const config::Config& config,
-                                    concurrency::Queue<execution::ExecutionWorkItem>& executionQueue,
-                                    const common::RuntimeContext& runtimeContext) const noexcept override;
+                                    concurrency::Queue<execution::ExecutionWorkItem>& executionQueue) const noexcept override;
 
         [[nodiscard]]
         std::unique_ptr<market_data::IMarketDataParser>
-        createMarketDataParser(const config::Config& config,
-                               const common::RuntimeContext& runtimeContext) const noexcept override;
+        createMarketDataParser(const config::Config& config) const noexcept override;
 
         [[nodiscard]]
         std::unique_ptr<market_data::IMarketDataSource>
-        createMarketDataSource(const config::Config& config,
-                               const common::RuntimeContext& runtimeContext) const noexcept override;
+        createMarketDataSource(const config::Config& config) const noexcept override;
 
         [[nodiscard]]
         std::unique_ptr<market_data::ISnapshotProvider>
-        createSnapshotProvider(const config::Config& config,
-                               const common::RuntimeContext& runtimeContext) const noexcept override;
+        createSnapshotProvider(const config::Config& config) const noexcept override;
     };
 }
 #endif //TRADINGCOREMODULAREX_BINANCE_EXCHANGE_FACTORY_HPP

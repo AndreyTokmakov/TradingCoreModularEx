@@ -21,8 +21,7 @@ namespace trading::exchanges::binance
 
     [[nodiscard]]
     std::unique_ptr<execution::IExecutionGateway>
-    BinanceExchangeFactory::createExecutionGateway(const config::Config& config,
-                                                   const common::RuntimeContext&) const noexcept
+    BinanceExchangeFactory::createExecutionGateway(const config::Config& config) const noexcept
     {
         return std::make_unique<BinanceExecutionGateway>(
             findExchange(config, ExchangeName).executionEndpoint
@@ -32,8 +31,7 @@ namespace trading::exchanges::binance
     [[nodiscard]]
     std::unique_ptr<execution::IExecutionReportSource>
     BinanceExchangeFactory::createExecutionReportSource(const config::Config& config,
-                                                        concurrency::Queue<execution::ExecutionWorkItem>& executionQueue,
-                                                        const common::RuntimeContext&) const noexcept
+                                                        concurrency::Queue<execution::ExecutionWorkItem>& executionQueue) const noexcept
     {
         return std::make_unique<BinanceExecutionReportSource>(
             findExchange(config, ExchangeName).executionEndpoint,
@@ -43,16 +41,14 @@ namespace trading::exchanges::binance
 
     [[nodiscard]]
     std::unique_ptr<market_data::IMarketDataParser>
-    BinanceExchangeFactory::createMarketDataParser(const config::Config&,
-                                                   const common::RuntimeContext&) const noexcept
+    BinanceExchangeFactory::createMarketDataParser(const config::Config&) const noexcept
     {
         return std::make_unique<BinanceMarketDataParser>();
     }
 
     [[nodiscard]]
     std::unique_ptr<market_data::IMarketDataSource>
-    BinanceExchangeFactory::createMarketDataSource(const config::Config& config,
-                                                   const common::RuntimeContext&) const noexcept
+    BinanceExchangeFactory::createMarketDataSource(const config::Config& config) const noexcept
     {
         return std::make_unique<BinanceMarketDataSource>(
             config::findExchange(config, ExchangeName).marketDataEndpoint
@@ -61,8 +57,7 @@ namespace trading::exchanges::binance
 
     [[nodiscard]]
     std::unique_ptr<market_data::ISnapshotProvider>
-    BinanceExchangeFactory::createSnapshotProvider(const config::Config& config,
-                                                   const common::RuntimeContext&) const noexcept
+    BinanceExchangeFactory::createSnapshotProvider(const config::Config& config) const noexcept
     {
         return std::make_unique<BinanceSnapshotProvider>(
             config::findExchange(config, ExchangeName).marketDataEndpoint

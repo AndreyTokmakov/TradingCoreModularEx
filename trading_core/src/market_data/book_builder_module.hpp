@@ -20,7 +20,6 @@ Description : Processes market-data book updates on the BookBuilder thread.
 #include "interfaces/snapshot_provider.hpp"
 #include "worker.hpp"
 #include "exchange_factory.hpp"
-#include "runtime_context.hpp"
 
 namespace trading::market_data
 {
@@ -31,8 +30,7 @@ namespace trading::market_data
                           concurrency::ConditionVariableQueue<BookUpdates>& bookUpdateQueue,
                           concurrency::ConditionVariableQueue<MarketEvent>& strategyEventQueue,
                           concurrency::ConditionVariableQueue<recording::RecordingEvent>& recordingQueue,
-                          const exchanges::IExchangeFactory& exchangeFactory,
-                          const common::RuntimeContext& runtimeContext) noexcept;
+                          const exchanges::IExchangeFactory& exchangeFactory) noexcept;
 
         void run();
 

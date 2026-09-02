@@ -13,13 +13,12 @@ namespace trading::market_data
 {
     MarketDataModule::MarketDataModule(const config::Config& config,
                                        concurrency::Queue<BookUpdates>& bookUpdateQueue,
-                                       const exchanges::IExchangeFactory& exchangeFactory,
-                                       const common::RuntimeContext& runtimeContext) noexcept:
+                                       const exchanges::IExchangeFactory& exchangeFactory) noexcept:
         marketDataParser {
-            exchangeFactory.createMarketDataParser(config, runtimeContext)
+            exchangeFactory.createMarketDataParser(config)
         },
         marketDataSource {
-            exchangeFactory.createMarketDataSource(config, runtimeContext)
+            exchangeFactory.createMarketDataSource(config)
         },
         messageHandler { *marketDataParser, bookUpdateQueue }
     {

@@ -13,7 +13,6 @@ Description : execution_report_module.hpp
 #include "model/execution_work_item.hpp"
 #include "interfaces/execution_report_source.hpp"
 #include "queue.hpp"
-#include "runtime_context.hpp"
 #include "worker.hpp"
 #include "config.hpp"
 #include "exchange_factory.hpp"
@@ -25,8 +24,7 @@ namespace trading::execution
     public:
         ExecutionReportModule(const config::Config& config,
                               concurrency::Queue<ExecutionWorkItem>& executionQueue,
-                              const exchanges::IExchangeFactory& exchangeFactory,
-                              const common::RuntimeContext& runtimeContext) noexcept;
+                              const exchanges::IExchangeFactory& exchangeFactory) noexcept;
         void run() const;
 
     private:

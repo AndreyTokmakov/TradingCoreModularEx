@@ -26,9 +26,6 @@ namespace trading::app
 
     Application::Application(const std::filesystem::path& configPath):
         config { config::loadConfig(configPath) },
-        runtimeContext {
-            .logger = logging::LoggerFactory::createLogger({}, {}),
-        },
         bookUpdateQueue {},
         strategyEventQueue {},
         recordingEventQueue {},
@@ -37,22 +34,22 @@ namespace trading::app
             ExchangeFactoryRegistry::createFactory(exchanges::ExchangeType::Binance)
         },
         marketDataModule {
-            config, bookUpdateQueue, *exchangeFactory, runtimeContext
+            config, bookUpdateQueue, *exchangeFactory
         },
         bookBuilderModule {
-            config, bookUpdateQueue, strategyEventQueue, recordingEventQueue, *exchangeFactory, runtimeContext
+            config, bookUpdateQueue, strategyEventQueue, recordingEventQueue, *exchangeFactory
         },
         strategyModule {
-            config.strategy, strategyEventQueue, executionQueue, runtimeContext
+            config.strategy, strategyEventQueue, executionQueue
         },
         executionModule {
-            config, executionQueue, recordingEventQueue, *exchangeFactory, runtimeContext
+            config, executionQueue, recordingEventQueue, *exchangeFactory
         },
         recordingModule {
-            config.recording, recordingEventQueue, runtimeContext
+            config.recording, recordingEventQueue
         },
         executionReportModule {
-            config, executionQueue, *exchangeFactory, runtimeContext
+            config, executionQueue, *exchangeFactory
         }
     {
         // TODO

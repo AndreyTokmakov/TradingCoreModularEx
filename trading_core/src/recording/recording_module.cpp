@@ -13,8 +13,7 @@ Description : Records market events on the recording thread.
 namespace trading::recording
 {
     RecordingModule::RecordingModule(const config::RecordingConfig&,
-                                     concurrency::Queue<RecordingEvent>& recordingQueue,
-                                     const common::RuntimeContext&) noexcept:
+                                     concurrency::Queue<RecordingEvent>& recordingQueue) noexcept:
         recorder { std::make_unique<TradeRecorder>() },
         recordingQueue { recordingQueue }
     {

@@ -14,15 +14,13 @@ Description : Test market data source.
 #include "interfaces/market_data_source.hpp"
 
 #include "metrics_collector.hpp"
-#include "runtime_context.hpp"
 
 namespace trading::testing::stubs
 {
     class TestMarketDataSource final : public market_data::IMarketDataSource
     {
     public:
-        explicit TestMarketDataSource(std::string endpoint,
-                                      const common::RuntimeContext& runtimeContext) noexcept;
+        explicit TestMarketDataSource(std::string endpoint) noexcept;
 
         void start() override;
         void stop() override;
@@ -34,7 +32,7 @@ namespace trading::testing::stubs
         market_data::IMarketDataMessageHandler* messageHandler { nullptr };
         bool running { false };
 
-        std::shared_ptr<logging::ILogger> logger;
+        // std::shared_ptr<logging::ILogger> logger;
         static inline thread_local metrics::Metrics& metrics  = metrics::MetricsCollector::getCollector().getThreadLocalMetrics();
     };
 }

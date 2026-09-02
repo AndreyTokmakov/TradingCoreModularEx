@@ -13,22 +13,19 @@ Description : Test market data source implementation.
 
 namespace trading::testing::stubs
 {
-    TestMarketDataSource::TestMarketDataSource(std::string endpoint,
-                                               const common::RuntimeContext& runtimeContext) noexcept :
-        endpoint { std::move(endpoint) },
-        logger { runtimeContext.logger }
+    TestMarketDataSource::TestMarketDataSource(std::string endpoint) noexcept :
+        endpoint { std::move(endpoint) }
     {
     }
 
     void TestMarketDataSource::start()
     {
-
-        logger->info("{} [{}] Connecting to '{}' ...",__PRETTY_FUNCTION__, __LINE__, endpoint);
+        // logger->info("{} [{}] Connecting to '{}' ...",__PRETTY_FUNCTION__, __LINE__, endpoint);
         metrics.increment<metrics::MetricType::MarketDataReceived>();
 
         running = true;
 
-        logger->info("{} [{}] Got MargetData", __PRETTY_FUNCTION__, __LINE__);
+        // logger->info("{} [{}] Got MargetData", __PRETTY_FUNCTION__, __LINE__);
         messageHandler->onMessage("1,1000001,1640995200000,Buy,98765,100,1000");
 
         // TODO: Connect to endpoint.

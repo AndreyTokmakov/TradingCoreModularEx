@@ -14,8 +14,7 @@ namespace trading::execution
     ExecutionModule::ExecutionModule(const config::Config& config,
                                      concurrency::Queue<ExecutionWorkItem>& executionQueue,
                                      concurrency::Queue<recording::RecordingEvent>& recordingQueue,
-                                     const exchanges::IExchangeFactory& exchangeFactory,
-                                     const common::RuntimeContext& runtimeContext) noexcept:
+                                     const exchanges::IExchangeFactory& exchangeFactory) noexcept:
         positionManager{},
         riskManager {
             std::make_unique<risk::RiskManager>(config.riskLimits)
@@ -27,13 +26,10 @@ namespace trading::execution
             recordingQueue
         },
         executionGateway {
-            exchangeFactory.createExecutionGateway(config, runtimeContext)
+            exchangeFactory.createExecutionGateway(config)
         },
         orderManager {
             *riskManager, positionManager, *executionGateway
-        },
-        logger {
-            runtimeContext.logger
         }
     {
         /** TODO **/
@@ -52,14 +48,14 @@ namespace trading::execution
 
     void ExecutionModule::process(const OrderRequest& request)
     {
-        logger->info("{} [{}]", __PRETTY_FUNCTION__, __LINE__);
+        // logger->info("{} [{}]", __PRETTY_FUNCTION__, __LINE__);
         metrics.increment<metrics::MetricType::OrderRequests>();
         recordingQueue.push(request);
 
         [[maybe_unused]]
         const OrderCreationResult result = orderManager.createOrder(request);
 
-        logger->info("{} [{}]", __PRETTY_FUNCTION__, __LINE__);
+        // logger->info("{} [{}]", __PRETTY_FUNCTION__, __LINE__);
         // TODO: Handle order creation errors: logging / metrics / risk event.
     }
 

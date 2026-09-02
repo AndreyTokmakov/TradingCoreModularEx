@@ -15,7 +15,6 @@ Description : Sends orders to the exchange on the execution thread.
 #include "order_manager.hpp"
 #include "queue.hpp"
 #include "recording_event.hpp"
-#include "runtime_context.hpp"
 #include "worker.hpp"
 #include "config.hpp"
 #include "exchange_factory.hpp"
@@ -29,8 +28,7 @@ namespace trading::execution
         ExecutionModule(const config::Config& config,
                         concurrency::Queue<ExecutionWorkItem>& executionQueue,
                         concurrency::Queue<recording::RecordingEvent>& recordingQueue,
-                        const exchanges::IExchangeFactory& exchangeFactory,
-                        const common::RuntimeContext& runtimeContext) noexcept;
+                        const exchanges::IExchangeFactory& exchangeFactory) noexcept;
 
         void run();
 
@@ -50,7 +48,7 @@ namespace trading::execution
         std::unique_ptr<IExecutionGateway> executionGateway;
         OrderManager orderManager;
 
-        std::shared_ptr<logging::ILogger> logger;
+        // std::shared_ptr<logging::ILogger> logger;
         static inline thread_local metrics::Metrics& metrics  = metrics::MetricsCollector::getCollector().getThreadLocalMetrics();
     };
 }

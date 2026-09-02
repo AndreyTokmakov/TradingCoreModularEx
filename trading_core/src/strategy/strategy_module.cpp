@@ -13,8 +13,7 @@ namespace trading::strategy
 {
     StrategyModule::StrategyModule(const config::StrategyConfig& strategyConfig,
                                    concurrency::Queue<market_data::MarketEvent>& strategyEventQueue,
-                                   concurrency::Queue<execution::ExecutionWorkItem>& executionQueue,
-                                   const common::RuntimeContext&):
+                                   concurrency::Queue<execution::ExecutionWorkItem>& executionQueue):
         strategy {
             strategyConfig.thresholdNumerator,
             strategyConfig.thresholdDenominator

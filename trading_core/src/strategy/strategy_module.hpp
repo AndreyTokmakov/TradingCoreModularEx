@@ -17,7 +17,6 @@ Description : Executes strategy processing on the strategy thread.
 #include "worker.hpp"
 #include "strategy.hpp"
 #include "strategy_executor.hpp"
-#include "runtime_context.hpp"
 
 
 namespace trading::strategy
@@ -27,8 +26,7 @@ namespace trading::strategy
     public:
         StrategyModule(const config::StrategyConfig& strategyConfig,
                        concurrency::Queue<market_data::MarketEvent>& strategyEventQueue,
-                       concurrency::Queue<execution::ExecutionWorkItem>& executionQueue,
-                       const common::RuntimeContext& runtimeContext);
+                       concurrency::Queue<execution::ExecutionWorkItem>& executionQueue);
 
         void run() const;
 

@@ -16,8 +16,7 @@ namespace trading::market_data
                                          concurrency::ConditionVariableQueue<BookUpdates>& bookUpdateQueue,
                                          concurrency::ConditionVariableQueue<MarketEvent>& strategyEventQueue,
                                          concurrency::ConditionVariableQueue<recording::RecordingEvent>& recordingQueue,
-                                         const exchanges::IExchangeFactory& exchangeFactory,
-                                         const common::RuntimeContext& runtimeContext) noexcept :
+                                         const exchanges::IExchangeFactory& exchangeFactory) noexcept :
         bookUpdateQueue { bookUpdateQueue },
         orderBook {},
         marketEventDispatcher {
@@ -27,7 +26,7 @@ namespace trading::market_data
             config.instrument, orderBook, marketEventDispatcher
         },
         snapshotProvider {
-            exchangeFactory.createSnapshotProvider(config, runtimeContext)
+            exchangeFactory.createSnapshotProvider(config)
         }
     {
     }

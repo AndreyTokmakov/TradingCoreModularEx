@@ -15,15 +15,13 @@ Description : Records market events on the recording thread.
 #include "config.hpp"
 #include "recording_event.hpp"
 #include "worker.hpp"
-#include "runtime_context.hpp"
 
 namespace trading::recording
 {
     class RecordingModule final: public common::Worker<RecordingModule> {
     public:
         RecordingModule(const config::RecordingConfig& recorderConfig,
-                        concurrency::Queue<RecordingEvent>& recordingQueue,
-                        const common::RuntimeContext& runtimeContext) noexcept;
+                        concurrency::Queue<RecordingEvent>& recordingQueue) noexcept;
 
         void run() const;
 

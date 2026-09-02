@@ -58,7 +58,6 @@ namespace trading::app
     private:
 
         config::Config config;
-        common::RuntimeContext runtimeContext;
 
         concurrency::ConditionVariableQueue<market_data::BookUpdates> bookUpdateQueue;
         concurrency::ConditionVariableQueue<market_data::MarketEvent> strategyEventQueue;
