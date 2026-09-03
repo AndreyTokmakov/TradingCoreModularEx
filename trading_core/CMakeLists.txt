@@ -111,7 +111,6 @@ add_executable(${PROJECT_NAME}
         ${METRICS}/metrics_collector.cpp
         # ${METRICS}/hugh_resolution_timer.hpp
 
-        ${MARKET_DATA}/interfaces/market_event_handler.hpp
         ${MARKET_DATA}/interfaces/market_data_parser.hpp
         ${MARKET_DATA}/interfaces/market_data_source.hpp
         ${MARKET_DATA}/interfaces/snapshot_provider.hpp

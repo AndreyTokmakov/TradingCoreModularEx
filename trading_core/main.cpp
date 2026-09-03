@@ -42,23 +42,40 @@ void e2eTests();
 //  - Put Collection on CPU-5
 //  - Grafana / Prometheus ?
 
-// TODO: Execution
-//  - ExecutionReport --> model
-//  - OrderRequest --> model
-//  - Order --> model
-//  - ExecutionWorkItem --> model
-
 // TODO:
 //  - vector of MarketDataModule, BookBuilderModule, ExecutionReportModule ... per Exchange ??
 
-
-// TODO:
-//  - удалить public IMarketEventHandler или заменить на CRTP ?
+// TODO: Metrics
+//  • Market Data:
+//       - messages received
+//       - messages parsed
+//       - parse errors
+//       - book updates
+//       - book update errors
+//       - market events
+//  • Strategy:
+//       - events evaluated
+//       - Buy signals
+//       - Sell signals
+//       - orders generated
+//  • Risk:
+//       - risk checks
+//       - risk rejections
+//  • Execution:
+//       - order requests
+//       - orders created
+//       - orders rejected
+//       - execution reports
+//       - trades
+//       - cancelled
+//       - rejected
+//  • Order Book:
+//       - snapshots applied
+//       - updates applied
+//       - sequence gaps
 
 namespace
 {
-
-
     [[maybe_unused]]
     void runApp(const std::vector<std::string_view>& parameters)
     {

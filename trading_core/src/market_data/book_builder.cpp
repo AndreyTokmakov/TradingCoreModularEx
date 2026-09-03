@@ -44,10 +44,10 @@ namespace trading::market_data
 {
     BookBuilder::BookBuilder(const InstrumentId instrument,
                              OrderBook& orderBook,
-                             IMarketEventHandler& eventHandler) noexcept :
+                             MarketEventDispatcher& eventDispatcher) noexcept :
         instrument { instrument },
         orderBook { orderBook },
-        eventHandler { eventHandler }
+        eventDispatcher { eventDispatcher }
     {
     }
 
@@ -78,7 +78,7 @@ namespace trading::market_data
         const auto bestBid = orderBook.bestBid();
         const auto bestAsk = orderBook.bestAsk();
 
-        eventHandler.onMarketEvent(MarketEvent {
+        eventDispatcher.onMarketEvent(MarketEvent {
             .instrument = instrument,
             .sequence = sequence,
             .exchangeTimestamp = exchangeTimestamp,

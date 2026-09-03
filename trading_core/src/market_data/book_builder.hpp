@@ -112,7 +112,7 @@ Description : Order book builder.
 #ifndef FINANCETECHNOLOGYPROJECTS_BOOK_BUILDER_HPP
 #define FINANCETECHNOLOGYPROJECTS_BOOK_BUILDER_HPP
 
-#include "interfaces/market_event_handler.hpp"
+#include "market_event_dispatcher.hpp"
 #include "model/snapshot.hpp"
 #include "order_book.hpp"
 
@@ -123,7 +123,7 @@ namespace trading::market_data
     public:
         BookBuilder(InstrumentId instrument,
                     OrderBook& orderBook,
-                    IMarketEventHandler& eventHandler) noexcept;
+                    MarketEventDispatcher& eventDispatcher) noexcept;
 
         [[nodiscard]]
         bool applySnapshot(const Snapshot& snapshot) const;
@@ -136,7 +136,7 @@ namespace trading::market_data
 
         InstrumentId instrument;
         OrderBook& orderBook;
-        IMarketEventHandler& eventHandler;
+        MarketEventDispatcher& eventDispatcher;
     };
 }
 

@@ -7,7 +7,6 @@ Copyright   : Your copyright notice
 Description : Market event handler tests.
 ============================================================================**/
 
-#include "market_event_handler.hpp"
 #include "strategy.hpp"
 #include "strategy_executor.hpp"
 #include "order_manager.hpp"
