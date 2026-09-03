@@ -61,7 +61,7 @@ namespace trading::execution
 
     void ExecutionModule::process(const ExecutionReport& report)
     {
-        metrics.increment<metrics::MetricType::ExecutionReport>();
+        metrics.increment<metrics::MetricType::ExecutionReports>();
         recordingQueue.push(report);
 
         [[maybe_unused]]
