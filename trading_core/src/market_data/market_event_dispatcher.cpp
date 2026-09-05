@@ -18,7 +18,7 @@ namespace trading::market_data
     {
     }
 
-    void MarketEventDispatcher::onMarketEvent(const MarketEvent& event)
+    void MarketEventDispatcher::onMarketEvent(const MarketEvent& event) const
     {
         strategyQueue.push(event);
         recordingEventQueue.push(event);

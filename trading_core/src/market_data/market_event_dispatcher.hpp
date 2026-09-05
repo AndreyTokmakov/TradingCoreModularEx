@@ -22,7 +22,7 @@ namespace trading::market_data
         MarketEventDispatcher(concurrency::Queue<MarketEvent>& strategyQueue,
                               concurrency::Queue<recording::RecordingEvent>& recordingEventQueue) noexcept;
 
-        void onMarketEvent(const MarketEvent& event);
+        void onMarketEvent(const MarketEvent& event) const;
 
     private:
         concurrency::Queue<MarketEvent>& strategyQueue;
