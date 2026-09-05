@@ -21,7 +21,13 @@ namespace trading::concurrency
         virtual void push(T value) = 0;
 
         [[nodiscard]]
+        virtual bool tryPop(T& value) = 0;
+
+        [[nodiscard]]
         virtual bool waitPop(T& value) = 0;
+
+        [[nodiscard]]
+        virtual bool empty()const noexcept = 0;
 
         virtual void close() noexcept = 0;
 

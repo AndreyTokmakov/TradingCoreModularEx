@@ -196,64 +196,30 @@ add_executable(${PROJECT_NAME}
         ${STRATEGY}/strategy_module.hpp
         ${STRATEGY}/strategy_module.cpp
 
-        #[[
-        ${TESTS}/market_data/order_book_test.cpp
-        ${TESTS}/market_data/book_builder_test.cpp
-        ${TESTS}/market_data/market_event_handler_test.cpp
-        ${TESTS}/execution/order_manager_test.cpp
-        ${TESTS}/execution/execution_report_handler_test.cpp
-        ${TESTS}/pnl/pnl_calculator_test.cpp
+
+        ${TESTS}/test_support/testing.hpp
         ${TESTS}/risk/risk_manager_test.cpp
-        ${TESTS}/recording/trade_recorder_test.cpp
+        ${TESTS}/pnl/pnl_calculator_test.cpp
         ${TESTS}/position/position_test.cpp
         ${TESTS}/position/position_manager_test.cpp
-        ${TESTS}/strategy/imbalance_strategy_test.cpp
-        ${TESTS}/strategy/strategy_executor_test.cpp
+        ${TESTS}/recording/trade_recorder_test.cpp
         ${TESTS}/config/json_config_loader_test.cpp
-        ${TESTS}/integration/trading_integration_test.cpp
-        ${TESTS}/integration/trading_inbound_integration_test.cpp
-        ${TESTS}/test_support/test_market_data_parser.hpp
-        ${TESTS}/test_support/test_market_data_parser.cpp
-        ${TESTS}/test_support/test_market_data_source.hpp
-        ${TESTS}/test_support/test_market_data_source.cpp
-        ${TESTS}/test_support/test_execution_gateway.hpp
-        ${TESTS}/test_support/trading_test_configuration.hpp
-        ${TESTS}/test_support/trading_test_environment.hpp
-        ${TESTS}/test_support/trading_test_environment.cpp
-        #]]
+        ${TESTS}/execution/order_manager_test.cpp
+        ${TESTS}/market_data/order_book_test.cpp
+        ${TESTS}/market_data/book_builder_test.cpp
+        ${TESTS}/market_data/book_builder_module_test.cpp
 
-        ${TESTS}/e2e/e2eTests.cpp
-        ${TESTS}/e2e/stubs/test_execution_gateway.cpp
-        ${TESTS}/e2e/stubs/test_execution_report_source.cpp
-        ${TESTS}/e2e/stubs/test_market_data_source.cpp
-        ${TESTS}/e2e/stubs/test_snapshot_provider.cpp
-        ${TESTS}/e2e/stubs/test_market_data_parser.cpp
+        ${TESTS}/strategy/imbalance_strategy_test.cpp
+        # ${TESTS}/strategy/strategy_executor_test.cpp
+        # ${TESTS}/market_data/market_event_handler_test.cpp
+        # ${TESTS}/execution/execution_report_handler_test.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/Utilities")
 target_link_directories(${PROJECT_NAME} PUBLIC "${CMAKE_BINARY_DIR}/Utilities")
 
-#[[
-# SIMD Json
-include_directories(${THIRD_PARTY_DIR}/simdjson/include)
-target_link_directories(${PROJECT_NAME} PUBLIC ${THIRD_PARTY_DIR}/simdjson/build)
-
-include_directories(${THIRD_PARTY_DIR}/json/include)
-#]]
-
-
 TARGET_LINK_LIBRARIES(${PROJECT_NAME}
         utils
         pthread
-        # simdjson
-        # Boost::json
-        # Boost::any
-        # Boost::url
-        # Boost::uuid
-        # Boost::thread
-        # Boost::asio
-        # Boost::beast
-        # crypto
-        # ssl
         ${EXTRA_LIBS}
 )

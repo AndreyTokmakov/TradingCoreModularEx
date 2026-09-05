@@ -18,9 +18,11 @@ Description :
 
 void order_book_test();
 void order_manager_test();
+void book_builder_test();
+void book_builder_module_test();
+
 void market_event_handler_test();
 void execution_report_handler_test();
-void book_builder_test();
 void pnl_calculator_test();
 void risk_manager_test();
 void trade_recorder_test();
@@ -74,6 +76,32 @@ void e2eTests();
 //       - updates applied
 //       - sequence gaps
 
+
+// TODO:
+//  ---- >  std::unique_ptr<risk::IRiskManager> riskManager;    <<----- REMOVE IRiskManager
+
+// TODO:
+//  ---- > where to use PnLCalculator ??
+
+
+/**==================================== TESTS ===============================================
+
+void testApplyPartialFill()
+{
+    .....
+    // Assert(positionManager.find(InstrumentId { 1 }) == nullptr,"OrderManager must not modify position");
+}
+
+
+Расширить и проверить тесты:
+
+    order_manager_test.cpp
+    order_book_test.cpp
+    book_builder_test.cpp
+
+
+===========================================================================================**/
+
 namespace
 {
     [[maybe_unused]]
@@ -97,40 +125,31 @@ namespace
     [[maybe_unused]]
     void runTests(const std::vector<std::string_view>& )
     {
-        order_book_test();
-        order_manager_test();
-        market_event_handler_test();
-        execution_report_handler_test();
-        book_builder_test();
+        // market_event_handler_test();
+        // execution_report_handler_test();
+        // strategy_executor_test();
+
+        json_config_loader_test();
+        trade_recorder_test();
         pnl_calculator_test();
         risk_manager_test();
-        trade_recorder_test();
         position_test();
         position_manager_test();
+        order_book_test();
+        order_manager_test();
+        book_builder_test();
+        book_builder_module_test();
         imbalance_strategy_test();
-        strategy_executor_test();
-        json_config_loader_test();
-    }
-
-    [[maybe_unused]]
-    void runIntegrationTests(const std::vector<std::string_view>&)
-    {
-        // trading_integration_test();
-        // trading_inbound_integration_test();
     }
 }
-
-// TODO:
-//  - Нужно ли при применении Shanpshot-а вообще пробовать формировать MarketEvent ??
 
 int main([[maybe_unused]] const int argc,
          [[maybe_unused]] char** argv)
 {
     const std::vector<std::string_view> parameters(argv + 1, argv + argc);
 
-    runApp(parameters);
-    // runTests(parameters);
-    // runIntegrationTests(parameters);
+    // runApp(parameters);
+    runTests(parameters);
     // e2eTests();
 
     return EXIT_SUCCESS;

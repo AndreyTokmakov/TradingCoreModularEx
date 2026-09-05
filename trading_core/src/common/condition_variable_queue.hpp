@@ -35,6 +35,20 @@ namespace trading::concurrency
         }
 
         [[nodiscard]]
+        bool tryPop(T& value) override
+        {
+            std::lock_guard lock { mutex };
+
+            if (values.empty())
+                return false;
+
+            value = std::move(values.front());
+            values.pop_front();
+
+            return true;
+        }
+
+        [[nodiscard]]
         bool waitPop(T& value) override
         {
             std::unique_lock lock { mutex };
@@ -67,6 +81,12 @@ namespace trading::concurrency
             return closed;
         }
 
+        [[nodiscard]]
+        bool empty()const noexcept override
+        {
+            std::lock_guard lock { mutex };
+            return values.empty();
+        }
     private:
         mutable std::mutex mutex;
         std::condition_variable condition;

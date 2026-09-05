@@ -7,6 +7,7 @@ Copyright   : Your copyright notice
 Description : Market event handler tests.
 ============================================================================**/
 
+#include "recorder.hpp"
 #include "strategy.hpp"
 #include "strategy_executor.hpp"
 #include "order_manager.hpp"
@@ -29,7 +30,6 @@ using trading::execution::Order;
 using trading::execution::OrderManager;
 
 using trading::market_data::MarketEvent;
-using trading::market_data::MarketEventHandler;
 
 using trading::position::Position;
 
