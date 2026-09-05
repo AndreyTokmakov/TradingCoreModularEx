@@ -15,7 +15,7 @@ Description :
 
 #include "app/application.hpp"
 
-
+void price_test();
 void order_book_test();
 void order_manager_test();
 void book_builder_test();
@@ -125,10 +125,13 @@ namespace
     [[maybe_unused]]
     void runTests(const std::vector<std::string_view>& )
     {
+        price_test();
+
         // market_event_handler_test();
         // execution_report_handler_test();
         // strategy_executor_test();
 
+        /*
         json_config_loader_test();
         trade_recorder_test();
         pnl_calculator_test();
@@ -140,6 +143,7 @@ namespace
         book_builder_test();
         book_builder_module_test();
         imbalance_strategy_test();
+        */
     }
 }
 

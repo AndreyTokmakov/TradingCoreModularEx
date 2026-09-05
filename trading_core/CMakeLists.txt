@@ -197,6 +197,7 @@ add_executable(${PROJECT_NAME}
         ${STRATEGY}/strategy_module.cpp
 
 
+        ${TESTS}/core/price_test.cpp
         ${TESTS}/test_support/testing.hpp
         ${TESTS}/risk/risk_manager_test.cpp
         ${TESTS}/pnl/pnl_calculator_test.cpp
