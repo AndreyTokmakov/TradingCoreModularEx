@@ -61,7 +61,7 @@ namespace trading::market_data
         return true;
     }
 
-    void BookBuilder::onBookUpdate(const BookUpdate& update)
+    void BookBuilder::onBookUpdate(const BookUpdate& update) const
     {
         if (update.instrument != instrument)
             return;

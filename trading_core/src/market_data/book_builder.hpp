@@ -128,7 +128,7 @@ namespace trading::market_data
         [[nodiscard]]
         bool applySnapshot(const Snapshot& snapshot) const;
 
-        void onBookUpdate(const BookUpdate& update);
+        void onBookUpdate(const BookUpdate& update) const;
 
     private:
         void publishMarketEvent(SequenceNumber sequence,
