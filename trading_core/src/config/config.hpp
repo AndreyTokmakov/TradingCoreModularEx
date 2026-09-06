@@ -11,9 +11,9 @@ Description : Application configuration model independent of external
 #ifndef FINANCETECHNOLOGYPROJECTS_CONFIG_HPP
 #define FINANCETECHNOLOGYPROJECTS_CONFIG_HPP
 
-#include "../core/instrument.hpp"
-#include "../core/quantity.hpp"
-#include "../risk/risk_limits.hpp"
+#include "instrument.hpp"
+#include "quantity.hpp"
+#include "risk_limits.hpp"
 
 #include <cstdint>
 #include <filesystem>
