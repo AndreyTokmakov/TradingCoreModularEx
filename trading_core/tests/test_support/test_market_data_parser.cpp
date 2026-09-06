@@ -63,8 +63,9 @@ namespace trading::testing
             }
         }
 
-        if (fields.size() != 7)
+        if (fields.size() != 6)
             return ParseResult::InvalidMessage;
+
         if (!parseNumber(fields[0], bookUpdate.instrument))
             return ParseResult::InvalidInstrument;
         if (!parseNumber(fields[1], bookUpdate.sequence))

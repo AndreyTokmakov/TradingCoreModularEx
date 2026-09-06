@@ -19,6 +19,8 @@ void price_test();
 void order_book_test();
 void order_manager_test();
 void book_builder_test();
+
+void market_data_module_test();
 void book_builder_module_test();
 
 void market_event_handler_test();
@@ -34,7 +36,6 @@ void json_config_loader_test();
 
 void trading_integration_test();
 void trading_inbound_integration_test();
-void e2eTests();
 
 
 // TODO: - Improvements
@@ -131,7 +132,6 @@ namespace
         // execution_report_handler_test();
         // strategy_executor_test();
 
-        /*
         json_config_loader_test();
         trade_recorder_test();
         pnl_calculator_test();
@@ -141,9 +141,10 @@ namespace
         order_book_test();
         order_manager_test();
         book_builder_test();
-        book_builder_module_test();
         imbalance_strategy_test();
-        */
+
+        market_data_module_test();
+        book_builder_module_test();
     }
 }
 
@@ -154,7 +155,6 @@ int main([[maybe_unused]] const int argc,
 
     // runApp(parameters);
     runTests(parameters);
-    // e2eTests();
 
     return EXIT_SUCCESS;
 }

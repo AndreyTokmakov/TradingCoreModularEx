@@ -20,13 +20,24 @@ namespace trading::testing
     public:
         void start() override;
         void stop() override;
-        void setMessageHandler(market_data::IMarketDataMessageHandler& handler) override;
 
-        void addTestMarketData(const std::vector<std::string>&  msgData);
+        void setMessageHandler(market_data::IMarketDataMessageHandler& handler) override;
+        void addTestMarketData(const std::vector<std::string>& messageData);
+
+        [[nodiscard]]
+        uint32_t startCount() const noexcept;
+
+        [[nodiscard]]
+        uint32_t stopCount() const noexcept;
+
+        [[nodiscard]]
+        bool hasMessageHandler() const noexcept;
 
     private:
         market_data::IMarketDataMessageHandler* messageHandler { nullptr };
         std::vector<std::string> testMarketData;
+        uint32_t starts { 0 };
+        uint32_t stops { 0 };
     };
 }
 

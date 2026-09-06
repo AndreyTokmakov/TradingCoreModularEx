@@ -101,7 +101,7 @@ namespace trading::config
         StrategyConfig strategy {};
         risk::RiskLimits riskLimits {};
 
-        std::vector<ExchangeConfig> exchanges;
+        std::vector<ExchangeConfig> exchanges {};
 
         RecordingConfig recording {};
     };

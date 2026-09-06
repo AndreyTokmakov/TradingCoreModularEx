@@ -214,6 +214,15 @@ add_executable(${PROJECT_NAME}
         # ${TESTS}/strategy/strategy_executor_test.cpp
         # ${TESTS}/market_data/market_event_handler_test.cpp
         # ${TESTS}/execution/execution_report_handler_test.cpp
+
+        ${TESTS}/market_data/market_data_module_test.cpp
+
+        ${TESTS}/test_support/test_market_data_source.hpp
+        ${TESTS}/test_support/test_market_data_source.cpp
+        ${TESTS}/test_support/test_market_data_parser.cpp
+        ${TESTS}/test_support/test_market_data_parser.hpp
+        ${TESTS}/test_support/test_exchange_factory.hpp
+
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/Utilities")
