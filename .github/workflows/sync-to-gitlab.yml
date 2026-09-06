@@ -22,4 +22,6 @@ jobs:
           git remote add gitlab "https://oauth2:${GITLAB_TOKEN}@${GITLAB_REPO#https://}"
           
           # Зеркалируем все ветки и теги в GitLab
-          git push --mirror gitlab --force
+          # git push --mirror gitlab --force
+          git push --all --force gitlab
+          git push --tags --force gitlab
