@@ -213,6 +213,7 @@ add_executable(${PROJECT_NAME}
         ${TESTS}/modules/market_data_module_test.cpp
 
         ${TESTS}/test_support/testing.hpp
+        ${TESTS}/test_support/test_execution_gateway.hpp
         ${TESTS}/test_support/test_market_data_source.hpp
         ${TESTS}/test_support/test_market_data_source.cpp
         ${TESTS}/test_support/test_market_data_parser.cpp

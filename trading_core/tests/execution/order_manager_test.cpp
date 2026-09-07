@@ -5,6 +5,8 @@
 
 #include <iostream>
 
+#include "test_support/test_execution_gateway.hpp"
+
 using trading::ExchangeOrderId;
 using trading::ExecType;
 using trading::InstrumentId;
@@ -29,55 +31,11 @@ using trading::position::PositionManager;
 using trading::risk::RiskLimits;
 using trading::risk::RiskManager;
 
+using trading::testing::TestExecutionGateway;
+
 namespace
 {
     using testing::Assert;
-
-    class TestExecutionGateway final : public IExecutionGateway
-    {
-    public:
-        void send(const Order& order) override
-        {
-            sentOrder = order;
-            sendCount++;
-        }
-
-        void cancel(const OrderId orderId) override
-        {
-            cancelledOrderId = orderId;
-            cancelCount++;
-        }
-
-        [[nodiscard]]
-        const Order& sentOrderValue() const noexcept
-        {
-            return sentOrder;
-        }
-
-        [[nodiscard]]
-        OrderId cancelledOrderIdValue() const noexcept
-        {
-            return cancelledOrderId;
-        }
-
-        [[nodiscard]]
-        uint32_t sendCountValue() const noexcept
-        {
-            return sendCount;
-        }
-
-        [[nodiscard]]
-        uint32_t cancelCountValue() const noexcept
-        {
-            return cancelCount;
-        }
-
-    private:
-        Order sentOrder;
-        OrderId cancelledOrderId { 0 };
-        uint32_t sendCount { 0 };
-        uint32_t cancelCount { 0 };
-    };
 
     constexpr InstrumentId INSTRUMENT { 1 };
     constexpr Price PRICE { 6500000000000 };
@@ -207,10 +165,10 @@ namespace
         const OrderCreationResult result = manager.createOrder(request);
 
         Assert(result.has_value(), "order creation must succeed");
-        Assert(gateway.sendCountValue() == 1, "gateway send must be called once");
+        Assert(gateway.sendOrdersCount() == 1, "gateway send must be called once");
 
         const OrderId orderId = result.value();
-        const Order& sentOrder = gateway.sentOrderValue();
+        const Order& sentOrder = gateway.lastSendOrder();
 
         Assert(sentOrder.clientOrderId == orderId, "invalid sent order id");
         Assert(sentOrder.instrument == InstrumentId { 42 }, "invalid sent instrument");
@@ -244,7 +202,7 @@ namespace
 
         Assert(!result.has_value(), "risk rejected order must not be created");
         Assert(result.error() == OrderCreationError::RiskRejected,"invalid order creation error");
-        Assert(gateway.sendCountValue() == 0, "risk rejected order must not be sent");
+        Assert(gateway.sendOrdersCount() == 0, "risk rejected order must not be sent");
         Assert(manager.find(OrderId { 1 }) == nullptr, "risk rejected order must not exist");
     }
 
@@ -268,7 +226,7 @@ namespace
 
         Assert(!result.has_value(), "invalid order must not be created");
         Assert(result.error() == OrderCreationError::InvalidRequest,"invalid order creation error");
-        Assert(gateway.sendCountValue() == 0, "invalid order must not be sent");
+        Assert(gateway.sendOrdersCount() == 0, "invalid order must not be sent");
     }
 
     void testInvalidPriceIsRejected()
@@ -285,7 +243,7 @@ namespace
 
         Assert(!result.has_value(), "Zero price should reject the order");
         Assert(result.error() == OrderCreationError::InvalidRequest, "Wrong error for zero price");
-        Assert(gateway.sendCountValue() == 0, "Invalid order should not be sent to gateway");
+        Assert(gateway.sendOrdersCount() == 0, "Invalid order should not be sent to gateway");
     }
 
     void testInvalidQuantityIsRejected()
@@ -302,7 +260,7 @@ namespace
 
         Assert(!result.has_value(), "Zero quantity should reject the order");
         Assert(result.error() == OrderCreationError::InvalidRequest, "Wrong error for zero quantity");
-        Assert(gateway.sendCountValue() == 0, "Invalid order should not be sent to gateway");
+        Assert(gateway.sendOrdersCount() == 0, "Invalid order should not be sent to gateway");
     }
 
     void testFindUnknownOrder()
@@ -660,8 +618,8 @@ namespace
         const bool cancelled = manager.cancel(orderId);
 
         Assert(cancelled, "cancel must succeed");
-        Assert(gateway.cancelCountValue() == 1, "gateway cancel must be called once");
-        Assert(gateway.cancelledOrderIdValue() == orderId, "gateway must receive correct order id");
+        Assert(gateway.cancelCountCount() == 1, "gateway cancel must be called once");
+        Assert(gateway.getLastCancelledOrderId() == orderId, "gateway must receive correct order id");
     }
 
     void testCancelUnknownOrder()
@@ -675,7 +633,7 @@ namespace
         const bool cancelled = manager.cancel(OrderId { 42 });
 
         Assert(!cancelled, "cancel of unknown order must fail");
-        Assert(gateway.cancelCountValue() == 0, "gateway cancel must not be called");
+        Assert(gateway.cancelCountCount() == 0, "gateway cancel must not be called");
     }
 
     void testExecutionUpdatesOrderFromPartiallyFilledToFilled()

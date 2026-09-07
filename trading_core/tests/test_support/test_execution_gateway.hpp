@@ -19,6 +19,7 @@ namespace trading::testing
     class TestExecutionGateway final : public execution::IExecutionGateway
     {
     public:
+
         void send(const execution::Order& order) override
         {
             sentOrders.push_back(order);
@@ -36,36 +37,31 @@ namespace trading::testing
         }
 
         [[nodiscard]]
-        const execution::Order& lastOrder() const
+        const execution::Order& lastSendOrder() const noexcept
         {
             return sentOrders.back();
         }
 
         [[nodiscard]]
-        const std::vector<execution::Order>& orders() const noexcept
+        OrderId getLastCancelledOrderId() const noexcept
         {
-            return sentOrders;
+            return cancelledOrders.back();
         }
 
         [[nodiscard]]
-        std::size_t orderCount() const noexcept
+        size_t sendOrdersCount() const noexcept
         {
             return sentOrders.size();
         }
 
         [[nodiscard]]
-        const std::vector<OrderId>& cancelledOrderIds() const noexcept
+        size_t cancelCountCount() const noexcept
         {
-            return cancelledOrders;
-        }
-
-        void clear() noexcept
-        {
-            sentOrders.clear();
-            cancelledOrders.clear();
+            return cancelledOrders.size();
         }
 
     private:
+
         std::vector<execution::Order> sentOrders;
         std::vector<OrderId> cancelledOrders;
     };
