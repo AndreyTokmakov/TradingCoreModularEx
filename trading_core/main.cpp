@@ -24,7 +24,6 @@ void market_data_module_test();
 void book_builder_module_test();
 
 void market_event_handler_test();
-void execution_report_handler_test();
 void pnl_calculator_test();
 void risk_manager_test();
 void trade_recorder_test();
@@ -77,31 +76,44 @@ void trading_inbound_integration_test();
 //       - updates applied
 //       - sequence gaps
 
-
-// TODO:
-//  ---- >  std::unique_ptr<risk::IRiskManager> riskManager;    <<----- REMOVE IRiskManager
-
 // TODO:
 //  ---- > where to use PnLCalculator ??
 
 
-/**==================================== TESTS ===============================================
+/**  Сейчас есть в PositionManager есть applyExecution и applyTrade
+ *   разобраться какое нужен и какой оставить
+ *   попроавить тесты
 
-void testApplyPartialFill()
-{
-    .....
-    // Assert(positionManager.find(InstrumentId { 1 }) == nullptr,"OrderManager must not modify position");
-}
+bool PositionManager::applyExecution(const execution::ExecutionReport& report)
+    {
+        if (report.execType != ExecType::Trade || report.quantity.isZero())
+            return false;
 
+        auto [it, inserted] = positions.try_emplace(report.instrument, report.instrument);
 
-Расширить и проверить тесты:
+        Position& position = it->second;
+        position.applyTrade(report.side, report.price, report.quantity);
 
-    order_manager_test.cpp
-    order_book_test.cpp
-    book_builder_test.cpp
+        return true;
+    }
 
+    bool PositionManager::applyTrade(const InstrumentId instrument,
+                                     const Side side,
+                                     const Price price,
+                                     const Quantity quantity)
+    {
+        if (quantity.isZero())
+            return false;
 
-===========================================================================================**/
+        auto [it, inserted] = positions.try_emplace(instrument, instrument);
+
+        Position& position = it->second;
+        position.applyTrade(side, price, quantity);
+
+        return true;
+    }
+**/
+
 
 namespace
 {
@@ -129,7 +141,6 @@ namespace
         price_test();
 
         // market_event_handler_test();
-        // execution_report_handler_test();
         // strategy_executor_test();
 
         json_config_loader_test();
@@ -155,6 +166,8 @@ int main([[maybe_unused]] const int argc,
 
     // runApp(parameters);
     runTests(parameters);
+
+    //order_manager_test();
 
     return EXIT_SUCCESS;
 }

@@ -4,7 +4,7 @@ Created on  : 25.08.2026
 Author      : Andrei Tokmakov
 Version     : 1.0
 Copyright   : Your copyright notice
-Description : Sends orders to the exchange on the execution thread.
+Description :  Processes order requests and execution reports on the execution thread.
 ============================================================================**/
 
 #ifndef FINANCETECHNOLOGYPROJECTS_EXECUTION_MODULE_HPP
@@ -19,6 +19,7 @@ Description : Sends orders to the exchange on the execution thread.
 #include "config.hpp"
 #include "exchange_factory.hpp"
 #include "metrics_collector.hpp"
+#include "risk_manager.hpp"
 
 namespace trading::execution
 {
@@ -40,7 +41,7 @@ namespace trading::execution
     private:
 
         position::PositionManager positionManager;
-        std::unique_ptr<risk::IRiskManager> riskManager;
+        risk::RiskManager riskManager;
 
         concurrency::Queue<ExecutionWorkItem>& executionQueue;
         concurrency::Queue<recording::RecordingEvent>& recordingQueue;

@@ -16,9 +16,7 @@ namespace trading::execution
                                      concurrency::Queue<recording::RecordingEvent>& recordingQueue,
                                      const exchanges::IExchangeFactory& exchangeFactory) noexcept:
         positionManager{},
-        riskManager {
-            std::make_unique<risk::RiskManager>(config.riskLimits)
-        },
+        riskManager {},
         executionQueue {
             executionQueue
         },
@@ -29,7 +27,7 @@ namespace trading::execution
             exchangeFactory.createExecutionGateway(config)
         },
         orderManager {
-            *riskManager, positionManager, *executionGateway
+            riskManager, positionManager, *executionGateway
         }
     {
         /** TODO **/

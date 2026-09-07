@@ -8,8 +8,7 @@ Description : risk_manager.hpp
 ============================================================================**/
 
 /*
-    IRiskManager and RiskManager validate orders before they reach the
-    execution gateway.
+    RiskManager validate orders before they reach the execution gateway.
 
     Data Flow:
 
@@ -20,9 +19,6 @@ Description : risk_manager.hpp
         OrderManager
            |
            | checkOrder()
-           v
-        IRiskManager
-           |
            v
         RiskManager
            |
@@ -71,20 +67,7 @@ Description : risk_manager.hpp
 
 namespace trading::risk
 {
-    struct IRiskManager
-    {
-        virtual ~IRiskManager() = default;
-
-        [[nodiscard]]
-        virtual RiskResult checkOrder(const execution::OrderRequest& request,
-                                      const position::Position& position) = 0;
-
-        [[nodiscard]]
-        virtual RiskReason lastReason() const noexcept = 0;
-    };
-
-
-    class RiskManager final : public IRiskManager
+    class RiskManager final
     {
     public:
         RiskManager() noexcept;
@@ -94,10 +77,10 @@ namespace trading::risk
 
         [[nodiscard]]
         RiskResult checkOrder(const execution::OrderRequest& request,
-                              const position::Position& position) override;
+                              const position::Position& position);
 
         [[nodiscard]]
-        RiskReason lastReason() const noexcept override;
+        RiskReason lastReason() const noexcept;
 
     private:
         RiskLimits limits {};

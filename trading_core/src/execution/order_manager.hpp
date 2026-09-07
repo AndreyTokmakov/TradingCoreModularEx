@@ -25,7 +25,7 @@ Description : order_manager.hpp
            |
            | risk validation
            v
-        IRiskManager
+        RiskManager
            |
            | approved
            v
@@ -56,7 +56,7 @@ Description : order_manager.hpp
 
     Responsibilities:
 
-        - validate OrderRequest through IRiskManager;
+        - validate OrderRequest through RiskManager;
         - create and track internal Order objects;
         - assign client order identifiers;
         - send approved orders through IExecutionGateway;
@@ -72,7 +72,7 @@ Description : order_manager.hpp
 
     createOrder() is the entry point for creating a new order inside the execution subsystem.
     It receives an OrderRequest representing the trading intent.
-    Before an Order is created and sent to the execution gateway, the request must pass through IRiskManager.
+    Before an Order is created and sent to the execution gateway, the request must pass through RiskManager.
 
     The execution flow is:
 
@@ -83,7 +83,7 @@ Description : order_manager.hpp
         OrderManager::createOrder()
            |
            v
-        IRiskManager
+        RiskManager
            |
            | approved
            v
@@ -264,7 +264,7 @@ namespace trading::execution
     class OrderManager
     {
     public:
-        OrderManager(risk::IRiskManager& riskManager,
+        OrderManager(risk::RiskManager& riskManager,
                      position::PositionManager& positionManager,
                      IExecutionGateway& gateway) noexcept;
 
@@ -288,7 +288,7 @@ namespace trading::execution
         bool cancel(OrderId orderId);
 
     private:
-        risk::IRiskManager& riskManager;
+        risk::RiskManager& riskManager;
         position::PositionManager& positionManager;
         IExecutionGateway& gateway;
 

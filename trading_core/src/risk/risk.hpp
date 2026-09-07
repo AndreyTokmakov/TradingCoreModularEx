@@ -19,9 +19,6 @@ Description : risk.hpp
         OrderManager
            |
            v
-        IRiskManager
-           |
-           v
         RiskManager
            |
            +---- Accepted ----> OrderManager -> IExecutionGateway

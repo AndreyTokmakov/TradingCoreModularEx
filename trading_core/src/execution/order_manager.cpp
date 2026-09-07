@@ -42,7 +42,7 @@ Description : order_manager.cpp
 
 namespace trading::execution
 {
-    OrderManager::OrderManager(risk::IRiskManager& riskManager,
+    OrderManager::OrderManager(risk::RiskManager& riskManager,
                                position::PositionManager& positionManager,
                                IExecutionGateway& gateway) noexcept:
         riskManager { riskManager },
@@ -99,12 +99,19 @@ namespace trading::execution
 
         Order& order = itOrder->second;
 
+        const Quantity executionQuantity = report.filledQuantity - order.filledQuantity;
+
         order.exchangeOrderId = report.exchangeOrderId;
         order.status = report.status;
         order.filledQuantity = report.filledQuantity;
 
-        if (report.execType == ExecType::Trade && !positionManager.applyExecution(report))
-            return false;
+        if (report.execType == ExecType::Trade && !executionQuantity.isZero())
+        {
+            if (!positionManager.applyTrade(report.instrument, report.side, report.price, executionQuantity))
+            {
+                return false;
+            }
+        }
 
         // Если positionManager.applyExecution(report) вернёт false, OrderManager уже частично изменил Order но наружу вернётся
         // То есть false здесь уже означает не «ничего не обработано», а «обработка была частично выполнена».

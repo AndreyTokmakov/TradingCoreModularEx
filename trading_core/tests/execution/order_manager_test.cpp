@@ -1,4 +1,6 @@
 #include "order_manager.hpp"
+
+#include "risk_manager.hpp"
 #include "test_support/testing.hpp"
 
 #include <iostream>
@@ -24,36 +26,12 @@ using trading::execution::OrderRequest;
 using trading::position::Position;
 using trading::position::PositionManager;
 
-using trading::risk::IRiskManager;
-using trading::risk::RiskReason;
-using trading::risk::RiskResult;
+using trading::risk::RiskLimits;
+using trading::risk::RiskManager;
 
 namespace
 {
     using testing::Assert;
-
-    class TestRiskManager final : public IRiskManager
-    {
-    public:
-        RiskResult checkOrder(const OrderRequest&,
-                              const Position& position) override
-        {
-            checkCount++;
-            checkedPositionQuantity = position.quantity();
-            return result;
-        }
-
-        [[nodiscard]]
-        RiskReason lastReason() const noexcept override
-        {
-            return reason;
-        }
-
-        RiskResult result { RiskResult::Accepted };
-        RiskReason reason { RiskReason::None };
-        uint32_t checkCount { 0 };
-        Position::Value checkedPositionQuantity { 0 };
-    };
 
     class TestExecutionGateway final : public IExecutionGateway
     {
@@ -101,10 +79,49 @@ namespace
         uint32_t cancelCount { 0 };
     };
 
+    constexpr InstrumentId INSTRUMENT { 1 };
+    constexpr Price PRICE { 6500000000000 };
+    constexpr Quantity QUANTITY { 100000000 };
+
+    RiskManager createRiskManager()
+    {
+        return RiskManager { RiskLimits {} };
+    }
+
+    OrderRequest makeOrderRequest()
+    {
+        return OrderRequest {
+            .instrument = INSTRUMENT,
+            .side = Side::Buy,
+            .type = OrderType::Limit,
+            .price = PRICE,
+            .quantity = QUANTITY
+        };
+    }
+
+    ExecutionReport makeExecutionReport(const OrderId orderId,
+                                        const ExecType execType,
+                                        const OrderStatus status,
+                                        const Quantity filledQuantity,
+                                        const Side side = Side::Buy)
+    {
+        return ExecutionReport {
+            .clientOrderId = orderId,
+            .exchangeOrderId = ExchangeOrderId { 123 },
+            .instrument = INSTRUMENT,
+            .side = side,
+            .execType = execType,
+            .status = status,
+            .price = PRICE,
+            .quantity = QUANTITY,
+            .filledQuantity = filledQuantity
+        };
+    }
+
     void testCreateOrder()
     {
         TestExecutionGateway gateway;
-        TestRiskManager riskManager;
+        RiskManager riskManager = createRiskManager();
         PositionManager positionManager;
 
         OrderManager manager { riskManager, positionManager, gateway };
@@ -120,9 +137,9 @@ namespace
         const OrderCreationResult result = manager.createOrder(request);
 
         Assert(result.has_value(), "order creation must succeed");
-        Assert(riskManager.checkCount == 1, "risk manager must be called once");
 
         const OrderId orderId = *result;
+
         Assert(orderId == 1, "first order id must be one");
 
         const Order* order = manager.find(orderId);
@@ -141,7 +158,7 @@ namespace
     void testOrderIdsAreUnique()
     {
         TestExecutionGateway gateway;
-        TestRiskManager riskManager;
+        RiskManager riskManager = createRiskManager();
         PositionManager positionManager;
 
         OrderManager manager { riskManager, positionManager, gateway };
@@ -174,7 +191,7 @@ namespace
     void testOrderIsSentToGateway()
     {
         TestExecutionGateway gateway;
-        TestRiskManager riskManager;
+        RiskManager riskManager = createRiskManager();
         PositionManager positionManager;
 
         OrderManager manager { riskManager, positionManager, gateway };
@@ -206,10 +223,12 @@ namespace
     void testRiskManagerRejectsOrder()
     {
         TestExecutionGateway gateway;
-        TestRiskManager riskManager;
-        PositionManager positionManager;
 
-        riskManager.result = RiskResult::Rejected;
+        RiskLimits riskLimits {};
+        riskLimits.maxOrderQuantity = Quantity { 50'000'000 };
+
+        RiskManager riskManager { riskLimits };
+        PositionManager positionManager;
 
         OrderManager manager { riskManager, positionManager, gateway };
 
@@ -223,18 +242,16 @@ namespace
 
         const OrderCreationResult result = manager.createOrder(request);
 
-        Assert(!result.has_value(), "rejected order must not be created");
-        Assert(result.error() == OrderCreationError::RiskRejected,
-               "invalid order creation error");
-        Assert(riskManager.checkCount == 1, "risk manager must be called once");
-        Assert(gateway.sendCountValue() == 0, "rejected order must not be sent");
-        Assert(manager.find(OrderId { 1 }) == nullptr, "rejected order must not exist");
+        Assert(!result.has_value(), "risk rejected order must not be created");
+        Assert(result.error() == OrderCreationError::RiskRejected,"invalid order creation error");
+        Assert(gateway.sendCountValue() == 0, "risk rejected order must not be sent");
+        Assert(manager.find(OrderId { 1 }) == nullptr, "risk rejected order must not exist");
     }
 
     void testInvalidOrderRequest()
     {
         TestExecutionGateway gateway;
-        TestRiskManager riskManager;
+        RiskManager riskManager = createRiskManager();
         PositionManager positionManager;
 
         OrderManager manager { riskManager, positionManager, gateway };
@@ -250,29 +267,60 @@ namespace
         const OrderCreationResult result = manager.createOrder(request);
 
         Assert(!result.has_value(), "invalid order must not be created");
-        Assert(result.error() == OrderCreationError::InvalidRequest,
-               "invalid order creation error");
-        Assert(riskManager.checkCount == 0, "risk manager must not be called");
+        Assert(result.error() == OrderCreationError::InvalidRequest,"invalid order creation error");
         Assert(gateway.sendCountValue() == 0, "invalid order must not be sent");
+    }
+
+    void testInvalidPriceIsRejected()
+    {
+        RiskManager riskManager = createRiskManager();
+        PositionManager positionManager;
+        TestExecutionGateway gateway;
+        OrderManager manager { riskManager, positionManager, gateway };
+
+        OrderRequest request = makeOrderRequest();
+        request.price = Price { 0 };
+
+        const OrderCreationResult result = manager.createOrder(request);
+
+        Assert(!result.has_value(), "Zero price should reject the order");
+        Assert(result.error() == OrderCreationError::InvalidRequest, "Wrong error for zero price");
+        Assert(gateway.sendCountValue() == 0, "Invalid order should not be sent to gateway");
+    }
+
+    void testInvalidQuantityIsRejected()
+    {
+        RiskManager riskManager = createRiskManager();
+        PositionManager positionManager;
+        TestExecutionGateway gateway;
+        OrderManager orderManager { riskManager, positionManager, gateway };
+
+        OrderRequest request = makeOrderRequest();
+        request.quantity = Quantity { 0 };
+
+        const auto result = orderManager.createOrder(request);
+
+        Assert(!result.has_value(), "Zero quantity should reject the order");
+        Assert(result.error() == OrderCreationError::InvalidRequest, "Wrong error for zero quantity");
+        Assert(gateway.sendCountValue() == 0, "Invalid order should not be sent to gateway");
     }
 
     void testFindUnknownOrder()
     {
         TestExecutionGateway gateway;
-        TestRiskManager riskManager;
+        RiskManager riskManager = createRiskManager();
         PositionManager positionManager;
 
         OrderManager manager { riskManager, positionManager, gateway };
 
         const Order* order = manager.find(OrderId { 42 });
-
         Assert(order == nullptr, "unknown order must not be found");
     }
 
     void testApplyNewExecutionReport()
     {
         TestExecutionGateway gateway;
-        TestRiskManager riskManager;
+        RiskManager riskManager = createRiskManager();
         PositionManager positionManager;
 
         OrderManager manager { riskManager, positionManager, gateway };
@@ -286,6 +334,7 @@ namespace
         };
 
         const OrderCreationResult result = manager.createOrder(request);
+
         Assert(result.has_value(), "order creation must succeed");
 
         const OrderId orderId = result.value();
@@ -316,7 +365,7 @@ namespace
     void testApplyPartialFill()
     {
         TestExecutionGateway gateway;
-        TestRiskManager riskManager;
+        RiskManager riskManager = createRiskManager();
         PositionManager positionManager;
 
         OrderManager manager { riskManager, positionManager, gateway };
@@ -357,13 +406,15 @@ namespace
 
         Assert(position != nullptr, "partial fill must create position");
         Assert(position->quantity() == 40'000'000, "invalid position quantity after partial fill");
-        Assert(position->averagePrice() == Price { 6'500'000'000'000 },"invalid position average price after partial fill");
+        Assert(
+            position->averagePrice() == Price { 6'500'000'000'000 },
+            "invalid position average price after partial fill");
     }
 
     void testApplyMultiplePartialFills()
     {
         TestExecutionGateway gateway;
-        TestRiskManager riskManager;
+        RiskManager riskManager = createRiskManager();
         PositionManager positionManager;
 
         OrderManager manager { riskManager, positionManager, gateway };
@@ -377,6 +428,7 @@ namespace
         };
 
         const OrderCreationResult result = manager.createOrder(request);
+
         Assert(result.has_value(), "order creation must succeed");
 
         const OrderId orderId = result.value();
@@ -415,22 +467,20 @@ namespace
         Assert(order->status == OrderStatus::PartiallyFilled, "order must remain partially filled");
         Assert(
             order->filledQuantity == Quantity { 70'000'000 },
-            "filled quantity must contain cumulative quantity"
-        );
+            "filled quantity must contain cumulative quantity");
 
         const Position* position = positionManager.find(InstrumentId { 1 });
 
         Assert(position != nullptr, "position must exist");
         Assert(
             position->quantity() == 70'000'000,
-            "position quantity must contain sum of individual fills"
-        );
+            "position quantity must contain sum of individual fills");
     }
 
     void testApplyFilled()
     {
         TestExecutionGateway gateway;
-        TestRiskManager riskManager;
+        RiskManager riskManager = createRiskManager();
         PositionManager positionManager;
 
         OrderManager manager { riskManager, positionManager, gateway };
@@ -465,19 +515,21 @@ namespace
 
         Assert(order != nullptr, "order must exist");
         Assert(order->status == OrderStatus::Filled, "order must be filled");
-        Assert(order->filledQuantity == Quantity { 100'000'000 },"invalid filled quantity");
+        Assert(order->filledQuantity == Quantity { 100'000'000 }, "invalid filled quantity");
 
         const Position* position = positionManager.find(InstrumentId { 1 });
 
         Assert(position != nullptr, "filled execution must create position");
         Assert(position->quantity() == 100'000'000, "invalid position quantity");
-        Assert(position->averagePrice() == Price { 6'500'000'000'000 }, "invalid position average price");
+        Assert(
+            position->averagePrice() == Price { 6'500'000'000'000 },
+            "invalid position average price");
     }
 
     void testApplyCancelled()
     {
         TestExecutionGateway gateway;
-        TestRiskManager riskManager;
+        RiskManager riskManager = createRiskManager();
         PositionManager positionManager;
 
         OrderManager manager { riskManager, positionManager, gateway };
@@ -512,13 +564,15 @@ namespace
 
         Assert(order != nullptr, "order must exist");
         Assert(order->status == OrderStatus::Cancelled, "order must be cancelled");
-        Assert(positionManager.find(InstrumentId { 1 }) == nullptr, "cancel execution must not modify position");
+        Assert(
+            positionManager.find(InstrumentId { 1 }) == nullptr,
+            "cancel execution must not modify position");
     }
 
     void testApplyRejected()
     {
         TestExecutionGateway gateway;
-        TestRiskManager riskManager;
+        RiskManager riskManager = createRiskManager();
         PositionManager positionManager;
 
         OrderManager manager { riskManager, positionManager, gateway };
@@ -553,13 +607,15 @@ namespace
 
         Assert(order != nullptr, "order must exist");
         Assert(order->status == OrderStatus::Rejected, "order must be rejected");
-        Assert(positionManager.find(InstrumentId { 1 }) == nullptr, "reject execution must not modify position");
+        Assert(
+            positionManager.find(InstrumentId { 1 }) == nullptr,
+            "reject execution must not modify position");
     }
 
     void testUnknownExecutionReport()
     {
         TestExecutionGateway gateway;
-        TestRiskManager riskManager;
+        RiskManager riskManager = createRiskManager();
         PositionManager positionManager;
 
         OrderManager manager { riskManager, positionManager, gateway };
@@ -577,14 +633,15 @@ namespace
         });
 
         Assert(!applied, "report for unknown order must be rejected");
-        Assert(positionManager.find(InstrumentId { 1 }) == nullptr,
-               "unknown execution must not modify position");
+        Assert(
+            positionManager.find(InstrumentId { 1 }) == nullptr,
+            "unknown execution must not modify position");
     }
 
     void testCancelOrder()
     {
         TestExecutionGateway gateway;
-        TestRiskManager riskManager;
+        RiskManager riskManager = createRiskManager();
         PositionManager positionManager;
 
         OrderManager manager { riskManager, positionManager, gateway };
@@ -610,7 +667,7 @@ namespace
     void testCancelUnknownOrder()
     {
         TestExecutionGateway gateway;
-        TestRiskManager riskManager;
+        RiskManager riskManager = createRiskManager();
         PositionManager positionManager;
 
         OrderManager manager { riskManager, positionManager, gateway };
@@ -620,6 +677,71 @@ namespace
         Assert(!cancelled, "cancel of unknown order must fail");
         Assert(gateway.cancelCountValue() == 0, "gateway cancel must not be called");
     }
+
+    void testExecutionUpdatesOrderFromPartiallyFilledToFilled()
+    {
+        RiskManager riskManager = createRiskManager();
+        PositionManager positionManager;
+        TestExecutionGateway gateway;
+        OrderManager orderManager { riskManager, positionManager, gateway };
+
+        const OrderCreationResult result = orderManager.createOrder(makeOrderRequest());
+        Assert(result.has_value(), "Order creation should succeed");
+
+        const OrderId orderId = result.value();
+        const ExecutionReport partialReport = makeExecutionReport(orderId,
+                                ExecType::Trade,
+                                OrderStatus::PartiallyFilled,
+                                Quantity { 40 });
+
+        const ExecutionReport filledReport = makeExecutionReport(orderId,
+                                ExecType::Trade,
+                                OrderStatus::Filled,
+                                QUANTITY);
+
+        Assert(orderManager.applyExecution(partialReport), "Partial fill should be applied");
+        Assert(orderManager.applyExecution(filledReport), "Filled report should be applied");
+
+        const Order* order = orderManager.find(orderId);
+
+        Assert(order != nullptr, "Order should exist");
+        Assert(order->status == OrderStatus::Filled, "Order should be Filled");
+        Assert(order->filledQuantity == QUANTITY, "Filled quantity mismatch");
+
+        const Position* position = positionManager.find(INSTRUMENT);
+
+        Assert(position != nullptr, "Position should exist");
+        Assert(position->quantity() == QUANTITY.raw(), "Position quantity mismatch");
+    }
+
+    void testSellExecutionUpdatesPosition()
+    {
+        RiskManager riskManager = createRiskManager();
+        PositionManager positionManager;
+        TestExecutionGateway gateway;
+        OrderManager orderManager { riskManager, positionManager, gateway };
+
+        OrderRequest request = makeOrderRequest();
+        request.side = Side::Sell;
+
+        const OrderCreationResult result = orderManager.createOrder(request);
+        Assert(result.has_value(), "Sell order creation should succeed");
+
+        const ExecutionReport report = makeExecutionReport(result.value(),
+                                ExecType::Trade,
+                                OrderStatus::Filled,
+                                QUANTITY,
+                                Side::Sell);
+
+        const bool applied = orderManager.applyExecution(report);
+        Assert(applied, "Sell execution report should be applied");
+
+        const Position* position = positionManager.find(INSTRUMENT);
+        Assert(position != nullptr, "Position should exist");
+        Assert(position->quantity() == (-1) * QUANTITY.raw(), "Sell execution should create short position");
+        Assert(position->isShort(), "Position should be short");
+    }
+
 }
 
 void order_manager_test()
@@ -628,17 +750,26 @@ void order_manager_test()
     testOrderIdsAreUnique();
     testOrderIsSentToGateway();
     testRiskManagerRejectsOrder();
+
     testInvalidOrderRequest();
+    testInvalidPriceIsRejected();
+    testInvalidQuantityIsRejected();
+
     testFindUnknownOrder();
+
     testApplyNewExecutionReport();
     testApplyPartialFill();
     testApplyMultiplePartialFills();
     testApplyFilled();
     testApplyCancelled();
     testApplyRejected();
+
     testUnknownExecutionReport();
     testCancelOrder();
     testCancelUnknownOrder();
+
+    testExecutionUpdatesOrderFromPartiallyFilledToFilled();
+    testSellExecutionUpdatesPosition();
 
     std::cout << "All OrderManager tests: OK\n";
 }

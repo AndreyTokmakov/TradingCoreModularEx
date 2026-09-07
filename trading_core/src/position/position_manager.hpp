@@ -71,7 +71,13 @@ namespace trading::position
     {
     public:
         [[nodiscard]]
-        bool applyExecution(const trading::execution::ExecutionReport& report);
+        bool applyExecution(const execution::ExecutionReport& report);
+
+        [[nodiscard]]
+        bool applyTrade(InstrumentId instrument,
+                        Side side,
+                        Price price,
+                        Quantity quantity);
 
         [[nodiscard]]
         const Position* find(InstrumentId instrument) const noexcept;

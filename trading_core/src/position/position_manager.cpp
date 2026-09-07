@@ -65,6 +65,22 @@ namespace trading::position
         return true;
     }
 
+    bool PositionManager::applyTrade(const InstrumentId instrument,
+                                     const Side side,
+                                     const Price price,
+                                     const Quantity quantity)
+    {
+        if (quantity.isZero())
+            return false;
+
+        auto [it, inserted] = positions.try_emplace(instrument, instrument);
+
+        Position& position = it->second;
+        position.applyTrade(side, price, quantity);
+
+        return true;
+    }
+
     const Position* PositionManager::find(const InstrumentId instrument) const noexcept
     {
         const auto it = positions.find(instrument);

@@ -11,6 +11,7 @@ Description : types.hpp
 #define FINANCETECHNOLOGYPROJECTS_TYPES_HPP
 
 #include <cstdint>
+#include <iostream>
 
 namespace trading
 {
