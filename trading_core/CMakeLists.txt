@@ -215,6 +215,8 @@ add_executable(${PROJECT_NAME}
         ${TESTS}/modules/strategy_module_test.cpp
 
         ${TESTS}/test_support/testing.hpp
+        ${TESTS}/test_support/debug_helpers.hpp
+        ${TESTS}/test_support/debug_helpers.cpp
         ${TESTS}/test_support/test_execution_gateway.hpp
         ${TESTS}/test_support/test_market_data_source.hpp
         ${TESTS}/test_support/test_market_data_source.cpp

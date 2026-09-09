@@ -11,7 +11,6 @@ Description : types.hpp
 #define FINANCETECHNOLOGYPROJECTS_TYPES_HPP
 
 #include <cstdint>
-#include <iostream>
 
 namespace trading
 {
@@ -49,5 +48,6 @@ namespace trading
         Reject
     };
 }
+
 
 #endif //FINANCETECHNOLOGYPROJECTS_TYPES_HPP

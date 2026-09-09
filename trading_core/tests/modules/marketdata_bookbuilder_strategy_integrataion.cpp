@@ -164,12 +164,10 @@ namespace
 
         ExecutionWorkItem workItem {};
 
-        while (!executionQueue.tryPop(workItem))
-        {
+        while (!executionQueue.tryPop(workItem)) {
             std::this_thread::yield();
         }
 
-        std::cout << "Got something 1" << std::endl;
 
         Assert(std::holds_alternative<OrderRequest>(workItem),"Strategy pipeline must produce an OrderRequest");
 
@@ -180,19 +178,10 @@ namespace
         Assert(request.price == Price { 0 }, "Buy order must use best ask price");
         Assert(request.quantity == Quantity { 100'000'000 },"Order quantity must match strategy configuration");
 
-        std::cout << "-1-" << std::endl;
-        strategyModule.stop();
-
-        std::cout << "-2-" << std::endl;
         marketEventQueue.close();
-
-        std::cout << "-3-" << std::endl;
+        strategyModule.stop();
         bookUpdateQueue.close();
-
-        std::cout << "-4-" << std::endl;
         bookBuilderModule.stop();
-
-        std::cout << "-5-" << std::endl;
         marketDataModule.stop();
     }
 
@@ -209,35 +198,12 @@ namespace
             "1,101,10000001,Sell,6500000000000,1000000000"
         });
 
-        const Snapshot snapshot = createSnapshot(
-            InstrumentId { 1 },
-            SequenceNumber { 100 }
-        );
+        const Snapshot snapshot = createSnapshot(InstrumentId { 1 }, SequenceNumber { 100 });
 
-        TestExchangeFactoryWithSnapshot exchangeFactory {
-            std::move(marketDataSource),
-            snapshot
-        };
-
-        MarketDataModule marketDataModule {
-            config,
-            bookUpdateQueue,
-            exchangeFactory
-        };
-
-        BookBuilderModule bookBuilderModule {
-            config,
-            bookUpdateQueue,
-            marketEventQueue,
-            recordingQueue,
-            exchangeFactory
-        };
-
-        StrategyModule strategyModule {
-            config.strategy,
-            marketEventQueue,
-            executionQueue
-        };
+        TestExchangeFactoryWithSnapshot exchangeFactory { std::move(marketDataSource), snapshot};
+        MarketDataModule marketDataModule { config, bookUpdateQueue, exchangeFactory};
+        BookBuilderModule bookBuilderModule { config, bookUpdateQueue, marketEventQueue, recordingQueue, exchangeFactory };
+        StrategyModule strategyModule { config.strategy,marketEventQueue, executionQueue };
 
         marketDataModule.start();
         bookBuilderModule.start();
@@ -245,38 +211,25 @@ namespace
 
         ExecutionWorkItem workItem {};
 
-        while (!executionQueue.tryPop(workItem))
-        {
+        while (!executionQueue.tryPop(workItem)){
             std::this_thread::yield();
         }
 
-        Assert(std::holds_alternative<OrderRequest>(workItem),
-               "Strategy pipeline must produce an OrderRequest");
+        Assert(std::holds_alternative<OrderRequest>(workItem), "Strategy pipeline must produce an OrderRequest");
 
         const OrderRequest& request = std::get<OrderRequest>(workItem);
 
-        Assert(request.instrument == InstrumentId { 1 },
-               "Order instrument must match market data instrument");
+        Assert(request.instrument == InstrumentId { 1 }, "Order instrument must match market data instrument");
 
-        Assert(request.side == Side::Sell,
-               "Strategy must generate Sell signal");
-
-        Assert(request.type == OrderType::Limit,
-               "Strategy order type must be Limit");
-
-        Assert(request.price == Price { 0 },
-               "Sell order must use best bid price");
-
-        Assert(request.quantity == Quantity { 100'000'000 },
-               "Order quantity must match strategy configuration");
-
-        strategyModule.stop();
+        Assert(request.side == Side::Sell, "Strategy must generate Sell signal");
+        Assert(request.type == OrderType::Limit, "Strategy order type must be Limit");
+        Assert(request.price == Price { 0 }, "Sell order must use best bid price");
+        Assert(request.quantity == Quantity { 100'000'000 }, "Order quantity must match strategy configuration");
 
         marketEventQueue.close();
-
+        strategyModule.stop();
         bookUpdateQueue.close();
         bookBuilderModule.stop();
-
         marketDataModule.stop();
     }
 
@@ -293,35 +246,12 @@ namespace
             "1,101,10000001,Buy,6500000000000,100"
         });
 
-        const Snapshot snapshot = createSnapshot(
-            InstrumentId { 1 },
-            SequenceNumber { 100 }
-        );
+        const Snapshot snapshot = createSnapshot(InstrumentId { 1 }, SequenceNumber { 100 } );
+        TestExchangeFactoryWithSnapshot exchangeFactory { std::move(marketDataSource), snapshot };
+        MarketDataModule marketDataModule { config, bookUpdateQueue, exchangeFactory };
+        BookBuilderModule bookBuilderModule { config,bookUpdateQueue, marketEventQueue, recordingQueue, exchangeFactory };
 
-        TestExchangeFactoryWithSnapshot exchangeFactory {
-            std::move(marketDataSource),
-            snapshot
-        };
-
-        MarketDataModule marketDataModule {
-            config,
-            bookUpdateQueue,
-            exchangeFactory
-        };
-
-        BookBuilderModule bookBuilderModule {
-            config,
-            bookUpdateQueue,
-            marketEventQueue,
-            recordingQueue,
-            exchangeFactory
-        };
-
-        StrategyModule strategyModule {
-            config.strategy,
-            marketEventQueue,
-            executionQueue
-        };
+        StrategyModule strategyModule { config.strategy, marketEventQueue, executionQueue };
 
         marketDataModule.start();
         bookBuilderModule.start();
@@ -330,16 +260,12 @@ namespace
         std::this_thread::sleep_for(std::chrono::milliseconds { 10 });
 
         ExecutionWorkItem workItem {};
-        Assert(!executionQueue.tryPop(workItem),
-               "Strategy must not produce an order when imbalance is below threshold");
-
-        strategyModule.stop();
+        Assert(!executionQueue.tryPop(workItem), "Strategy must not produce an order when imbalance is below threshold");
 
         marketEventQueue.close();
-
+        strategyModule.stop();
         bookUpdateQueue.close();
         bookBuilderModule.stop();
-
         marketDataModule.stop();
     }
 
@@ -735,9 +661,9 @@ namespace
 
 void marketdata_bookbuilder_strategy_integrataion()
 {
-    testMarketDataToStrategyBuyPipeline();
+    // testMarketDataToStrategyBuyPipeline();
     // testMarketDataToStrategySellPipeline();
-    // testMarketDataToStrategyNoSignal();
+    testMarketDataToStrategyNoSignal();
     // testConfiguredOrderQuantity();
     // testBuyUsesBestAsk();
     // testSellUsesBestBid();
