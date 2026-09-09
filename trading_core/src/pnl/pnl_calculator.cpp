@@ -90,11 +90,11 @@ namespace trading::pnl
         if (report.execType != ExecType::Trade || report.quantity.isZero())
             return {};
 
-        const int64_t positionQuantity = position.quantity();
+        const WideValue positionQuantity = position.quantity().raw();
         if (positionQuantity == 0)
             return {};
 
-        const int64_t executionQuantity = report.quantity.raw();
+        const WideValue executionQuantity = report.quantity.raw();
         if (positionQuantity > 0 && report.side == Side::Sell)
         {
             const int64_t closedQuantity = std::min(positionQuantity, executionQuantity);
@@ -118,7 +118,7 @@ namespace trading::pnl
     Price PnLCalculator::calculateUnrealized(const position::Position& position,
                                              const market_data::MarketEvent& marketEvent) noexcept
     {
-        const int64_t positionQuantity = position.quantity();
+        const WideValue positionQuantity = static_cast<WideValue>(position.quantity().raw());
         if (positionQuantity == 0)
             return {};
 
@@ -127,7 +127,7 @@ namespace trading::pnl
             if (marketEvent.bestBidQuantity.isZero())
                 return {};
 
-            const WideValue priceDifference =static_cast<WideValue>(marketEvent.bestBid.raw()) -
+            const WideValue priceDifference = static_cast<WideValue>(marketEvent.bestBid.raw()) -
                 static_cast<WideValue>(position.averagePrice().raw());
 
             return fromProduct(priceDifference, positionQuantity);

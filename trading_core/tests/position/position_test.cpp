@@ -35,6 +35,19 @@ namespace
     constexpr Quantity QUANTITY_60 { 60'000'000 };
     constexpr Quantity QUANTITY_150 { 150'000'000 };
 
+    constexpr Quantity POSITION_100 { 100'000'000 };
+    constexpr Quantity POSITION_200 { 200'000'000 };
+    constexpr Quantity POSITION_250 { 250'000'000 };
+    constexpr Quantity POSITION_150 { 150'000'000 };
+    constexpr Quantity POSITION_110 { 110'000'000 };
+    constexpr Quantity POSITION_100_NEGATIVE { -100'000'000 };
+    constexpr Quantity POSITION_200_NEGATIVE { -200'000'000 };
+    constexpr Quantity POSITION_60 { 60'000'000 };
+    constexpr Quantity POSITION_60_NEGATIVE { -60'000'000 };
+    constexpr Quantity POSITION_50_NEGATIVE { -50'000'000 };
+    constexpr Quantity POSITION_50 { 50'000'000 };
+    constexpr Quantity POSITION_40 { 40'000'000 };
+    constexpr Quantity POSITION_40_NEGATIVE { -40'000'000 };
 
     /*
         Input:
@@ -51,7 +64,7 @@ namespace
         constexpr Position position { INSTRUMENT };
 
         Assert(position.instrumentId() == INSTRUMENT,"invalid instrument id");
-        Assert(position.quantity() == 0,"initial position quantity must be zero");
+        Assert(position.quantity().isZero(),"initial position quantity must be zero");
         Assert(position.averagePrice().isZero(),"initial average price must be zero");
         Assert(position.realizedPnl().isZero(),"initial realized PnL must be zero");
         Assert(!position.isLong(),"initial position must not be long");
@@ -72,7 +85,7 @@ namespace
         Position position { INSTRUMENT };
         position.applyTrade(Side::Buy, BUY_PRICE, QUANTITY_100);
 
-        Assert(position.quantity() == 100'000'000, "Buy must create long position");
+        Assert(position.quantity() == POSITION_100, "Buy must create long position");
         Assert(position.averagePrice() == BUY_PRICE, "invalid average price");
         Assert(position.isLong(), "position must be long");
         Assert(!position.isShort(), "position must not be short");
@@ -92,7 +105,7 @@ namespace
         Position position { INSTRUMENT };
         position.applyTrade(Side::Sell, BUY_PRICE, QUANTITY_100);
 
-        Assert(position.quantity() == -100'000'000, "Sell must create short position");
+        Assert(position.quantity() == POSITION_100_NEGATIVE, "Sell must create short position");
         Assert(position.averagePrice() == BUY_PRICE, "invalid average price");
         Assert(!position.isLong(), "position must not be long");
         Assert(position.isShort(), "position must be short");
@@ -114,7 +127,7 @@ namespace
         position.applyTrade(Side::Buy, LOWER_PRICE, QUANTITY_100);
         position.applyTrade(Side::Buy, HIGHER_PRICE, QUANTITY_100);
 
-        Assert(position.quantity() == 200'000'000, "invalid accumulated long position");
+        Assert(position.quantity() == POSITION_200, "invalid accumulated long position");
         Assert(position.averagePrice() == BUY_PRICE, "invalid weighted average price");
         Assert(position.isLong(), "position must be long");
     }
@@ -134,7 +147,7 @@ namespace
         position.applyTrade(Side::Sell, LOWER_PRICE, QUANTITY_100);
         position.applyTrade(Side::Sell, HIGHER_PRICE, QUANTITY_100);
 
-        Assert(position.quantity() == -200'000'000, "invalid accumulated short position");
+        Assert(position.quantity() == POSITION_200_NEGATIVE, "invalid accumulated short position");
         Assert(position.averagePrice() == BUY_PRICE, "invalid weighted average price");
         Assert(position.isShort(), "position must be short");
     }
@@ -157,7 +170,7 @@ namespace
         // (100 * 6000 + 150 * 7000) / 250 = 6600
         constexpr Price expectedAveragePrice { 6'600'000'000'000 };
 
-        Assert(position.quantity() == 250'000'000, "invalid total position quantity");
+        Assert(position.quantity() == POSITION_250, "invalid total position quantity");
         Assert(position.averagePrice() == expectedAveragePrice, "invalid weighted average price");
     }
 
@@ -176,7 +189,7 @@ namespace
         position.applyTrade(Side::Buy, BUY_PRICE, QUANTITY_100);
         position.applyTrade(Side::Sell, HIGHER_PRICE, QUANTITY_40);
 
-        Assert(position.quantity() == 60'000'000, "invalid reduced long position");
+        Assert(position.quantity() == POSITION_60, "invalid reduced long position");
         Assert(position.averagePrice() == BUY_PRICE, "average price must be preserved after partial reduction");
         Assert(position.isLong(), "position must remain long");
     }
@@ -196,7 +209,7 @@ namespace
         position.applyTrade(Side::Sell, BUY_PRICE, QUANTITY_100);
         position.applyTrade(Side::Buy, LOWER_PRICE, QUANTITY_40);
 
-        Assert(position.quantity() == -60'000'000, "invalid reduced short position");
+        Assert(position.quantity() == POSITION_60_NEGATIVE, "invalid reduced short position");
         Assert(position.averagePrice() == BUY_PRICE, "average price must be preserved after partial reduction");
         Assert(position.isShort(), "position must remain short");
     }
@@ -216,7 +229,7 @@ namespace
         position.applyTrade(Side::Buy, BUY_PRICE, QUANTITY_100);
         position.applyTrade(Side::Sell, HIGHER_PRICE, QUANTITY_100);
 
-        Assert(position.quantity() == 0, "position must become flat");
+        Assert(position.quantity().isZero(), "position must become flat");
         Assert(position.averagePrice().isZero(), "average price must reset when position becomes flat");
         Assert(position.isFlat(), "position must be flat");
         Assert(!position.isLong(), "flat position must not be long");
@@ -238,7 +251,7 @@ namespace
         position.applyTrade(Side::Sell, BUY_PRICE, QUANTITY_100);
         position.applyTrade(Side::Buy, LOWER_PRICE, QUANTITY_100);
 
-        Assert(position.quantity() == 0, "position must become flat");
+        Assert(position.quantity().isZero(), "position must become flat");
         Assert(position.averagePrice().isZero(), "average price must reset when position becomes flat");
         Assert(position.isFlat(), "position must be flat");
     }
@@ -259,7 +272,7 @@ namespace
         position.applyTrade(Side::Buy, BUY_PRICE, QUANTITY_100);
         position.applyTrade(Side::Sell, HIGHER_PRICE, QUANTITY_150);
 
-        Assert(position.quantity() == -50'000'000, "invalid reversed short position");
+        Assert(position.quantity() == POSITION_50_NEGATIVE, "invalid reversed short position");
         Assert(position.averagePrice() == HIGHER_PRICE, "reversed position must use execution price");
         Assert(position.isShort(), "reversed position must be short");
     }
@@ -280,7 +293,7 @@ namespace
         position.applyTrade(Side::Sell, BUY_PRICE, QUANTITY_100);
         position.applyTrade(Side::Buy, LOWER_PRICE, QUANTITY_150);
 
-        Assert(position.quantity() == 50'000'000,"invalid reversed long position");
+        Assert(position.quantity() == POSITION_50, "invalid reversed long position");
         Assert(position.averagePrice() == LOWER_PRICE,"reversed position must use execution price");
         Assert(position.isLong(),"reversed position must be long");
     }
@@ -298,7 +311,7 @@ namespace
         Position position { INSTRUMENT };
         position.applyTrade(Side::Buy, BUY_PRICE, Quantity {});
 
-        Assert(position.quantity() == 0,"zero quantity trade must not change position");
+        Assert(position.quantity().isZero(),"zero quantity trade must not change position");
         Assert(position.averagePrice().isZero(),"zero quantity trade must not set average price");
         Assert(position.isFlat(),"position must remain flat");
     }
@@ -318,7 +331,7 @@ namespace
         position.applyTrade(Side::Buy, BUY_PRICE, QUANTITY_100);
         position.applyTrade(Side::Sell, HIGHER_PRICE, Quantity {});
 
-        Assert(position.quantity() == 100'000'000, "zero quantity trade must not change position quantity");
+        Assert(position.quantity() == POSITION_100, "zero quantity trade must not change position quantity");
         Assert(position.averagePrice() == BUY_PRICE, "zero quantity trade must not change average price");
     }
 
@@ -340,8 +353,8 @@ namespace
 
         constexpr Price expectedAveragePrice { 6'666'666'666'666 };
 
-        Assert(position.quantity() == 150'000'000,"invalid position quantity");
-        Assert(position.averagePrice() == expectedAveragePrice,"invalid weighted average price");
+        Assert(position.quantity() == POSITION_150, "invalid position quantity");
+        Assert(position.averagePrice() == expectedAveragePrice, "invalid weighted average price");
     }
 
     /*
@@ -364,9 +377,10 @@ namespace
         position.applyTrade(Side::Buy,LOWER_PRICE,QUANTITY_50);
 
         // (60 * 6500 + 50 * 6000) / 110 = 6272.727272...
+
         constexpr Price expectedAveragePrice { 6'272'727'272'727 };
 
-        Assert(position.quantity() == 110'000'000, "invalid final long position");
+        Assert(position.quantity() == POSITION_110, "invalid final long position");
         Assert(position.averagePrice() == expectedAveragePrice, "invalid average price after increasing reduced position");
         Assert(position.isLong(), "position must be long");
     }
@@ -393,7 +407,7 @@ namespace
         // (60 * 6500 + 50 * 7000) / 110 = 6727.272727...
         constexpr Price expectedAveragePrice { 6'727'272'727'272 };
 
-        Assert(position.quantity() == -110'000'000,"invalid final short position");
+        Assert(position.quantity() == POSITION_110 * -1, "invalid final short position");
         Assert(position.averagePrice() == expectedAveragePrice,"invalid average price after increasing reduced position");
         Assert(position.isShort(),"position must be short");
     }
@@ -414,9 +428,9 @@ namespace
         position.applyTrade(Side::Buy, BUY_PRICE, QUANTITY_100);
         position.applyTrade(Side::Sell, HIGHER_PRICE, QUANTITY_60);
 
-        Assert(position.quantity() == 40'000'000,"invalid remaining long position");
-        Assert(position.averagePrice() == BUY_PRICE,"average price must remain unchanged");
-        Assert(position.isLong(),"position must remain long");
+        Assert(position.quantity() == POSITION_40, "invalid remaining long position");
+        Assert(position.averagePrice() == BUY_PRICE, "average price must remain unchanged");
+        Assert(position.isLong(), "position must remain long");
     }
 
     /*
@@ -435,7 +449,7 @@ namespace
         position.applyTrade(Side::Sell, BUY_PRICE, QUANTITY_100);
         position.applyTrade(Side::Buy, LOWER_PRICE, QUANTITY_60);
 
-        Assert(position.quantity() == -40'000'000,"invalid remaining short position");
+        Assert(position.quantity() == POSITION_40_NEGATIVE, "invalid remaining short position");
         Assert(position.averagePrice() == BUY_PRICE,"average price must remain unchanged");
         Assert(position.isShort(),"position must remain short");
     }
@@ -459,7 +473,7 @@ namespace
         position.applyTrade(Side::Sell, HIGHER_PRICE, QUANTITY_100);
         position.applyTrade(Side::Buy, LOWER_PRICE, QUANTITY_50);
 
-        Assert(position.quantity() == 50'000'000,"invalid new long position");
+        Assert(position.quantity() == POSITION_50, "invalid new long position");
         Assert(position.averagePrice() == LOWER_PRICE,"new long position must use execution price");
         Assert(position.isLong(),"new position must be long");
     }
@@ -483,7 +497,7 @@ namespace
         position.applyTrade(Side::Buy, LOWER_PRICE, QUANTITY_100);
         position.applyTrade(Side::Sell, HIGHER_PRICE, QUANTITY_50);
 
-        Assert(position.quantity() == -50'000'000,"invalid new short position");
+        Assert(position.quantity() == POSITION_50_NEGATIVE, "invalid new short position");
         Assert(position.averagePrice() == HIGHER_PRICE,"new short position must use execution price");
         Assert(position.isShort(),"new position must be short");
     }
@@ -504,7 +518,7 @@ namespace
         position.applyTrade(Side::Buy, BUY_PRICE, QUANTITY_100);
         position.applyTrade(Side::Sell, HIGHER_PRICE, QUANTITY_150);
 
-        Assert(position.quantity() == -50'000'000,"invalid reversed quantity");
+        Assert(position.quantity() == POSITION_50_NEGATIVE, "invalid reversed quantity");
         Assert(position.averagePrice() == HIGHER_PRICE,"invalid reversed average price");
         Assert(position.isShort(),"position must be short");
     }
@@ -526,9 +540,9 @@ namespace
         position.applyTrade(Side::Sell, BUY_PRICE, QUANTITY_100);
         position.applyTrade(Side::Buy, LOWER_PRICE, QUANTITY_150);
 
-        Assert(position.quantity() == 50'000'000,"invalid reversed quantity");
-        Assert(position.averagePrice() == LOWER_PRICE,"invalid reversed average price");
-        Assert(position.isLong(),"position must be long");
+        Assert(position.quantity() == POSITION_50, "invalid reversed quantity");
+        Assert(position.averagePrice() == LOWER_PRICE, "invalid reversed average price");
+        Assert(position.isLong(), "position must be long");
     }
 
     /*
@@ -550,7 +564,7 @@ namespace
         position.applyTrade(Side::Buy, HIGHER_PRICE, QUANTITY_50);
         position.applyTrade(Side::Sell, LOWER_PRICE, QUANTITY_150);
 
-        Assert(position.quantity() == 0,"position must become flat");
+        Assert(position.quantity().isZero(),"position must become flat");
         Assert(position.averagePrice().isZero(),"average price must reset");
         Assert(position.isFlat(),"position must be flat");
     }
@@ -574,7 +588,7 @@ namespace
         position.applyTrade(Side::Sell, LOWER_PRICE,QUANTITY_50);
         position.applyTrade(Side::Buy, HIGHER_PRICE, QUANTITY_150);
 
-        Assert(position.quantity() == 0,"position must become flat");
+        Assert(position.quantity().isZero(),"position must become flat");
         Assert(position.averagePrice().isZero(),"average price must reset");
         Assert(position.isFlat(),"position must be flat");
     }
@@ -597,9 +611,9 @@ namespace
 
         const Price averagePriceBeforeReduction = position.averagePrice();
 
-        position.applyTrade(Side::Sell, LOWER_PRICE,QUANTITY_50);
+        position.applyTrade(Side::Sell, LOWER_PRICE, QUANTITY_50);
 
-        Assert(position.quantity() == 100'000'000,"invalid remaining long position");
+        Assert(position.quantity() == POSITION_100, "invalid remaining long position");
         Assert(position.averagePrice() == averagePriceBeforeReduction,"average price must remain unchanged");
         Assert(position.isLong(),"position must remain long");
     }
@@ -625,7 +639,7 @@ namespace
 
         position.applyTrade(Side::Buy, LOWER_PRICE,QUANTITY_50);
 
-        Assert(position.quantity() == -100'000'000, "invalid remaining short position");
+        Assert(position.quantity() == POSITION_100_NEGATIVE, "invalid remaining short position");
         Assert(position.averagePrice() == averagePriceBeforeReduction, "average price must remain unchanged");
         Assert(position.isShort(), "position must remain short");
     }

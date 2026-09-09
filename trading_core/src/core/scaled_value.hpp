@@ -143,6 +143,12 @@ namespace trading::details
         }
 
         [[nodiscard]]
+        constexpr bool isNegative() const noexcept
+        {
+            return value < 0;
+        }
+
+        [[nodiscard]]
         constexpr Derived operator+(const Derived& other) const noexcept
         {
             return Derived { value + other.raw() };

@@ -54,7 +54,7 @@ namespace trading::position
 {
     bool PositionManager::applyExecution(const execution::ExecutionReport& report)
     {
-        if (report.execType != ExecType::Trade || report.quantity.isZero())
+        if (report.execType != ExecType::Trade || !report.quantity.isPositive())
             return false;
 
         auto [it, inserted] = positions.try_emplace(report.instrument, report.instrument);
@@ -70,7 +70,7 @@ namespace trading::position
                                      const Price price,
                                      const Quantity quantity)
     {
-        if (quantity.isZero())
+        if (!quantity.isPositive())
             return false;
 
         auto [it, inserted] = positions.try_emplace(instrument, instrument);

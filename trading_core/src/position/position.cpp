@@ -273,29 +273,29 @@ namespace trading::position
         if (quantity.isZero())
             return;
 
-        const Value executionQuantity = quantity.raw();
-        const Value signedQuantity = side == Side::Buy ? executionQuantity : -executionQuantity;
+        const Quantity executionQuantity { quantity.raw() };
+        const Quantity signedQuantity = side == Side::Buy ? executionQuantity : Quantity { -executionQuantity.raw() };
 
-        if (currentQuantity == 0)
+        if (currentQuantity.isZero())
         {
             currentQuantity = signedQuantity;
             averageEntryPrice = price;
             return;
         }
 
-        const Value absoluteCurrentQuantity = std::abs(currentQuantity);
-        const Value absoluteExecutionQuantity = std::abs(signedQuantity);
+        const int64_t absoluteCurrentQuantity = currentQuantity.isNegative() ? -currentQuantity.raw() : currentQuantity.raw();
+        const int64_t absoluteExecutionQuantity = executionQuantity.raw();
 
-        const bool sameDirection = (currentQuantity > 0) == (signedQuantity > 0);
+        const bool sameDirection = currentQuantity.isPositive() == signedQuantity.isPositive();
         if (sameDirection)
         {
-            const Value totalQuantity = absoluteCurrentQuantity + absoluteExecutionQuantity;
+            const int64_t totalQuantity = absoluteCurrentQuantity + absoluteExecutionQuantity;
             const __int128 weightedPrice =
                 static_cast<__int128>(averageEntryPrice.raw()) * absoluteCurrentQuantity +
                 static_cast<__int128>(price.raw()) * absoluteExecutionQuantity;
 
             currentQuantity += signedQuantity;
-            averageEntryPrice = Price { static_cast<Value>(weightedPrice / totalQuantity) };
+            averageEntryPrice = Price { static_cast<int64_t>(weightedPrice / totalQuantity) };
             return;
         }
 
@@ -307,7 +307,7 @@ namespace trading::position
 
         if (absoluteExecutionQuantity == absoluteCurrentQuantity)
         {
-            currentQuantity = 0;
+            currentQuantity = {};
             averageEntryPrice = {};
             return;
         }

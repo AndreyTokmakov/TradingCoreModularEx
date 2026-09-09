@@ -86,7 +86,7 @@ namespace
         const Position* position = manager.find(InstrumentId { 1 });
 
         Assert(position != nullptr, "position must be created");
-        Assert(position->quantity() == Quantity { 100'000'000 }.raw(), "invalid position quantity");
+        Assert(position->quantity() == Quantity { 100'000'000 }, "invalid position quantity");
         Assert(position->averagePrice() == Price { 6'500'000'000'000 }, "invalid average entry price");
     }
 
@@ -114,7 +114,7 @@ namespace
         const Position* position = manager.find(InstrumentId { 1 });
 
         Assert(position != nullptr, "position must be created");
-        Assert(position->quantity() == Quantity { -100'000'000 }.raw(), "invalid short position quantity");
+        Assert(position->quantity() == Quantity { -100'000'000 }, "invalid short position quantity");
         Assert(position->averagePrice() == Price { 6'500'000'000'000 }, "invalid short position entry price");
     }
 
@@ -150,7 +150,7 @@ namespace
         const Position* position = manager.find(InstrumentId { 1 });
 
         Assert(position != nullptr, "position must exist");
-        Assert(position->quantity() == Quantity { 200'000'000 }.raw(), "invalid accumulated position quantity");
+        Assert(position->quantity() == Quantity { 200'000'000 }, "invalid accumulated position quantity");
         Assert(position->averagePrice() == Price { 6'500'000'000'000 }, "invalid weighted average entry price");
     }
 
@@ -187,8 +187,8 @@ namespace
 
         Assert(firstPosition != nullptr, "first position must exist");
         Assert(secondPosition != nullptr, "second position must exist");
-        Assert(firstPosition->quantity() == Quantity { 100'000'000 }.raw(), "invalid first position quantity");
-        Assert(secondPosition->quantity() == Quantity { 200'000'000 }.raw(), "invalid second position quantity");
+        Assert(firstPosition->quantity() == Quantity { 100'000'000 }, "invalid first position quantity");
+        Assert(secondPosition->quantity() == Quantity { 200'000'000 }, "invalid second position quantity");
     }
 
     /*
@@ -279,7 +279,7 @@ namespace
         const Position* position = manager.find(InstrumentId { 1 });
 
         Assert(position != nullptr, "position must exist");
-        Assert(position->quantity() == Quantity { 60'000'000 }.raw(), "invalid reduced position quantity");
+        Assert(position->quantity() == Quantity { 60'000'000 }, "invalid reduced position quantity");
         Assert(position->averagePrice() == Price { 6'500'000'000'000 }, "average entry price must be preserved");
     }
 
@@ -313,7 +313,7 @@ namespace
         const Position* position = manager.find(InstrumentId { 1 });
 
         Assert(position != nullptr, "position must exist");
-        Assert(position->quantity() == 0, "position must become flat");
+        Assert(position->quantity().isZero(), "position must become flat");
         Assert(position->averagePrice().isZero(), "average entry price must be reset");
     }
 
@@ -347,7 +347,7 @@ namespace
         const Position* position = manager.find(InstrumentId { 1 });
 
         Assert(position != nullptr, "position must exist");
-        Assert(position->quantity() == Quantity { -50'000'000 }.raw(), "invalid reversed position quantity");
+        Assert(position->quantity() == Quantity { -50'000'000 }, "invalid reversed position quantity");
         Assert(position->averagePrice() == Price { 7'000'000'000'000 }, "reversed position must use execution price");
     }
 

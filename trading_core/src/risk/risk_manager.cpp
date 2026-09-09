@@ -82,13 +82,19 @@ namespace trading::risk
     {
         reason = RiskReason::None;
 
+        if (!request.quantity.isPositive())
+        {
+            reason = RiskReason::MaxOrderQuantity;
+            return RiskResult::Rejected;
+        }
+
         if (!limits.maxOrderQuantity.isZero() && request.quantity > limits.maxOrderQuantity)
         {
             reason = RiskReason::MaxOrderQuantity;
             return RiskResult::Rejected;
         }
 
-        const WideValue currentPosition = static_cast<WideValue>(position.quantity());
+        const WideValue currentPosition = position.quantity().raw();
         const WideValue resultingPosition = currentPosition + positionDelta(request);
 
         if (!limits.maxPositionQuantity.isZero())

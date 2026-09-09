@@ -363,10 +363,8 @@ namespace
         const Position* position = positionManager.find(InstrumentId { 1 });
 
         Assert(position != nullptr, "partial fill must create position");
-        Assert(position->quantity() == 40'000'000, "invalid position quantity after partial fill");
-        Assert(
-            position->averagePrice() == Price { 6'500'000'000'000 },
-            "invalid position average price after partial fill");
+        Assert(position->quantity() == Quantity{40'000'000}, "invalid position quantity after partial fill");
+        Assert(position->averagePrice() == Price { 6'500'000'000'000 },"invalid position average price after partial fill");
     }
 
     void testApplyMultiplePartialFills()
@@ -423,16 +421,13 @@ namespace
 
         Assert(order != nullptr, "order must exist");
         Assert(order->status == OrderStatus::PartiallyFilled, "order must remain partially filled");
-        Assert(
-            order->filledQuantity == Quantity { 70'000'000 },
+        Assert(order->filledQuantity == Quantity { 70'000'000 },
             "filled quantity must contain cumulative quantity");
 
         const Position* position = positionManager.find(InstrumentId { 1 });
 
         Assert(position != nullptr, "position must exist");
-        Assert(
-            position->quantity() == 70'000'000,
-            "position quantity must contain sum of individual fills");
+        Assert(position->quantity() == Quantity { 70'000'000}, "position quantity must contain sum of individual fills");
     }
 
     void testApplyFilled()
@@ -478,10 +473,8 @@ namespace
         const Position* position = positionManager.find(InstrumentId { 1 });
 
         Assert(position != nullptr, "filled execution must create position");
-        Assert(position->quantity() == 100'000'000, "invalid position quantity");
-        Assert(
-            position->averagePrice() == Price { 6'500'000'000'000 },
-            "invalid position average price");
+        Assert(position->quantity() == Quantity { 100'000'000}, "invalid position quantity");
+        Assert(position->averagePrice() == Price { 6'500'000'000'000 }, "invalid position average price");
     }
 
     void testApplyCancelled()
@@ -522,9 +515,7 @@ namespace
 
         Assert(order != nullptr, "order must exist");
         Assert(order->status == OrderStatus::Cancelled, "order must be cancelled");
-        Assert(
-            positionManager.find(InstrumentId { 1 }) == nullptr,
-            "cancel execution must not modify position");
+        Assert(positionManager.find(InstrumentId { 1 }) == nullptr,"cancel execution must not modify position");
     }
 
     void testApplyRejected()
@@ -565,9 +556,7 @@ namespace
 
         Assert(order != nullptr, "order must exist");
         Assert(order->status == OrderStatus::Rejected, "order must be rejected");
-        Assert(
-            positionManager.find(InstrumentId { 1 }) == nullptr,
-            "reject execution must not modify position");
+        Assert(positionManager.find(InstrumentId { 1 }) == nullptr,"reject execution must not modify position");
     }
 
     void testUnknownExecutionReport()
@@ -591,9 +580,7 @@ namespace
         });
 
         Assert(!applied, "report for unknown order must be rejected");
-        Assert(
-            positionManager.find(InstrumentId { 1 }) == nullptr,
-            "unknown execution must not modify position");
+        Assert(positionManager.find(InstrumentId { 1 }) == nullptr,"unknown execution must not modify position");
     }
 
     void testCancelOrder()
@@ -669,7 +656,7 @@ namespace
         const Position* position = positionManager.find(INSTRUMENT);
 
         Assert(position != nullptr, "Position should exist");
-        Assert(position->quantity() == QUANTITY.raw(), "Position quantity mismatch");
+        Assert(position->quantity() == QUANTITY, "Position quantity mismatch");
     }
 
     void testSellExecutionUpdatesPosition()
@@ -696,7 +683,7 @@ namespace
 
         const Position* position = positionManager.find(INSTRUMENT);
         Assert(position != nullptr, "Position should exist");
-        Assert(position->quantity() == (-1) * QUANTITY.raw(), "Sell execution should create short position");
+        Assert(position->quantity().raw() == (-1) * QUANTITY.raw(), "Sell execution should create short position");
         Assert(position->isShort(), "Position should be short");
     }
 

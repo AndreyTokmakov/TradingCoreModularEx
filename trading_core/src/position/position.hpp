@@ -74,8 +74,6 @@ namespace trading::position
     class Position
     {
     public:
-        using Value = int64_t;
-
         constexpr Position() noexcept = default;
 
         explicit constexpr Position(const InstrumentId instrument) noexcept :
@@ -89,7 +87,8 @@ namespace trading::position
         }
 
         [[nodiscard]]
-        constexpr Value quantity() const noexcept {
+        constexpr Quantity quantity() const noexcept
+        {
             return currentQuantity;
         }
 
@@ -105,24 +104,24 @@ namespace trading::position
 
         [[nodiscard]]
         constexpr bool isLong() const noexcept {
-            return currentQuantity > 0;
+            return currentQuantity.isPositive();
         }
 
         [[nodiscard]]
         constexpr bool isShort() const noexcept {
-            return currentQuantity < 0;
+            return currentQuantity.isNegative();
         }
 
         [[nodiscard]]
         constexpr bool isFlat() const noexcept {
-            return currentQuantity == 0;
+            return currentQuantity.isZero();
         }
 
         void applyTrade(Side side, Price price, Quantity quantity) noexcept;
 
     private:
         InstrumentId instrument { 0 };
-        Value currentQuantity { 0 };
+        Quantity currentQuantity {};
         Price averageEntryPrice {};
         Price realizedPnL {};
     };

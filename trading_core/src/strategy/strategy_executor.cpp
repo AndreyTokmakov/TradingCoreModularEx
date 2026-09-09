@@ -71,7 +71,6 @@ namespace trading::strategy
 
         const Side side = signal == Signal::Buy ? Side::Buy : Side::Sell;
         const Price price = signal == Signal::Buy ? event.bestAsk : event.bestBid;
-
         const execution::OrderRequest request {
             .instrument = event.instrument,
             .side = side,

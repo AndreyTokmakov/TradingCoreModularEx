@@ -120,6 +120,24 @@ namespace
         Assert(manager.lastReason() == RiskReason::MaxOrderQuantity, "invalid rejection reason");
     }
 
+    void testRejectNegativeOrderQuantity()
+    {
+        RiskManager manager {
+            RiskLimits {
+                .maxOrderQuantity = quantity(1'000),
+                .maxPositionQuantity = quantity(1'000),
+                .maxNotional = price(1'000'000)
+            }
+        };
+
+        constexpr Position position { InstrumentId { 1 } };
+        constexpr auto request = limitOrder(Side::Buy, price(100), quantity(-10));
+
+        const RiskResult result = manager.checkOrder(request, position);
+        Assert(result == RiskResult::Rejected, "negative quantity must be rejected");
+        Assert(manager.lastReason() == RiskReason::MaxOrderQuantity,"invalid negative quantity rejection reason");
+    }
+
     void testRejectMaxLongPosition()
     {
         RiskManager manager {
@@ -259,18 +277,13 @@ namespace
         constexpr Position position { InstrumentId { 1 } };
         constexpr auto rejected =limitOrder(Side::Buy, price(100), quantity(101));
 
-        Assert(manager.checkOrder(rejected, position) == RiskResult::Rejected,
-            "first order must be rejected");
-        Assert(manager.lastReason() == RiskReason::MaxOrderQuantity,
-            "invalid first rejection reason");
+        Assert(manager.checkOrder(rejected, position) == RiskResult::Rejected,"first order must be rejected");
+        Assert(manager.lastReason() == RiskReason::MaxOrderQuantity,"invalid first rejection reason");
 
-        constexpr auto accepted =
-            limitOrder(Side::Buy, price(100), quantity(10));
+        constexpr auto accepted = limitOrder(Side::Buy, price(100), quantity(10));
 
-        Assert(manager.checkOrder(accepted, position) == RiskResult::Accepted,
-            "second order must be accepted");
-        Assert(manager.lastReason() == RiskReason::None,
-            "reason must be reset after accepted order");
+        Assert(manager.checkOrder(accepted, position) == RiskResult::Accepted,"second order must be accepted");
+        Assert(manager.lastReason() == RiskReason::None,"reason must be reset after accepted order");
     }
 }
 
@@ -278,6 +291,7 @@ void risk_manager_test()
 {
     testAcceptOrder();
     testRejectMaxOrderQuantity();
+    testRejectNegativeOrderQuantity();
 
     testRejectMaxLongPosition();
     testAcceptReducingLongPosition();
