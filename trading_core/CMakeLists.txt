@@ -213,6 +213,7 @@ add_executable(${PROJECT_NAME}
         ${TESTS}/modules/market_data_module_test.cpp
         ${TESTS}/modules/marketdata_bookbuilder_strategy_integrataion.cpp
         ${TESTS}/modules/strategy_module_test.cpp
+        ${TESTS}/modules/execution_module_test.cpp
 
         ${TESTS}/test_support/testing.hpp
         ${TESTS}/test_support/debug_helpers.hpp

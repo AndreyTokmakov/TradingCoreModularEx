@@ -24,6 +24,7 @@ void market_data_module_test();
 void book_builder_module_test();
 void marketdata_bookbuilder_strategy_integrataion();
 void strategy_module_test();
+void execution_module_test();
 
 void market_event_handler_test();
 void pnl_calculator_test();
@@ -159,6 +160,7 @@ namespace
         market_data_module_test();
         book_builder_module_test();
         strategy_module_test();
+        execution_module_test();
     }
 }
 
@@ -168,8 +170,8 @@ int main([[maybe_unused]] const int argc,
     const std::vector<std::string_view> parameters(argv + 1, argv + argc);
 
     // runApp(parameters);
-    // runTests(parameters);
-    marketdata_bookbuilder_strategy_integrataion();
+    runTests(parameters);
+    // marketdata_bookbuilder_strategy_integrataion();
 
     return EXIT_SUCCESS;
 }

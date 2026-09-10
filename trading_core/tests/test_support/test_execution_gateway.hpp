@@ -60,6 +60,10 @@ namespace trading::testing
             return cancelledOrders.size();
         }
 
+        execution::Order& getOrderByIndex(const size_t index) {
+            return sentOrders[index];
+        }
+
     private:
 
         std::vector<execution::Order> sentOrders;

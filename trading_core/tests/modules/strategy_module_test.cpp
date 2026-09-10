@@ -374,4 +374,6 @@ void strategy_module_test()
     testBuyUsesBestAsk();
     testSellUsesBestBid();
     testMultipleMarketEventsProduceMultipleOrders();
+
+    std::cout << "All StrategyModule tests: OK\n";
 }
