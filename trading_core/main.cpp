@@ -170,8 +170,8 @@ int main([[maybe_unused]] const int argc,
     const std::vector<std::string_view> parameters(argv + 1, argv + argc);
 
     // runApp(parameters);
-    runTests(parameters);
-    // marketdata_bookbuilder_strategy_integrataion();
+    // runTests(parameters);
+    marketdata_bookbuilder_strategy_integrataion();
 
     return EXIT_SUCCESS;
 }
