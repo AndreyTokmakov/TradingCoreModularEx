@@ -8,7 +8,6 @@ Description : Testing and Debuging
 ============================================================================**/
 
 #include "debug_helpers.hpp"
-#include "model/market_event.hpp"
 
 namespace trading::testing
 {
@@ -152,85 +151,165 @@ namespace trading::testing
         return stream << toString(signal);
     }
 
-    std::ostream& operator<<(std::ostream& stream, const execution::OrderRequest& request)
+    [[nodiscard]]
+    std::string toString(const  execution::OrderRequest& request)
     {
-        return stream << "OrderRequest {"
-                      << "\n\t instrument=" << request.instrument
-                      << "\n\t side=" << request.side
-                      << "\n\t type=" << request.type
-                      << "\n\t price=" << request.price.raw()
-                      << "\n\t quantity=" << request.quantity.raw()
-                      << "\n}\n";
+        std::ostringstream stream;
+        stream << "OrderRequest {"
+               << "\n\t instrument: " << request.instrument
+               << "\n\t side      : " << request.side
+               << "\n\t type      : " << request.type
+               << "\n\t price     : " << request.price.raw()
+               << "\n\t quantity  : " << request.quantity.raw()
+               << "\n}";
+        return stream.str();
+    }
+
+    std::ostream& operator<<(std::ostream& stream, const  execution::OrderRequest& request)
+    {
+        return stream << toString(request);
+    }
+
+    [[nodiscard]]
+    std::string toString(const execution::Order& order)
+    {
+        std::ostringstream stream;
+        stream << "Order {"
+               << "\n\t clientOrderId  : " << order.clientOrderId
+               << "\n\t exchangeOrderId: " << order.exchangeOrderId
+               << "\n\t instrument     : " << order.instrument
+               << "\n\t side           : " << order.side
+               << "\n\t type           : " << order.type
+               << "\n\t price          : " << order.price.raw()
+               << "\n\t quantity       : " << order.quantity.raw()
+               << "\n\t filledQuantity : " << order.filledQuantity.raw()
+               << "\n\t status         : " << order.status
+               << "\n}";
+        return stream.str();
     }
 
     std::ostream& operator<<(std::ostream& stream, const execution::Order& order)
     {
-        return stream << "Order {"
-                      << "\n\t clientOrderId=" << order.clientOrderId
-                      << "\n\t exchangeOrderId=" << order.exchangeOrderId
-                      << "\n\t instrument=" << order.instrument
-                      << "\n\t side=" << order.side
-                      << "\n\t type=" << order.type
-                      << "\n\t price=" << order.price.raw()
-                      << "\n\t quantity=" << order.quantity.raw()
-                      << "\n\t filledQuantity=" << order.filledQuantity.raw()
-                      << "\n\t status=" << order.status
-                      << "\n}\n";
+        return stream << toString(order);
+    }
+
+    [[nodiscard]]
+    std::string toString(const execution::ExecutionReport& report)
+    {
+        std::ostringstream stream;
+        stream << "ExecutionReport {"
+               << "\n\t clientOrderId  : " << report.clientOrderId
+               << "\n\t exchangeOrderId: " << report.exchangeOrderId
+               << "\n\t instrument     : " << report.instrument
+               << "\n\t side           : " << report.side
+               << "\n\t execType       : " << report.execType
+               << "\n\t status         : " << report.status
+               << "\n\t price          : " << report.price.raw()
+               << "\n\t quantity       : " << report.quantity.raw()
+               << "\n\t filledQuantity : " << report.filledQuantity.raw()
+               << "\n}";
+        return stream.str();
     }
 
     std::ostream& operator<<(std::ostream& stream, const execution::ExecutionReport& report)
     {
-        return stream << "ExecutionReport {"
-                      << "\n\t clientOrderId=" << report.clientOrderId
-                      << "\n\t exchangeOrderId=" << report.exchangeOrderId
-                      << "\n\t instrument=" << report.instrument
-                      << "\n\t side=" << report.side
-                      << "\n\t execType=" << report.execType
-                      << "\n\t status=" << report.status
-                      << "\n\t price=" << report.price.raw()
-                      << "\n\t quantity=" << report.quantity.raw()
-                      << "\n\t filledQuantity=" << report.filledQuantity.raw()
-                      << "\n}\n";
+        return stream << toString(report);
+    }
+
+    [[nodiscard]]
+    std::string toString(const market_data::BookUpdate& update)
+    {
+        std::ostringstream stream;
+
+        stream << "BookUpdate {"
+               << "\n\t instrument       : " << update.instrument
+               << "\n\t sequence         : " << update.sequence
+               << "\n\t exchangeTimestamp: " << update.exchangeTimestamp.nanoseconds()
+               << "\n\t side             : " << update.side
+               << "\n\t price            : " << update.price.raw()
+               << "\n\t quantity         : " << update.quantity.raw()
+               << "\n}";
+
+        return stream.str();
     }
 
     std::ostream& operator<<(std::ostream& stream, const market_data::BookUpdate& update)
     {
-        return stream << "BookUpdate {"
-                      << "\n\t instrument=" << update.instrument
-                      << "\n\t sequence=" << update.sequence
-                      << "\n\t exchangeTimestamp=" << update.exchangeTimestamp.nanoseconds()
-                      << "\n\t side=" << update.side
-                      << "\n\t price=" << update.price.raw()
-                      << "\n\t quantity=" << update.quantity.raw()
-                      << "\n}\n";
+        return stream << toString(update);
+    }
+
+    [[nodiscard]]
+    std::string toString(const market_data::MarketEvent& event)
+    {
+        std::ostringstream stream;
+        stream << "MarketEvent {"
+               << "\n\t instrument       : " << event.instrument
+               << "\n\t sequence         : " << event.sequence
+               << "\n\t exchangeTimestamp: " << event.exchangeTimestamp.nanoseconds()
+               << "\n\t receiveTimestamp : " << event.receiveTimestamp.nanoseconds()
+               << "\n\t bestBid          : " << event.bestBid.raw()
+               << "\n\t bestBidQuantity  : " << event.bestBidQuantity.raw()
+               << "\n\t bestAsk          : " << event.bestAsk.raw()
+               << "\n\t bestAskQuantity  : " << event.bestAskQuantity.raw()
+               << "\n}";
+        return stream.str();
     }
 
     std::ostream& operator<<(std::ostream& stream, const market_data::MarketEvent& event)
     {
-        return stream << "MarketEvent {"
-                      << "\n\t instrument=" << event.instrument
-                      << "\n\t sequence=" << event.sequence
-                      << "\n\t exchangeTimestamp=" << event.exchangeTimestamp.nanoseconds()
-                      << "\n\t receiveTimestamp=" << event.receiveTimestamp.nanoseconds()
-                      << "\n\t bestBid=" << event.bestBid.raw()
-                      << "\n\t bestBidQuantity=" << event.bestBidQuantity.raw()
-                      << "\n\t bestAsk=" << event.bestAsk.raw()
-                      << "\n\t bestAskQuantity=" << event.bestAskQuantity.raw()
-                      << "\n}\n";
+        return stream << toString(event);
     }
 
-    void printMarketEvent(const market_data::MarketEvent &event)
+    [[nodiscard]]
+    std::string toString(const market_data::BookLevel& level)
     {
-        std::cout << "MarketEvent {"
-            << "\n\t instrument       : " << event.instrument
-            << "\n\t sequence         : " << event.sequence
-            << "\n\t exchangeTimestamp: " << event.exchangeTimestamp.nanoseconds()
-            << "\n\t receiveTimestamp : " << event.receiveTimestamp .nanoseconds()
-            << "\n\t bestBid          : " << event.bestBid.raw()
-            << "\n\t bestBidQuantity  : " << event.bestBidQuantity.raw()
-            << "\n\t bestAsk          : " << event.bestAsk.raw()
-            << "\n\t bestAskQuantity  : " << event.bestAskQuantity.raw()
-            << "\n}\n";
+        std::ostringstream stream;
+        stream << "BookLevel {"
+               << "\n\t price   : " << level.price.raw()
+               << "\n\t quantity: " << level.quantity.raw()
+               << "\n}";
+        return stream.str();
+    }
+
+    std::ostream& operator<<(std::ostream& stream, const market_data::BookLevel& level)
+    {
+        return stream << toString(level);
+    }
+
+    [[nodiscard]]
+    std::string toString(const market_data::OrderBookLevels& levels)
+    {
+        std::ostringstream stream;
+        stream << "{";
+        for (const auto& [price, quantity] : levels) {
+            stream << "\n\t " << price.raw() << " : " << quantity.raw();
+        }
+        stream << "\n}";
+        return stream.str();
+    }
+
+    std::ostream& operator<<(std::ostream& stream, const market_data::OrderBookLevels& levels)
+    {
+        return stream << toString(levels);
+    }
+
+    [[nodiscard]]
+    std::string toString(const market_data::Snapshot& snapshot)
+    {
+        std::ostringstream stream;
+        stream << "Snapshot {"
+               << "\n\t instrument       : " << snapshot.instrument
+               << "\n\t sequence         : " << snapshot.sequence
+               << "\n\t exchangeTimestamp: " << snapshot.exchangeTimestamp.nanoseconds()
+               << "\n\t bids             : " << snapshot.bids
+               << "\n\t asks             : " << snapshot.asks
+               << "\n}";
+        return stream.str();
+    }
+
+    std::ostream& operator<<(std::ostream& stream, const market_data::Snapshot& snapshot)
+    {
+        return stream << toString(snapshot);
     }
 }
 
