@@ -20,6 +20,7 @@ Description :  Processes order requests and execution reports on the execution t
 #include "exchange_factory.hpp"
 #include "metrics_collector.hpp"
 #include "risk_manager.hpp"
+#include "logger.hpp"
 
 namespace trading::execution
 {
@@ -49,7 +50,7 @@ namespace trading::execution
         std::unique_ptr<IExecutionGateway> executionGateway;
         OrderManager orderManager;
 
-        // std::shared_ptr<logging::ILogger> logger;
+        std::shared_ptr<logging::ILogger> logger;
         static inline thread_local metrics::Metrics& metrics  = metrics::MetricsCollector::getCollector().getThreadLocalMetrics();
     };
 }

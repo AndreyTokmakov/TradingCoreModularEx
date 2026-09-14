@@ -14,6 +14,7 @@ Description :
 #include <string_view>
 
 #include "app/application.hpp"
+#include "logger_factory.hpp"
 
 void price_test();
 void order_book_test();
@@ -50,37 +51,13 @@ void trading_inbound_integration_test();
 // TODO:
 //  - vector of MarketDataModule, BookBuilderModule, ExecutionReportModule ... per Exchange ??
 
-// TODO: Metrics
-//  • Market Data:
-//       - messages received
-//       - messages parsed
-//       - parse errors
-//       - book updates
-//       - book update errors
-//       - market events
-//  • Strategy:
-//       - events evaluated
-//       - Buy signals
-//       - Sell signals
-//       - orders generated
-//  • Risk:
-//       - risk checks
-//       - risk rejections
-//  • Execution:
-//       - order requests
-//       - orders created
-//       - orders rejected
-//       - execution reports
-//       - trades
-//       - cancelled
-//       - rejected
-//  • Order Book:
-//       - snapshots applied
-//       - updates applied
-//       - sequence gaps
-
 // TODO:
 //  ---- > where to use PnLCalculator ??
+
+// TODO: -- Logger
+//   1. Thread safe creation
+//   2. Logger for tests
+//   3. What to log ?
 
 
 /**  Сейчас есть в PositionManager есть applyExecution и applyTrade
@@ -120,12 +97,18 @@ bool PositionManager::applyExecution(const execution::ExecutionReport& report)
 
 namespace
 {
+    using LoggerFactory = trading::logging::LoggerFactory;
+    using LoggingConfiguration = trading::logging::LoggingConfiguration;
+
+
     [[maybe_unused]]
     void runApp(const std::vector<std::string_view>& parameters)
     {
         const std::filesystem::path configPath = parameters.empty() ?  "config.json" : parameters.front();
         try
         {
+            const auto _  = LoggerFactory::createLogger(LoggingConfiguration{});
+
             trading::app::Application application { configPath };
             application.start();
 
@@ -141,6 +124,8 @@ namespace
     [[maybe_unused]]
     void runTests(const std::vector<std::string_view>& )
     {
+        const auto _  = LoggerFactory::createLogger(LoggingConfiguration{});
+
         price_test();
 
         // market_event_handler_test();
@@ -170,8 +155,8 @@ int main([[maybe_unused]] const int argc,
     const std::vector<std::string_view> parameters(argv + 1, argv + argc);
 
     // runApp(parameters);
-    // runTests(parameters);
-    marketdata_bookbuilder_strategy_integrataion();
+    runTests(parameters);
+    // marketdata_bookbuilder_strategy_integrataion();
 
     return EXIT_SUCCESS;
 }

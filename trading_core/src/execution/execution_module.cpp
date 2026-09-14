@@ -8,9 +8,12 @@ Description : Sends orders to the exchange on the execution thread.
 ============================================================================**/
 
 #include "execution_module.hpp"
+#include "logger_factory.hpp"
 
 namespace trading::execution
 {
+    using LoggerFactory = logging::LoggerFactory;
+
     ExecutionModule::ExecutionModule(const config::Config& config,
                                      concurrency::Queue<ExecutionWorkItem>& executionQueue,
                                      concurrency::Queue<recording::RecordingEvent>& recordingQueue,
@@ -28,9 +31,10 @@ namespace trading::execution
         },
         orderManager {
             riskManager, positionManager, *executionGateway
-        }
+        },
+        logger { LoggerFactory::getLogger() }
     {
-        /** TODO **/
+        /** **/
     }
 
     void ExecutionModule::run()

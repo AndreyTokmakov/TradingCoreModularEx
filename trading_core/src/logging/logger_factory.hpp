@@ -15,32 +15,25 @@ Description : Factory for creating the trading system logger.
 
 #include <memory>
 
-namespace trading::app {
-    class Application;
-}
-
-namespace e2e_tests {
-    class TestApplication;
-}
 
 namespace trading::logging
 {
     class LoggerFactory
     {
-        class AccessKey
-        {
-            friend class app::Application;
-            friend class e2e_tests::TestApplication;
-
-            AccessKey() = default;
-            AccessKey(AccessKey const&) = default;
-        };
-
     public:
 
         [[nodiscard]]
-        static std::shared_ptr<ILogger> createLogger(const LoggingConfiguration& configuration,
-                                                     AccessKey accessKey);
+        static std::shared_ptr<ILogger> getLogger() noexcept;
+
+        static void createLogger(std::shared_ptr<ILogger> logger) noexcept;
+
+        [[nodiscard]]
+        static std::shared_ptr<ILogger>
+        createLogger(const LoggingConfiguration& configuration);
+
+    private:
+
+        static std::shared_ptr<ILogger> logger;
     };
 }
 
