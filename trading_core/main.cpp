@@ -15,6 +15,7 @@ Description :
 
 #include "app/application.hpp"
 #include "logger_factory.hpp"
+#include "test_support/null_logger.hpp"
 
 void price_test();
 void order_book_test();
@@ -124,7 +125,8 @@ namespace
     [[maybe_unused]]
     void runTests(const std::vector<std::string_view>& )
     {
-        const auto _  = LoggerFactory::createLogger(LoggingConfiguration{});
+        const auto nullLogger = std::make_shared<trading::testing::NullLogger>();
+        LoggerFactory::createLogger(nullLogger);
 
         price_test();
 
