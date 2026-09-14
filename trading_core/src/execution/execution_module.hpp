@@ -18,8 +18,8 @@ Description :  Processes order requests and execution reports on the execution t
 #include "worker.hpp"
 #include "config.hpp"
 #include "exchange_factory.hpp"
-#include "metrics_collector.hpp"
 #include "risk_manager.hpp"
+#include "metrics_collector.hpp"
 #include "logger.hpp"
 
 namespace trading::execution

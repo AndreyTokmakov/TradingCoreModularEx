@@ -20,6 +20,8 @@ Description : Processes market-data book updates on the BookBuilder thread.
 #include "interfaces/snapshot_provider.hpp"
 #include "worker.hpp"
 #include "exchange_factory.hpp"
+#include "metrics_collector.hpp"
+#include "logger.hpp"
 
 namespace trading::market_data
 {
@@ -41,6 +43,9 @@ namespace trading::market_data
         MarketEventDispatcher marketEventDispatcher;
         BookBuilder bookBuilder;
         std::unique_ptr<ISnapshotProvider> snapshotProvider;
+
+        std::shared_ptr<logging::ILogger> logger;
+        static inline thread_local metrics::Metrics& metrics  = metrics::MetricsCollector::getCollector().getThreadLocalMetrics();
     };
 }
 

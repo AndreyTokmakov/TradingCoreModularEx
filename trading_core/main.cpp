@@ -125,7 +125,7 @@ namespace
     [[maybe_unused]]
     void runTests(const std::vector<std::string_view>& )
     {
-        const auto nullLogger = std::make_shared<trading::testing::NullLogger>();
+        const auto nullLogger = std::make_shared<trading::testing::NullLogger>(true);
         LoggerFactory::createLogger(nullLogger);
 
         price_test();

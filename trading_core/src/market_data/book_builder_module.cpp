@@ -9,6 +9,7 @@ Description : Processes market-data book updates on the BookBuilder thread.
 
 #include "book_builder_module.hpp"
 #include "config_utils.hpp"
+#include "logger_factory.hpp"
 
 namespace trading::market_data
 {
@@ -27,6 +28,9 @@ namespace trading::market_data
         },
         snapshotProvider {
             exchangeFactory.createSnapshotProvider(config)
+        },
+        logger {
+            logging::LoggerFactory::getLogger()
         }
     {
     }
@@ -34,8 +38,13 @@ namespace trading::market_data
     void BookBuilderModule::run()
     {
         const Snapshot snapshot = snapshotProvider->getSnapshot();
-        if (!bookBuilder.applySnapshot(snapshot))
+        metrics.increment<metrics::MetricType::MarketDataSnapshots>();
+
+        if (!bookBuilder.applySnapshot(snapshot)) {
+            logger->error("Failed to apply book builder snapshot");
+            metrics.increment<metrics::MetricType::MarketDataSnapshotApplyFailed>();
             return;
+        }
 
         BookUpdates updates;
         while (bookUpdateQueue.waitPop(updates))

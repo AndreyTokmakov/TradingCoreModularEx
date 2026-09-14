@@ -250,6 +250,8 @@ Description : order_manager.hpp
 #include "model/order.hpp"
 #include "risk_manager.hpp"
 #include "position_manager.hpp"
+#include "metrics_collector.hpp"
+#include "logger.hpp"
 
 namespace trading::execution
 {
@@ -291,6 +293,9 @@ namespace trading::execution
         risk::RiskManager& riskManager;
         position::PositionManager& positionManager;
         IExecutionGateway& gateway;
+
+        std::shared_ptr<logging::ILogger> logger;
+        static inline thread_local metrics::Metrics& metrics  = metrics::MetricsCollector::getCollector().getThreadLocalMetrics();
 
         std::map<OrderId, Order> orders;
         OrderId nextOrderId { 1 };

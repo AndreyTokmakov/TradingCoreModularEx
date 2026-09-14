@@ -39,6 +39,7 @@ Description : order_manager.cpp
 */
 
 #include "order_manager.hpp"
+#include "logger_factory.hpp"
 
 namespace trading::execution
 {
@@ -59,14 +60,17 @@ namespace trading::execution
             request.price.isZero() ||
             !request.price.isPositive())
         {
+            metrics.increment<metrics::MetricType::InvalidOrdersRequest>();
             return std::unexpected(OrderCreationError::InvalidRequest);
         }
 
         const position::Position& position = positionManager.getOrDefault(request.instrument);
         const risk::RiskResult riskResult = riskManager.checkOrder(request, position);
 
-        if (riskResult != risk::RiskResult::Accepted)
+        if (riskResult != risk::RiskResult::Accepted) {
+            metrics.increment<metrics::MetricType::RiskRejected>();
             return std::unexpected(OrderCreationError::RiskRejected);
+        }
 
         const OrderId orderId = nextOrderId++;
 
@@ -83,9 +87,10 @@ namespace trading::execution
         };
 
         const auto [it, inserted] = orders.emplace(orderId, order);
-
-        if (!inserted)
+        if (!inserted) {
+            metrics.increment<metrics::MetricType::InvalidOrdersRequest>();
             return std::unexpected(OrderCreationError::InvalidRequest);
+        }
 
         gateway.send(it->second);
         return orderId;
@@ -94,8 +99,10 @@ namespace trading::execution
     bool OrderManager::applyExecution(const ExecutionReport& report)
     {
         const auto itOrder = orders.find(report.clientOrderId);
-        if (itOrder == orders.end())
+        if (itOrder == orders.end()) {
+            metrics.increment<metrics::MetricType::InvalidExecutionReport>();
             return false;
+        }
 
         Order& order = itOrder->second;
 

@@ -17,32 +17,48 @@ namespace trading::testing
 {
     class NullLogger final : public logging::ILogger
     {
+    public:
+        explicit NullLogger(const bool printLogs = false) : print(printLogs) {}
+
     private:
 
-        void traceImpl(std::string) override
-        {
+        void traceImpl(std::string msg) override {
+            if (print) {
+                std::println("[TRACE   ] {}", msg);
+            }
         }
 
-        void debugImpl(std::string) override
-        {
+        void debugImpl(std::string msg) override {
+            if (print) {
+                std::println("[DEBUG   ] {}", msg);
+            }
         }
 
-        void infoImpl(std::string msg) override
-        {
-            std::println("{}", msg);
+        void infoImpl(std::string msg) override {
+            if (print) {
+                std::println("[INFO    ] {}", msg);
+            }
         }
 
-        void warnImpl(std::string) override
-        {
+        void warnImpl(std::string msg) override {
+            if (print) {
+                std::println("[WARNING ] {}", msg);
+            }
         }
 
-        void errorImpl(std::string) override
-        {
+        void errorImpl(std::string msg) override {
+            if (print) {
+                std::println("[ERROR   ] {}", msg);
+            }
         }
 
-        void criticalImpl(std::string) override
-        {
+        void criticalImpl(std::string msg) override {
+            if (print) {
+                std::println("[CRITICAL] {}", msg);
+            }
         }
+
+        bool print { false };
     };
 }
 

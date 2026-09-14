@@ -33,22 +33,29 @@ Description : market_data_message_handler.cpp
 */
 
 #include "market_data_message_handler.hpp"
+#include "logger_factory.hpp"
 
 namespace trading::market_data
 {
     MarketDataMessageHandler::MarketDataMessageHandler(IMarketDataParser& parser,
                                                        concurrency::Queue<BookUpdates>& bookUpdateQueue) noexcept:
         parser { parser },
-        bookUpdateQueue { bookUpdateQueue }
+        bookUpdateQueue { bookUpdateQueue },
+        logger { logging::LoggerFactory::getLogger() }
     {
     }
 
     void MarketDataMessageHandler::onMessage(const std::string_view message)
     {
         bookUpdates.clear();
-        if (parser.parse(message, bookUpdates) != ParseResult::Success)
-            return;
 
+        if (parser.parse(message, bookUpdates) != ParseResult::Success) {
+            logger->error("Failed to parse book updates from message");
+            metrics.increment<metrics::MetricType::MarketDataParseErrors>();
+            return;
+        }
+
+        metrics.increment<metrics::MetricType::MarketDataUpdates>();
         if (!bookUpdates.empty())
             bookUpdateQueue.push(std::move(bookUpdates));
     }

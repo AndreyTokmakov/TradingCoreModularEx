@@ -73,6 +73,8 @@ Description : market_data_message_handler.hpp
 
 #include "interfaces/market_data_parser.hpp"
 #include "queue.hpp"
+#include "metrics_collector.hpp"
+#include "logger.hpp"
 
 namespace trading::market_data
 {
@@ -94,6 +96,9 @@ namespace trading::market_data
         BookUpdates bookUpdates;
         IMarketDataParser& parser;
         concurrency::Queue<BookUpdates>& bookUpdateQueue;
+
+        std::shared_ptr<logging::ILogger> logger;
+        static inline thread_local metrics::Metrics& metrics  = metrics::MetricsCollector::getCollector().getThreadLocalMetrics();
     };
 }
 

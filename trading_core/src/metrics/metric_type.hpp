@@ -360,6 +360,7 @@ namespace trading::metrics
         MarketDataParseErrors,
         MarketDataSequenceErrors,
         MarketDataSnapshots,
+        MarketDataSnapshotApplyFailed,
         MarketDataUpdates,
 
         // Order Book
@@ -383,6 +384,7 @@ namespace trading::metrics
         OrdersCancelled,
         OrdersAmended,
         OrdersCompleted,
+        InvalidOrdersRequest,
 
         // Execution
         ExecutionReports,
@@ -393,6 +395,7 @@ namespace trading::metrics
         ExecutionFullyFilled,
         ExecutionCancels,
         ExecutionErrors,
+        InvalidExecutionReport,
 
         // Position / Trading State
         PositionUpdates,
