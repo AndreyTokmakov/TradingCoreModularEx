@@ -28,6 +28,7 @@ using trading::position::PositionManager;
 namespace
 {
     using testing::Assert;
+    using testing::AssertNotNull;
 
     ExecutionReport createTradeReport(const InstrumentId instrument,
                                       const Side side,

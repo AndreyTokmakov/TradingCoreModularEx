@@ -210,6 +210,7 @@ add_executable(${PROJECT_NAME}
         ${TESTS}/strategy/imbalance_strategy_test.cpp
 
         ${TESTS}/modules/book_builder_module_test.cpp
+        ${TESTS}/modules/book_builder_module_restore_book_test.cpp
         ${TESTS}/modules/market_data_module_test.cpp
         ${TESTS}/modules/marketdata_bookbuilder_strategy_integrataion.cpp
         ${TESTS}/modules/strategy_module_test.cpp

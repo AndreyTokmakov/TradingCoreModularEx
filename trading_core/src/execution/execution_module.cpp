@@ -51,14 +51,16 @@ namespace trading::execution
     void ExecutionModule::process(const OrderRequest& request)
     {
         // logger->info("{} [{}]", __PRETTY_FUNCTION__, __LINE__);
-        metrics.increment<metrics::MetricType::OrderRequests>();
         recordingQueue.push(request);
 
-        [[maybe_unused]]
+        metrics.increment<metrics::MetricType::OrderRequests>();
         const OrderCreationResult result = orderManager.createOrder(request);
+        if (!result.has_value()) {
+            // TODO: Handle order creation errors: logging / metrics / risk event.
+        }
 
+        metrics.increment<metrics::MetricType::OrdersSubmitted>();
         // logger->info("{} [{}]", __PRETTY_FUNCTION__, __LINE__);
-        // TODO: Handle order creation errors: logging / metrics / risk event.
     }
 
     void ExecutionModule::process(const ExecutionReport& report)
@@ -68,6 +70,9 @@ namespace trading::execution
 
         [[maybe_unused]]
         const bool processed = orderManager.applyExecution(report);
-        // TODO: Handle unknown orders or invalid execution reports.
+        if (!processed) {
+            metrics.increment<metrics::MetricType::ExecutionErrors>();
+            // TODO: Handle unknown orders or invalid execution reports.
+        }
     }
 }

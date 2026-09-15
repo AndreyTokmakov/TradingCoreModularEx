@@ -23,6 +23,7 @@ void order_manager_test();
 void book_builder_test();
 
 void market_data_module_test();
+void book_builder_module_restore_book_test();
 void book_builder_module_test();
 void marketdata_bookbuilder_strategy_integrataion();
 void strategy_module_test();
@@ -149,6 +150,17 @@ namespace
         strategy_module_test();
         execution_module_test();
     }
+
+    [[maybe_unused]]
+    void runSingleTest(const std::vector<std::string_view>& )
+    {
+        const auto nullLogger = std::make_shared<trading::testing::NullLogger>(true);
+        LoggerFactory::createLogger(nullLogger);
+
+        // marketdata_bookbuilder_strategy_integrataion();
+        book_builder_module_restore_book_test();
+    }
+
 }
 
 int main([[maybe_unused]] const int argc,
@@ -157,8 +169,8 @@ int main([[maybe_unused]] const int argc,
     const std::vector<std::string_view> parameters(argv + 1, argv + argc);
 
     // runApp(parameters);
-    runTests(parameters);
-    // marketdata_bookbuilder_strategy_integrataion();
+    // runTests(parameters);
+    runSingleTest(parameters);
 
     return EXIT_SUCCESS;
 }
