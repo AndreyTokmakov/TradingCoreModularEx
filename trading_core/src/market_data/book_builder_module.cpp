@@ -11,6 +11,9 @@ Description : Processes market-data book updates on the BookBuilder thread.
 #include "config_utils.hpp"
 #include "logger_factory.hpp"
 
+#include "test_support/debug_helpers.hpp"
+using namespace trading::testing;
+
 namespace trading::market_data
 {
     BookBuilderModule::BookBuilderModule(const config::Config& config,
@@ -45,6 +48,8 @@ namespace trading::market_data
             metrics.increment<metrics::MetricType::MarketDataSnapshotApplyFailed>();
             return;
         }
+
+        std::cout << snapshot << std::endl;
 
         BookUpdates updates;
         while (bookUpdateQueue.waitPop(updates))

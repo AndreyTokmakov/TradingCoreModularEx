@@ -36,9 +36,9 @@ namespace
             { Price { 6'500'002'000'000 }, Quantity { 310'000'000 } }
         };
 
-        book.replace(100, bids, asks);
+        book.setState(100, bids, asks);
 
-        Assert(book.sequence() == 100, "replace sequence must be stored");
+        Assert(book.sequence() == 100, "setState sequence must be stored");
 
         const auto bestBid = book.bestBid();
 
@@ -57,7 +57,7 @@ namespace
     {
         OrderBook book;
 
-        book.replace(100, {}, {});
+        book.setState(100, {}, {});
 
         const bool applied = book.applyUpdate(BookUpdate {
             .instrument = 1,
@@ -81,7 +81,7 @@ namespace
     {
         OrderBook book;
 
-        book.replace(100, {}, {});
+        book.setState(100, {}, {});
 
         const bool applied = book.applyUpdate(BookUpdate {
             .instrument = 1,
@@ -105,7 +105,7 @@ namespace
     {
         OrderBook book;
 
-        book.replace(
+        book.setState(
             100,
             {
                 { Price { 6'500'000'000'000 }, Quantity { 120'000'000 } }
@@ -130,7 +130,7 @@ namespace
     {
         OrderBook book;
 
-        book.replace(
+        book.setState(
             100,
             {
                 { Price { 6'500'000'000'000 }, Quantity { 120'000'000 } }
@@ -157,7 +157,7 @@ namespace
         constexpr Price existingPrice { 6'500'000'000'000 };
         constexpr Price unknownPrice { 6'499'999'000'000 };
 
-        book.replace(
+        book.setState(
             100,
             {
                 { existingPrice, Quantity { 120'000'000 } }
@@ -182,7 +182,7 @@ namespace
     {
         OrderBook book;
 
-        book.replace(
+        book.setState(
             100,
             {
                 { Price { 6'499'999'000'000 }, Quantity { 100'000'000 } },
@@ -202,7 +202,7 @@ namespace
     {
         OrderBook book;
 
-        book.replace(
+        book.setState(
             100,
             {},
             {
@@ -225,7 +225,7 @@ namespace
         constexpr Price bestPrice { 6'500'000'000'000 };
         constexpr Price nextPrice { 6'499'999'000'000 };
 
-        book.replace(
+        book.setState(
             100,
             {
                 { bestPrice, Quantity { 100'000'000 } },
@@ -257,7 +257,7 @@ namespace
         constexpr Price bestPrice { 6'500'001'000'000 };
         constexpr Price nextPrice { 6'500'002'000'000 };
 
-        book.replace(
+        book.setState(
             100,
             {},
             {
@@ -287,7 +287,7 @@ namespace
     void testSequentialUpdates()
     {
         OrderBook book;
-        book.replace(100, {}, {});
+        book.setState(100, {}, {});
 
         Assert(book.applyUpdate(BookUpdate {
                 .instrument = 1,
@@ -323,7 +323,7 @@ namespace
         OrderBook book;
         constexpr Price price { 6'500'000'000'000 };
 
-        book.replace(100, {}, {});
+        book.setState(100, {}, {});
         Assert(book.applyUpdate(BookUpdate {
                 .instrument = 1,
                 .sequence = 101,
@@ -351,7 +351,7 @@ namespace
 
         constexpr Price price { 6'500'000'000'000 };
 
-        book.replace(100,
+        book.setState(100,
             {{ price, Quantity { 100'000'000 } }},
             {}
         );
@@ -376,7 +376,7 @@ namespace
         constexpr Price bidPrice { 6'500'000'000'000 };
         constexpr Price askPrice { 6'500'001'000'000 };
 
-        book.replace(100,
+        book.setState(100,
             {{ bidPrice, Quantity { 100'000'000 } }},
             {{ askPrice, Quantity { 200'000'000 } }}
         );
@@ -402,7 +402,7 @@ namespace
         constexpr Price bidPrice { 6'500'000'000'000 };
         constexpr Price askPrice { 6'500'001'000'000 };
 
-        book.replace(100,
+        book.setState(100,
             { { bidPrice, Quantity { 100'000'000 } } },
             { { askPrice, Quantity { 200'000'000 } } }
         );
@@ -433,16 +433,16 @@ namespace
     {
         OrderBook book;
 
-        book.replace(100,
+        book.setState(100,
             { { Price { 6'500'000'000'000 }, Quantity { 100'000'000 } } },
             { { Price { 6'500'001'000'000 }, Quantity { 200'000'000 } } }
         );
-        book.replace(200,
+        book.setState(200,
             { { Price { 6'600'000'000'000 }, Quantity { 300'000'000 } } },
             { { Price { 6'600'001'000'000 }, Quantity { 400'000'000 } } }
         );
 
-        Assert(book.sequence() == 200, "replace sequence must replace old sequence");
+        Assert(book.sequence() == 200, "setState sequence must replace old sequence");
         Assert(book.bidVolume(Price { 6'500'000'000'000 }).isZero(), "old bid must be removed");
         Assert(book.askVolume(Price { 6'500'001'000'000 }).isZero(), "old ask must be removed");
         Assert(book.bidVolume(Price { 6'600'000'000'000 }) == Quantity { 300'000'000 }, "new bid must exist");
@@ -456,16 +456,16 @@ namespace
         constexpr Price bidPrice { 6'500'000'000'000 };
         constexpr Price askPrice { 6'500'001'000'000 };
 
-        book.replace(100,
+        book.setState(100,
             { { bidPrice, Quantity { 100'000'000 } } },
             { { askPrice, Quantity { 200'000'000 } } }
         );
-        book.replace(200,
+        book.setState(200,
             {},
             { { Price { 6'600'001'000'000 }, Quantity { 300'000'000 } } }
         );
 
-        Assert(book.sequence() == 200, "replace sequence must be updated");
+        Assert(book.sequence() == 200, "setState sequence must be updated");
         Assert(!book.bestBid().has_value(), "bids must be cleared by empty snapshot side");
         Assert(book.bidVolume(bidPrice).isZero(), "old bid must be removed by empty snapshot side");
 
@@ -480,7 +480,7 @@ namespace
     void testClear()
     {
         OrderBook book;
-        book.replace(100,
+        book.setState(100,
             { { Price { 6'500'000'000'000 }, Quantity { 100'000'000 } } },
             { { Price { 6'500'001'000'000 }, Quantity { 200'000'000 } } }
         );
@@ -498,7 +498,7 @@ namespace
         constexpr Price bidPrice { 6'500'000'000'000 };
         constexpr Price askPrice { 6'500'001'000'000 };
 
-        book.replace(100, {}, {});
+        book.setState(100, {}, {});
 
         Assert(book.applyUpdate(BookUpdate {
                 .instrument = 1,

@@ -36,9 +36,11 @@ Description : book_builder.cpp
     the OrderBook is invalid or the sequence is incorrect is ignored and does
     not produce a MarketEvent.
 */
-#include "book_builder.hpp"
 
 #include "book_builder.hpp"
+
+#include "test_support/debug_helpers.hpp"
+using namespace trading::testing;
 
 namespace trading::market_data
 {
@@ -56,7 +58,7 @@ namespace trading::market_data
         if (snapshot.instrument != instrument)
             return false;
 
-        orderBook.replace(snapshot.sequence, snapshot.bids, snapshot.asks);
+        orderBook.setState(snapshot.sequence, snapshot.bids, snapshot.asks);
 
         return true;
     }
@@ -66,8 +68,12 @@ namespace trading::market_data
         if (update.instrument != instrument)
             return;
 
-        if (!orderBook.applyUpdate(update))
+        if (!orderBook.applyUpdate(update)) {
+            std::cout << "Skipping update with Sequence = " << update.sequence << std::endl;
             return;
+        }
+
+        std::cout << update << std::endl;
 
         publishMarketEvent(update.sequence, update.exchangeTimestamp);
     }

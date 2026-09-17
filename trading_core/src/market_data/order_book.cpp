@@ -23,10 +23,9 @@ namespace trading::market_data
         sequenceNumber = 0;
     }
 
-    // TODO: Rename --- Snapshot
-    void OrderBook::replace(const SequenceNumber sequence,
-                            const Levels& snapBids,
-                            const Levels& snapAsks)
+    void OrderBook::setState(const SequenceNumber sequence,
+                             const Levels& snapBids,
+                             const Levels& snapAsks)
     {
         bids = snapBids;
         asks = snapAsks;

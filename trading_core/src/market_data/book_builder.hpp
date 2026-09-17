@@ -59,7 +59,7 @@ Description : Order book builder.
         Snapshot
             |
             v
-        OrderBook::replace()
+        OrderBook::setState()
             |
             v
         valid OrderBook

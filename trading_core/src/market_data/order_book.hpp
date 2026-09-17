@@ -33,9 +33,9 @@ namespace trading::market_data
 
         void clear() noexcept;
 
-        void replace(SequenceNumber sequence,
-                     const Levels& snapBids,
-                     const Levels& snapAsks);
+        void setState(SequenceNumber sequence,
+                      const Levels& snapBids,
+                      const Levels& snapAsks);
 
         [[nodiscard]]
         bool applyUpdate(const BookUpdate& update) noexcept;
