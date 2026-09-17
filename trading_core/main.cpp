@@ -96,6 +96,18 @@ bool PositionManager::applyExecution(const execution::ExecutionReport& report)
     }
 **/
 
+/**
+Replace
+
+namespace trading::market_data
+{
+    using OrderBookLevels = std::map<Price, Quantity>;
+}
+
+with Array Of Prices [min - max] / Tick
+
+**/
+
 
 namespace
 {
