@@ -21,8 +21,12 @@ Description : Order book state.
 #include <map>
 #include <optional>
 
-namespace trading::market_data
+namespace trading::order_book
 {
+    using market_data::BookUpdate;
+    using market_data::BookLevel;
+    using market_data::OrderBookLevels;
+
     class OrderBook
     {
     public:

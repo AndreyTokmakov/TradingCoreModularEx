@@ -11,10 +11,7 @@ Description : Processes market-data book updates on the BookBuilder thread.
 #include "config_utils.hpp"
 #include "logger_factory.hpp"
 
-#include "test_support/debug_helpers.hpp"
-using namespace trading::testing;
-
-namespace trading::market_data
+namespace trading::order_book
 {
     BookBuilderModule::BookBuilderModule(const config::Config& config,
                                          concurrency::ConditionVariableQueue<BookUpdates>& bookUpdateQueue,

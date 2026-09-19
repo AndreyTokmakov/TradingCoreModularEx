@@ -116,8 +116,12 @@ Description : Order book builder.
 #include "model/snapshot.hpp"
 #include "order_book.hpp"
 
-namespace trading::market_data
+namespace trading::order_book
 {
+    using market_data::Snapshot;
+    using market_data::MarketEvent;
+    using market_data::MarketEventDispatcher;
+
     class BookBuilder final
     {
     public:

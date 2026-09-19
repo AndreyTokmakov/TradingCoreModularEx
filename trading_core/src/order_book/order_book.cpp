@@ -9,7 +9,7 @@ Description : Order book state management.
 
 #include "order_book.hpp"
 
-namespace trading::market_data
+namespace trading::order_book
 {
     SequenceNumber OrderBook::sequence() const noexcept
     {

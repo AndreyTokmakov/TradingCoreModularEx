@@ -39,10 +39,7 @@ Description : book_builder.cpp
 
 #include "book_builder.hpp"
 
-#include "test_support/debug_helpers.hpp"
-using namespace trading::testing;
-
-namespace trading::market_data
+namespace trading::order_book
 {
     BookBuilder::BookBuilder(const InstrumentId instrument,
                              OrderBook& orderBook,

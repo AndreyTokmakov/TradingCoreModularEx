@@ -23,8 +23,14 @@ Description : Processes market-data book updates on the BookBuilder thread.
 #include "metrics_collector.hpp"
 #include "logger.hpp"
 
-namespace trading::market_data
+namespace trading::order_book
 {
+    using market_data::BookUpdates;
+    using market_data::MarketEvent;
+    using market_data::OrderBookLevels;
+    using market_data::ISnapshotProvider;
+    using market_data::MarketEventDispatcher;
+
     class BookBuilderModule final: public common::Worker<BookBuilderModule>
     {
     public:
