@@ -50,17 +50,15 @@ namespace trading::execution
 
     void ExecutionModule::process(const OrderRequest& request)
     {
-        // logger->info("{} [{}]", __PRETTY_FUNCTION__, __LINE__);
+        metrics.increment<metrics::MetricType::OrderRequests>();
         recordingQueue.push(request);
 
-        metrics.increment<metrics::MetricType::OrderRequests>();
         const OrderCreationResult result = orderManager.createOrder(request);
         if (!result.has_value()) {
             // TODO: Handle order creation errors: logging / metrics / risk event.
         }
 
         metrics.increment<metrics::MetricType::OrdersSubmitted>();
-        // logger->info("{} [{}]", __PRETTY_FUNCTION__, __LINE__);
     }
 
     void ExecutionModule::process(const ExecutionReport& report)

@@ -56,11 +56,6 @@ void trading_inbound_integration_test();
 // TODO:
 //  ---- > where to use PnLCalculator ??
 
-// TODO: -- Logger
-//   1. Thread safe creation
-//   2. Logger for tests
-//   3. What to log ?
-
 
 /**  Сейчас есть в PositionManager есть applyExecution и applyTrade
  *   разобраться какое нужен и какой оставить
@@ -97,17 +92,44 @@ bool PositionManager::applyExecution(const execution::ExecutionReport& report)
 **/
 
 /**
-Replace
-
-namespace trading::market_data
-{
-    using OrderBookLevels = std::map<Price, Quantity>;
-}
-
-with Array Of Prices [min - max] / Tick
-
+Replace         namespace trading::market_data
+                {
+                    using OrderBookLevels = std::map<Price, Quantity>;    --->  with Array Of Prices [min - max] / Tick
+                }
 **/
 
+/**
+| Module              | Metric                          | Когда increment                    |
+| ------------------- | ------------------------------- | ---------------------------------- |
+| `MarketDataSource`  | `MarketDataReceived`            | raw message успешно получен        |
+| `MarketDataSource`  | `MarketDataReceiveErrors`       | ошибка получения                   |
+| `MarketDataParser`  | `MarketDataParsed`              | message успешно parsed             |
+| `MarketDataParser`  | `MarketDataParseErrors`         | parse failed                       |
+| `BookBuilderModule` | `MarketDataSnapshots`           | snapshot получен                   |
+| `BookBuilderModule` | `MarketDataSnapshotApplyFailed` | snapshot не применён               |
+| `BookBuilderModule` | `MarketDataUpdates`             | `BookUpdate` получен для обработки |
+| `OrderBook`         | `OrderBookUpdates`              | update реально применён            |
+| `OrderBook`         | `OrderBookSequenceErrors`       | обнаружен sequence gap             |
+| `StrategyModule`    | `StrategySignals`               | signal создан                      |
+| `StrategyModule`    | `StrategySignalsRejected`       | strategy отклонила signal          |
+| `RiskManager`       | `RiskChecks`                    | выполнен risk check                |
+| `RiskManager`       | `RiskAccepted`                  | risk check passed                  |
+| `RiskManager`       | `RiskRejected`                  | risk check failed                  |
+| `ExecutionModule`   | `ExecutionRequests`             | request передан на execution       |
+| `ExecutionModule`   | `ExecutionReports`              | report обработан                   |
+| `ExecutionModule`   | `ExecutionAcknowledgements`     | ACK получен                        |
+| `ExecutionModule`   | `ExecutionRejects`              | execution reject                   |
+| `ExecutionModule`   | `ExecutionFills`                | fill                               |
+| `ExecutionModule`   | `ExecutionPartiallyFilled`      | partial fill                       |
+| `ExecutionModule`   | `ExecutionFullyFilled`          | full fill                          |
+| `ExecutionModule`   | `ExecutionCancels`              | cancel report                      |
+| `Gateway`           | `GatewayConnections`            | connection established             |
+| `Gateway`           | `GatewayDisconnections`         | connection lost                    |
+| `Gateway`           | `GatewayReconnects`             | reconnect completed                |
+| `Gateway`           | `GatewayErrors`                 | gateway error                      |
+| `Gateway`           | `GatewayMessagesSent`           | message sent                       |
+| `Gateway`           | `GatewayMessagesReceived`       | message received                   |
+**/
 
 namespace
 {

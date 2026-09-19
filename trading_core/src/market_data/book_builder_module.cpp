@@ -49,8 +49,6 @@ namespace trading::market_data
             return;
         }
 
-        std::cout << snapshot << std::endl;
-
         BookUpdates updates;
         while (bookUpdateQueue.waitPop(updates))
         {

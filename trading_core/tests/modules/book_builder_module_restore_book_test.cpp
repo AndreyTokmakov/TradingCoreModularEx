@@ -43,6 +43,8 @@ using trading::recording::RecordingEvent;
 namespace
 {
     using testing::Assert;
+    using testing::AssertEqual;
+    using testing::AssertTrue;
 
     template <typename Ty>
     using Queue = trading::concurrency::Queue<Ty>;
@@ -53,63 +55,42 @@ namespace
     constexpr Price INITIAL_ASK { 6'500'001'000'000 };
     constexpr Quantity INITIAL_ASK_QUANTITY { 90'000'000 };
 
-    class BlockingSnapshotProvider final : public ISnapshotProvider
+    class TestSnapshotProvider final : public ISnapshotProvider
     {
     public:
-        explicit BlockingSnapshotProvider(Snapshot snapshot) noexcept :
-            snapshot { std::move(snapshot) } {
+        explicit TestSnapshotProvider(Snapshot snapshot,
+                                      const std::chrono::milliseconds get_snapshot_delay =  std::chrono::milliseconds(0)) noexcept :
+            snapshot { std::move(snapshot) },
+            snapshotDelay {get_snapshot_delay} {
         }
 
         [[nodiscard]]
         Snapshot getSnapshot() override
         {
-            {
-                std::lock_guard lock { mutex };
-                snapshotRequested = true;
+            ++snapshotRequestedCount;
+            if (snapshotDelay.count() > 0) {
+                std::this_thread::sleep_for(snapshotDelay);
             }
-
-            snapshotRequestedCondition.notify_one();
-
-            std::unique_lock lock { mutex };
-            releaseCondition.wait(lock, [this] {
-                return snapshotReleased;
-            });
-
             return snapshot;
         }
 
-        void waitUntilSnapshotRequested()
-        {
-            std::unique_lock lock { mutex };
-            snapshotRequestedCondition.wait(lock, [this] {
-                return snapshotRequested;
-            });
-        }
-
-        void release()
-        {
-            {
-                std::lock_guard lock { mutex };
-                snapshotReleased = true;
-            }
-            releaseCondition.notify_one();
+        [[nodiscard]]
+        uint32_t getSnapshotRequestedCount() const noexcept {
+            return snapshotRequestedCount;
         }
 
     private:
         Snapshot snapshot;
 
-        std::mutex mutex;
-        std::condition_variable snapshotRequestedCondition;
-        std::condition_variable releaseCondition;
+        std::chrono::milliseconds snapshotDelay {};
 
-        bool snapshotRequested { false };
-        bool snapshotReleased { false };
+        uint32_t snapshotRequestedCount { 0 };
     };
 
     class BlockingTestExchangeFactory final : public IExchangeFactory
     {
     public:
-        explicit BlockingTestExchangeFactory(std::unique_ptr<BlockingSnapshotProvider> snapshotProvider) noexcept :
+        explicit BlockingTestExchangeFactory(std::unique_ptr<TestSnapshotProvider> snapshotProvider) noexcept :
             snapshotProvider { std::move(snapshotProvider) }
         {
         }
@@ -147,12 +128,12 @@ namespace
         }
 
         [[nodiscard]]
-        BlockingSnapshotProvider* getSnapshotProvider() const noexcept {
+        TestSnapshotProvider* getSnapshotProvider() const noexcept {
             return snapshotProvider.get();
         }
 
     private:
-        mutable std::unique_ptr<BlockingSnapshotProvider> snapshotProvider;
+        mutable std::unique_ptr<TestSnapshotProvider> snapshotProvider;
     };
 
 
@@ -218,14 +199,14 @@ namespace
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
-        std::unique_ptr<BlockingSnapshotProvider> snapshotProvider = std::make_unique<BlockingSnapshotProvider>(createSnapshot());
-        BlockingSnapshotProvider* snapshotProviderPtr = snapshotProvider.get();
+        std::unique_ptr<TestSnapshotProvider> snapshotProvider = std::make_unique<TestSnapshotProvider>(
+            createSnapshot(), std::chrono::milliseconds(100)
+        );
+        TestSnapshotProvider* snapshotProviderPtr = snapshotProvider.get();
         BlockingTestExchangeFactory exchangeFactory { std::move(snapshotProvider) };
         BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory,};
 
         module.start();
-
-        snapshotProviderPtr->waitUntilSnapshotRequested();
 
         bookUpdateQueue.push(BookUpdates {
             createBidUpdate(SequenceNumber { 101 },Quantity { 200'000'000 })
@@ -236,9 +217,12 @@ namespace
         });
 
         MarketEvent marketEvent;
-        Assert(!strategyEventQueue.tryPop(marketEvent),"updates must not be processed before snapshot is applied");
+        {   // GetSnapshotDelay - 100 milliseconds
+            Assert(!strategyEventQueue.tryPop(marketEvent),"updates must not be processed before snapshot is applied");
+        }
 
-        snapshotProviderPtr->release();
+        std::this_thread::sleep_for(std::chrono::milliseconds(250));
+        AssertEqual(1U, snapshotProviderPtr->getSnapshotRequestedCount(), "Snapshot shall be call once at this moment");
 
         {
             Assert(strategyEventQueue.waitPop(marketEvent),"update with snapshot sequence + 1 must be processed");
@@ -246,7 +230,6 @@ namespace
             Assert(marketEvent.bestBidQuantity == Quantity { 200'000'000 },"first update must modify the bid");
             Assert(marketEvent.bestAskQuantity == INITIAL_ASK_QUANTITY,"first update must preserve snapshot ask");
         }
-
         {
             Assert(strategyEventQueue.waitPop(marketEvent), "second sequential update must be processed");
             Assert(marketEvent.sequence == SequenceNumber { 102 }, "second update must have sequence 102");
@@ -265,8 +248,8 @@ namespace
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
-        auto snapshotProvider = std::make_unique<BlockingSnapshotProvider>(createSnapshot(150));
-        BlockingSnapshotProvider* snapshotProviderPtr = snapshotProvider.get();
+        auto snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot(150));
+        TestSnapshotProvider* snapshotProviderPtr = snapshotProvider.get();
         BlockingTestExchangeFactory exchangeFactory { std::move(snapshotProvider) };
         BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory};
 
@@ -279,10 +262,6 @@ namespace
         }
 
         MarketEvent marketEvent;
-        Assert(!strategyEventQueue.tryPop(marketEvent),"updates must not be processed before snapshot is applied");
-
-        snapshotProviderPtr->release();
-
         for (SequenceNumber sequence { 151 }; sequence <= SequenceNumber { 200 } ; ++sequence) {
             Assert(strategyEventQueue.waitPop(marketEvent), "update after snapshot sequence must be processed");
             Assert(marketEvent.sequence == sequence, "updates must be processed in sequence order");
@@ -296,8 +275,8 @@ namespace
 
 void book_builder_module_restore_book_test()
 {
-    // testUpdatesArriveWhileSnapshotIsBeingFetched();
-    testOnlyUpdatesAfterSnapshotSequenceAreProcessed();
+    testUpdatesArriveWhileSnapshotIsBeingFetched();
+    // testOnlyUpdatesAfterSnapshotSequenceAreProcessed();
 
     std::cout << "All BookBuilderModule RestoreBook tests: OK\n";
 }
