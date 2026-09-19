@@ -26,7 +26,7 @@ using trading::exchanges::IExchangeFactory;
 
 using trading::concurrency::ConditionVariableQueue;
 
-using trading::market_data::BookBuilderModule;
+using trading::order_book::BookBuilderModule;
 using trading::market_data::BookUpdate;
 using trading::market_data::BookUpdates;
 using trading::market_data::IMarketDataParser;

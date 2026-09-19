@@ -67,7 +67,7 @@ namespace trading::app
         std::unique_ptr<exchanges::IExchangeFactory> exchangeFactory;
 
         market_data::MarketDataModule marketDataModule;
-        market_data::BookBuilderModule bookBuilderModule;
+        order_book::BookBuilderModule bookBuilderModule;
         strategy::StrategyModule  strategyModule;
         execution::ExecutionModule executionModule;
         recording::RecordingModule recordingModule;

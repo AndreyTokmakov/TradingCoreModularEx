@@ -12,8 +12,6 @@ Description : marketdata_bookbuilder_strategy_integrataion.cpp
 #include "market_data_module.hpp"
 #include "strategy_module.hpp"
 
-
-#include "test_support/test_exchange_factory.hpp"
 #include "test_support/test_market_data_source.hpp"
 #include "test_support/trading_test_configuration.hpp"
 #include "test_support/test_market_data_parser.hpp"
@@ -29,6 +27,7 @@ namespace
     using trading::Price;
     using trading::Quantity;
     using trading::Side;
+    using trading::order_book::BookBuilderModule;
     using namespace trading;
     using namespace trading::concurrency;
     using namespace trading::execution;

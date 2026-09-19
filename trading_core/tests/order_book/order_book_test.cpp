@@ -9,7 +9,7 @@ namespace
     using trading::Quantity;
     using trading::Side;
     using trading::market_data::BookUpdate;
-    using trading::market_data::OrderBook;
+    using trading::order_book::OrderBook;
     using testing::Assert;
 
 

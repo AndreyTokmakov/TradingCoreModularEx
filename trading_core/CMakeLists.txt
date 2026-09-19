@@ -48,6 +48,7 @@ set(EXCHANGES   ${SOURCES}/exchanges)
 set(LOGGING     ${SOURCES}/logging)
 set(MARKET_DATA ${SOURCES}/market_data)
 set(METRICS     ${SOURCES}/metrics)
+set(ORDER_BOOK  ${SOURCES}/order_book)
 set(POSITION    ${SOURCES}/position)
 set(PNL         ${SOURCES}/pnl)
 set(RECORDING   ${SOURCES}/recording)
@@ -63,6 +64,7 @@ include_directories(${MARKET_DATA})
 # include_directories(${MARKET_DATA}/model)
 # include_directories(${MARKET_DATA}/interfaces)
 include_directories(${METRICS})
+include_directories(${ORDER_BOOK})
 include_directories(${EXECUTION})
 include_directories(${STRATEGY})
 include_directories(${POSITION})
@@ -119,14 +121,15 @@ add_executable(${PROJECT_NAME}
         ${MARKET_DATA}/market_data_message_handler.hpp
         ${MARKET_DATA}/market_event_dispatcher.cpp
         ${MARKET_DATA}/market_event_dispatcher.hpp
-        ${MARKET_DATA}/order_book.hpp
-        ${MARKET_DATA}/order_book.cpp
-        ${MARKET_DATA}/book_builder_module.hpp
-        ${MARKET_DATA}/book_builder_module.cpp
-        ${MARKET_DATA}/book_builder.hpp
-        ${MARKET_DATA}/book_builder.cpp
         ${MARKET_DATA}/market_data_module.cpp
         ${MARKET_DATA}/market_data_module.hpp
+
+        ${ORDER_BOOK}/order_book.hpp
+        ${ORDER_BOOK}/order_book.cpp
+        ${ORDER_BOOK}/book_builder_module.hpp
+        ${ORDER_BOOK}/book_builder_module.cpp
+        ${ORDER_BOOK}/book_builder.hpp
+        ${ORDER_BOOK}/book_builder.cpp
 
         ${LOGGING}/logger.hpp
         ${LOGGING}/spdlog_logger.hpp
@@ -197,6 +200,7 @@ add_executable(${PROJECT_NAME}
         ${STRATEGY}/strategy_module.cpp
 
 
+        ##[[
         ${TESTS}/core/price_test.cpp
         ${TESTS}/risk/risk_manager_test.cpp
         ${TESTS}/pnl/pnl_calculator_test.cpp
@@ -205,8 +209,8 @@ add_executable(${PROJECT_NAME}
         ${TESTS}/recording/trade_recorder_test.cpp
         ${TESTS}/config/json_config_loader_test.cpp
         ${TESTS}/execution/order_manager_test.cpp
-        ${TESTS}/market_data/order_book_test.cpp
-        ${TESTS}/market_data/book_builder_test.cpp
+        ${TESTS}/order_book/order_book_test.cpp
+        ${TESTS}/order_book/book_builder_test.cpp
         ${TESTS}/strategy/imbalance_strategy_test.cpp
 
         ${TESTS}/modules/book_builder_module_test.cpp
@@ -229,6 +233,7 @@ add_executable(${PROJECT_NAME}
 
         # ${TESTS}/strategy/strategy_executor_test.cpp
         # ${TESTS}/market_data/market_event_handler_test.cpp
+        #]]#
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/Utilities")

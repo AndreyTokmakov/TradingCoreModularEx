@@ -25,13 +25,12 @@ using trading::Timestamp;
 
 using trading::concurrency::ConditionVariableQueue;
 
-using trading::market_data::BookBuilder;
+using trading::order_book::BookBuilder;
+using trading::order_book::OrderBook;
 using trading::market_data::BookUpdate;
 using trading::market_data::MarketEvent;
 using trading::market_data::MarketEventDispatcher;
-using trading::market_data::OrderBook;
 using trading::market_data::Snapshot;
-
 using trading::recording::RecordingEvent;
 
 namespace
