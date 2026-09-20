@@ -18,7 +18,7 @@ Description : Order book state.
 #include "price.hpp"
 #include "quantity.hpp"
 
-#include <map>
+#include <flat_map>
 #include <optional>
 
 namespace trading::order_book
@@ -30,7 +30,25 @@ namespace trading::order_book
     class OrderBook
     {
     public:
-        using Levels = OrderBookLevels;
+        using Levels    = std::map<Price, Quantity>;
+        // using Levels    = std::vector<std::pair<Price, Quantity>>;
+
+        using BidLevels = std::flat_map<Price, Quantity, std::greater<>>;
+        using AskLevels = std::flat_map<Price, Quantity, std::less<>>;
+        using size_type = size_t;
+
+        static constexpr size_type DefaultDepthValue { 500 };
+
+        explicit OrderBook(const size_type depth = DefaultDepthValue) noexcept :
+            depthValue { depth }
+        {
+        }
+
+        OrderBook(const OrderBook&) = default;
+        OrderBook& operator=(const OrderBook&) = default;
+
+        OrderBook(OrderBook&&) noexcept = default;
+        OrderBook& operator=(OrderBook&&) noexcept = default;
 
         [[nodiscard]]
         SequenceNumber sequence() const noexcept;
@@ -56,10 +74,19 @@ namespace trading::order_book
         [[nodiscard]]
         Quantity askVolume(Price price) const noexcept;
 
+        [[nodiscard]]
+        size_type bidSize() const noexcept;
+
+        [[nodiscard]]
+        size_type askSize() const noexcept;
+
     private:
-        Levels bids;
-        Levels asks;
+
+        size_type depthValue { 0 };
         SequenceNumber sequenceNumber { 0 };
+
+        BidLevels bids;
+        AskLevels asks;
     };
 }
 

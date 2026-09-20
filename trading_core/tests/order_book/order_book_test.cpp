@@ -172,8 +172,8 @@ namespace
             .quantity = Quantity {}
         });
 
-        Assert(applied, "remove of unknown level must be applied");
-        Assert(book.sequence() == 101, "sequence must be updated");
+        Assert(!applied, "remove of unknown level must return False");
+        Assert(book.sequence() == 100, "sequence must not be updated");
         Assert(book.bidVolume(existingPrice) == Quantity { 120'000'000 }, "existing level must not be modified");
         Assert(book.bidVolume(unknownPrice).isZero(), "unknown level must remain absent");
     }

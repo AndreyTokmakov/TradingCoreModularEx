@@ -131,6 +131,39 @@ Replace         namespace trading::market_data
 | `Gateway`           | `GatewayMessagesReceived`       | message received                   |
 **/
 
+
+/** Добавить метрики
+
+    QueueDepth
+    ActiveOrders
+    OpenPositions
+    CurrentExposure
+    ConnectedGateways
+
+    order_queue_depth = 37
+    active_orders = 12
+
+Расширить тип метрик:
+
+    metrics.increment<MetricType::MarketDataReceived>();
+    metrics.set<GaugeType::QueueDepth>(queue.size());
+    metrics.observe<MetricType::StrategyLatency>(latency);
+
+**/
+
+
+
+
+
+/**        ----------- ORDER BOOK ----------------
+ *
+ *
+using Levels    = std::map<Price, Quantity>;
+using Levels    = std::vector<std::pair<Price, Quantity>>;
+
+**/
+
+
 namespace
 {
     using LoggerFactory = trading::logging::LoggerFactory;
