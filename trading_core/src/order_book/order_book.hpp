@@ -25,14 +25,11 @@ namespace trading::order_book
 {
     using market_data::BookUpdate;
     using market_data::BookLevel;
-    using market_data::OrderBookLevels;
 
     class OrderBook
     {
     public:
-        using Levels    = std::map<Price, Quantity>;
-        // using Levels    = std::vector<std::pair<Price, Quantity>>;
-
+        using Levels    = std::vector<std::pair<Price, Quantity>>;
         using BidLevels = std::flat_map<Price, Quantity, std::greater<>>;
         using AskLevels = std::flat_map<Price, Quantity, std::less<>>;
         using size_type = size_t;

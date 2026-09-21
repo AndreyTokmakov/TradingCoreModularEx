@@ -8,9 +8,7 @@ Description : Order book price levels.
 ============================================================================**/
 
 /*
-    OrderBookLevels represents a collection of price levels for one side of
-    an order book.
-
+    OrderBookLevels represents a collection of price levels for one side of an order book.
     A level maps a price to the currently available quantity at that price.
 
         Price -> Quantity
@@ -33,9 +31,7 @@ Description : Order book price levels.
 
     merely to access OrderBook::Levels.
 
-    OrderBookLevels does not contain any business logic and does not know
-    anything about:
-
+    OrderBookLevels does not contain any business logic and does not know anything about:
         - exchanges;
         - market-data transport;
         - snapshots;
@@ -52,11 +48,11 @@ Description : Order book price levels.
 #include "price.hpp"
 #include "quantity.hpp"
 
-#include <map>
+#include <vector>
 
 namespace trading::market_data
 {
-    using OrderBookLevels = std::map<Price, Quantity>;
+    using OrderBookLevels = std::vector<std::pair<Price, Quantity>>;
 }
 
 #endif //FINANCETECHNOLOGYPROJECTS_ORDER_BOOK_LEVELS_HPP

@@ -225,7 +225,7 @@ namespace
         LoggerFactory::createLogger(nullLogger);
 
         // marketdata_bookbuilder_strategy_integrataion();
-        book_builder_module_restore_book_test();
+        // book_builder_module_restore_book_test();
     }
 
 }
@@ -236,8 +236,8 @@ int main([[maybe_unused]] const int argc,
     const std::vector<std::string_view> parameters(argv + 1, argv + argc);
 
     // runApp(parameters);
-    runTests(parameters);
-    // runSingleTest(parameters);
+    // runTests(parameters);
+    runSingleTest(parameters);
 
     return EXIT_SUCCESS;
 }
