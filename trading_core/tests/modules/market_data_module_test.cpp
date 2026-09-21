@@ -7,9 +7,9 @@ Copyright   : Your copyright notice
 Description : market_data_module_test.cpp
 ============================================================================**/
 
-#include "market_data_module.hpp"
+#include "market_data/market_data_module.hpp"
 
-#include "condition_variable_queue.hpp"
+#include "common/condition_variable_queue.hpp"
 #include "test_support/test_exchange_factory.hpp"
 #include "test_support/test_market_data_source.hpp"
 #include "test_support/testing.hpp"

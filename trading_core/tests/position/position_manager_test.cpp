@@ -7,7 +7,7 @@ Copyright   : Your copyright notice
 Description : position_manager_test.cpp
 ============================================================================**/
 
-#include "position_manager.hpp"
+#include "position/position_manager.hpp"
 #include "test_support/testing.hpp"
 
 #include <iostream>

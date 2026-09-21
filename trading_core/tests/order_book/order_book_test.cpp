@@ -7,7 +7,7 @@ Copyright   : Your copyright notice
 Description : OrderBook tests.
 ============================================================================**/
 
-#include "order_book.hpp"
+#include "order_book/order_book.hpp"
 #include "test_support/testing.hpp"
 
 #include <iostream>

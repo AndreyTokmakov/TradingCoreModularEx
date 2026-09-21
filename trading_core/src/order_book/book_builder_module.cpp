@@ -8,8 +8,8 @@ Description : Processes market-data book updates on the BookBuilder thread.
 ============================================================================**/
 
 #include "book_builder_module.hpp"
-#include "config_utils.hpp"
-#include "logger_factory.hpp"
+#include "config/config_utils.hpp"
+#include "logging/logger_factory.hpp"
 
 namespace trading::order_book
 {

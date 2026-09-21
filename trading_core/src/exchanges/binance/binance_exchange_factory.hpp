@@ -10,7 +10,7 @@ Description : binance_exchange_factory.hpp
 #ifndef TRADINGCOREMODULAREX_BINANCE_EXCHANGE_FACTORY_HPP
 #define TRADINGCOREMODULAREX_BINANCE_EXCHANGE_FACTORY_HPP
 
-#include "exchange_factory.hpp"
+#include "exchanges/exchange_factory.hpp"
 
 namespace trading::exchanges::binance
 {

@@ -7,7 +7,7 @@ Copyright   : Your copyright notice
 Description : Unit tests for JSON configuration loader.
 ============================================================================**/
 
-#include "json_config_loader.hpp"
+#include "config/json_config_loader.hpp"
 #include "test_support/testing.hpp"
 
 #include <filesystem>

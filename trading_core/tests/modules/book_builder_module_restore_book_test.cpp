@@ -7,7 +7,7 @@ Copyright   : Your copyright notice
 Description : book_builder_module.cpp
 ============================================================================**/
 
-#include "book_builder_module.hpp"
+#include "order_book/book_builder_module.hpp"
 #include "test_support/testing.hpp"
 
 #include <condition_variable>

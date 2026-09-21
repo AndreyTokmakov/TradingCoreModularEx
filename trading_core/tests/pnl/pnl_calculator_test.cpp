@@ -37,7 +37,7 @@ Description : pnl_calculator_test.cpp
         - ignored non-Trade execution reports.
 */
 
-#include "pnl_calculator.hpp"
+#include "pnl/pnl_calculator.hpp"
 #include "test_support/testing.hpp"
 
 #include <cstdlib>

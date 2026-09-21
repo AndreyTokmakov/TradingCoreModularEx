@@ -11,8 +11,8 @@ Description : Dispatches MarketEvents to independent pipeline consumers.
 #define FINANCETECHNOLOGYPROJECTS_MARKET_EVENT_DISPATCHER_HPP
 
 #include "model/market_event.hpp"
-#include "queue.hpp"
-#include "recording_event.hpp"
+#include "common/queue.hpp"
+#include "recording/recording_event.hpp"
 
 namespace trading::market_data
 {

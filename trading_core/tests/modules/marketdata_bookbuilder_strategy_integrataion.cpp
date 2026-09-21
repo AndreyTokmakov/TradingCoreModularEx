@@ -7,10 +7,10 @@ Copyright   : Your copyright notice
 Description : marketdata_bookbuilder_strategy_integrataion.cpp
 ============================================================================**/
 
-#include "book_builder_module.hpp"
-#include "condition_variable_queue.hpp"
-#include "market_data_module.hpp"
-#include "strategy_module.hpp"
+#include "order_book/book_builder_module.hpp"
+#include "common/condition_variable_queue.hpp"
+#include "market_data/market_data_module.hpp"
+#include "strategy/strategy_module.hpp"
 
 #include "test_support/test_market_data_source.hpp"
 #include "test_support/trading_test_configuration.hpp"

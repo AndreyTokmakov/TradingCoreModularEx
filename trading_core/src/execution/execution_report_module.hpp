@@ -12,10 +12,10 @@ Description : execution_report_module.hpp
 
 #include "model/execution_work_item.hpp"
 #include "interfaces/execution_report_source.hpp"
-#include "queue.hpp"
-#include "worker.hpp"
-#include "config.hpp"
-#include "exchange_factory.hpp"
+#include "common/queue.hpp"
+#include "common/worker.hpp"
+#include "config/config.hpp"
+#include "exchanges/exchange_factory.hpp"
 
 namespace trading::execution
 {

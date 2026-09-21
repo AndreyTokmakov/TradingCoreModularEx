@@ -86,9 +86,9 @@ Description : execution_report.hpp
 #ifndef FINANCETECHNOLOGYPROJECTS_EXECUTION_REPORT_HPP
 #define FINANCETECHNOLOGYPROJECTS_EXECUTION_REPORT_HPP
 
-#include "price.hpp"
-#include "quantity.hpp"
-#include "types.hpp"
+#include "core/price.hpp"
+#include "core/quantity.hpp"
+#include "core/types.hpp"
 
 namespace trading::execution
 {

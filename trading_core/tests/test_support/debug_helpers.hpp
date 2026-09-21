@@ -10,15 +10,15 @@ Description : Testing and Debuging
 #ifndef TRADINGCOREMODULAREX_DEBUG_HELPERS_HPP
 #define TRADINGCOREMODULAREX_DEBUG_HELPERS_HPP
 
-#include "model/market_event.hpp"
-#include "model/parse_result.hpp"
-#include "model/order.hpp"
-#include "model/execution_report.hpp"
-#include "model/book_level.hpp"
-#include "model/order_book_levels.hpp"
-#include "model/book_update.hpp"
-#include "model/snapshot.hpp"
-#include "signal.hpp"
+#include "execution/model/order.hpp"
+#include "execution/model/execution_report.hpp"
+#include "market_data/model/market_event.hpp"
+#include "market_data/model/parse_result.hpp"
+#include "market_data/model/book_level.hpp"
+#include "market_data/model/order_book_levels.hpp"
+#include "market_data/model/book_update.hpp"
+#include "market_data/model/snapshot.hpp"
+#include "strategy/signal.hpp"
 
 #include <iostream>
 

@@ -27,15 +27,15 @@ Description : application.hpp
 #ifndef FINANCETECHNOLOGYPROJECTS_APPLICATION_HPP
 #define FINANCETECHNOLOGYPROJECTS_APPLICATION_HPP
 
-#include "config.hpp"
-#include "condition_variable_queue.hpp"
+#include "config/config.hpp"
+#include "common/condition_variable_queue.hpp"
 
-#include "execution_module.hpp"
-#include "execution_report_module.hpp"
-#include "book_builder_module.hpp"
-#include "market_data_module.hpp"
-#include "recording_module.hpp"
-#include "strategy_module.hpp"
+#include "execution/execution_module.hpp"
+#include "execution/execution_report_module.hpp"
+#include "order_book/book_builder_module.hpp"
+#include "market_data/market_data_module.hpp"
+#include "recording/recording_module.hpp"
+#include "strategy/strategy_module.hpp"
 
 
 namespace trading::app

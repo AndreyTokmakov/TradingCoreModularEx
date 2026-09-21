@@ -112,8 +112,9 @@ Description : Order book builder.
 #ifndef FINANCETECHNOLOGYPROJECTS_BOOK_BUILDER_HPP
 #define FINANCETECHNOLOGYPROJECTS_BOOK_BUILDER_HPP
 
-#include "market_event_dispatcher.hpp"
-#include "model/snapshot.hpp"
+#include "market_data/market_event_dispatcher.hpp"
+#include "market_data/model/snapshot.hpp"
+#include "market_data/model/book_update.hpp"
 #include "order_book.hpp"
 
 namespace trading::order_book

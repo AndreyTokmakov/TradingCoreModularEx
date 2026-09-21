@@ -10,11 +10,12 @@ Description : Records market events on the recording thread.
 #ifndef FINANCETECHNOLOGYPROJECTS_RECORDING_MODULE_HPP
 #define FINANCETECHNOLOGYPROJECTS_RECORDING_MODULE_HPP
 
-#include "queue.hpp"
+#include "common/queue.hpp"
+#include "common/worker.hpp"
 #include "recorder.hpp"
-#include "config.hpp"
+#include "config/config.hpp"
 #include "recording_event.hpp"
-#include "worker.hpp"
+
 
 namespace trading::recording
 {

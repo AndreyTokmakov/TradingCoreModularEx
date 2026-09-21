@@ -10,7 +10,7 @@ Description : test_exchange_factory.hpp
 #ifndef TRADINGCOREMODULAREX_TEST_EXCHANGE_FACTORY_HPP
 #define TRADINGCOREMODULAREX_TEST_EXCHANGE_FACTORY_HPP
 
-#include "exchange_factory.hpp"
+#include "exchanges/exchange_factory.hpp"
 #include "test_market_data_parser.hpp"
 #include "test_market_data_source.hpp"
 

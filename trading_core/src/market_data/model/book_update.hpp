@@ -76,10 +76,10 @@ Description : Market data update representing a single order book level change.
 #ifndef FINANCETECHNOLOGYPROJECTS_BOOK_UPDATE_HPP
 #define FINANCETECHNOLOGYPROJECTS_BOOK_UPDATE_HPP
 
-#include "price.hpp"
-#include "quantity.hpp"
-#include "timestamp.hpp"
-#include "types.hpp"
+#include "core/price.hpp"
+#include "core/quantity.hpp"
+#include "core/timestamp.hpp"
+#include "core/types.hpp"
 
 namespace trading::market_data
 {

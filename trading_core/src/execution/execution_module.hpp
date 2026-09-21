@@ -13,14 +13,14 @@ Description :  Processes order requests and execution reports on the execution t
 #include "model/execution_work_item.hpp"
 #include "interfaces/execution_report_source.hpp"
 #include "order_manager.hpp"
-#include "queue.hpp"
-#include "recording_event.hpp"
-#include "worker.hpp"
-#include "config.hpp"
-#include "exchange_factory.hpp"
-#include "risk_manager.hpp"
-#include "metrics_collector.hpp"
-#include "logger.hpp"
+#include "common/queue.hpp"
+#include "common/worker.hpp"
+#include "recording/recording_event.hpp"
+#include "config/config.hpp"
+#include "exchanges/exchange_factory.hpp"
+#include "risk/risk_manager.hpp"
+#include "metrics/metrics_collector.hpp"
+#include "logging/logger.hpp"
 
 namespace trading::execution
 {

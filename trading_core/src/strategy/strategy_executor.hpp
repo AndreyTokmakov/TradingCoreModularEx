@@ -77,13 +77,13 @@ Description : Strategy signal execution component.
 #ifndef FINANCETECHNOLOGYPROJECTS_STRATEGY_EXECUTOR_HPP
 #define FINANCETECHNOLOGYPROJECTS_STRATEGY_EXECUTOR_HPP
 
-#include "model/execution_work_item.hpp"
+#include "execution/model/execution_work_item.hpp"
 #include "signal.hpp"
-#include "types.hpp"
-#include "quantity.hpp"
-#include "order_manager.hpp"
-#include "model/market_event.hpp"
-#include "queue.hpp"
+#include "core/types.hpp"
+#include "core/quantity.hpp"
+#include "execution/order_manager.hpp"
+#include "market_data/model/market_event.hpp"
+#include "common/queue.hpp"
 
 namespace trading::strategy
 {

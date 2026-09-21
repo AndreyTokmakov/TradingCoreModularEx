@@ -72,9 +72,9 @@ Description : market_data_message_handler.hpp
 #include <string_view>
 
 #include "interfaces/market_data_parser.hpp"
-#include "queue.hpp"
-#include "metrics_collector.hpp"
-#include "logger.hpp"
+#include "common/queue.hpp"
+#include "metrics/metrics_collector.hpp"
+#include "logging/logger.hpp"
 
 namespace trading::market_data
 {

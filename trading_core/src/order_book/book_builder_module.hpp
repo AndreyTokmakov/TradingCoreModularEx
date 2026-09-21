@@ -11,17 +11,17 @@ Description : Processes market-data book updates on the BookBuilder thread.
 #define FINANCETECHNOLOGYPROJECTS_BOOK_BUILDER_MODULE_HPP
 
 #include "book_builder.hpp"
-#include "config.hpp"
-#include "condition_variable_queue.hpp"
-#include "market_event_dispatcher.hpp"
+#include "config/config.hpp"
+#include "common/condition_variable_queue.hpp"
+#include "common/worker.hpp"
+#include "market_data/market_event_dispatcher.hpp"
+#include "market_data/interfaces/market_data_parser.hpp"
+#include "market_data/interfaces/snapshot_provider.hpp"
 #include "order_book.hpp"
-#include "recording_event.hpp"
-#include "interfaces/market_data_parser.hpp"
-#include "interfaces/snapshot_provider.hpp"
-#include "worker.hpp"
-#include "exchange_factory.hpp"
-#include "metrics_collector.hpp"
-#include "logger.hpp"
+#include "recording/recording_event.hpp"
+#include "exchanges/exchange_factory.hpp"
+#include "metrics/metrics_collector.hpp"
+#include "logging/logger.hpp"
 
 namespace trading::order_book
 {

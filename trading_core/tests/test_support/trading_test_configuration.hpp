@@ -10,8 +10,8 @@ Description : trading_test_configuration.hpp
 #ifndef FINANCETECHNOLOGYPROJECTS_TRADING_TEST_CONFIGURATION_HPP
 #define FINANCETECHNOLOGYPROJECTS_TRADING_TEST_CONFIGURATION_HPP
 
-#include "quantity.hpp"
-#include "types.hpp"
+#include "core/quantity.hpp"
+#include "core/types.hpp"
 
 namespace trading::testing
 {

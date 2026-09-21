@@ -35,7 +35,7 @@ Description : risk_manager_test.cpp
         - disabled limits.
 */
 
-#include "risk_manager.hpp"
+#include "risk/risk_manager.hpp"
 #include "test_support/testing.hpp"
 
 #include <cstdlib>

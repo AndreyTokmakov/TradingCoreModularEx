@@ -45,8 +45,8 @@ Description : Order book price levels.
 #ifndef FINANCETECHNOLOGYPROJECTS_ORDER_BOOK_LEVELS_HPP
 #define FINANCETECHNOLOGYPROJECTS_ORDER_BOOK_LEVELS_HPP
 
-#include "price.hpp"
-#include "quantity.hpp"
+#include "core/price.hpp"
+#include "core/quantity.hpp"
 
 #include <vector>
 

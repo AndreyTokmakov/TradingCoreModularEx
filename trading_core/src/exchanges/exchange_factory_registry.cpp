@@ -10,7 +10,7 @@ Description : exchange_factory_registry.cpp
 #include "exchange_type.hpp"
 #include "exchange_factory_registry.hpp"
 
-#include "binance_exchange_factory.hpp"
+#include "binance/binance_exchange_factory.hpp"
 #include <stdexcept>
 
 namespace trading::exchanges

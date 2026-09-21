@@ -89,10 +89,10 @@ Description : pnl_calculator.hpp
 #ifndef FINANCETECHNOLOGYPROJECTS_PNL_CALCULATOR_HPP
 #define FINANCETECHNOLOGYPROJECTS_PNL_CALCULATOR_HPP
 
-#include "model/execution_report.hpp"
-#include "model/market_event.hpp"
-#include "position.hpp"
-#include "price.hpp"
+#include "execution/model/execution_report.hpp"
+#include "market_data/model/market_event.hpp"
+#include "position/position.hpp"
+#include "core/price.hpp"
 #include "pnl.hpp"
 
 namespace trading::pnl

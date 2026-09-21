@@ -7,7 +7,7 @@ Copyright   : Your copyright notice
 Description : binance_exchange_factory.cpp
 ============================================================================**/
 
-#include "config_utils.hpp"
+#include "config/config_utils.hpp"
 #include "binance_exchange_factory.hpp"
 #include "binance_execution_gateway.hpp"
 #include "binance_execution_report_source.hpp"

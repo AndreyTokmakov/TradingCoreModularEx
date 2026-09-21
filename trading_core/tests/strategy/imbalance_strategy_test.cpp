@@ -7,7 +7,7 @@ Copyright   : Your copyright notice
 Description : imbalance_strategy_test.cpp
 ============================================================================**/
 
-#include "imbalance_strategy.hpp"
+#include "strategy/imbalance_strategy.hpp"
 #include "test_support/testing.hpp"
 
 #include <iostream>

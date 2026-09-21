@@ -8,8 +8,8 @@ Description : execution_module_test.cpp
 ============================================================================**/
 
 
-#include "execution_module.hpp"
-#include "condition_variable_queue.hpp"
+#include "execution/execution_module.hpp"
+#include "common/condition_variable_queue.hpp"
 #include "test_support/testing.hpp"
 #include "test_support/test_exchange_factory.hpp"
 #include "test_support/test_execution_gateway.hpp"

@@ -16,9 +16,9 @@ Description : application.cpp
 */
 
 #include "application.hpp"
-#include "config_utils.hpp"
-#include "logger_factory.hpp"
-#include "exchange_factory_registry.hpp"
+#include "config/config_utils.hpp"
+#include "logging/logger_factory.hpp"
+#include "exchanges/exchange_factory_registry.hpp"
 
 namespace trading::app
 {

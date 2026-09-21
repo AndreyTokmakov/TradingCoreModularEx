@@ -8,7 +8,7 @@ Description : Sends orders to the exchange on the execution thread.
 ============================================================================**/
 
 #include "execution_module.hpp"
-#include "logger_factory.hpp"
+#include "logging/logger_factory.hpp"
 
 namespace trading::execution
 {

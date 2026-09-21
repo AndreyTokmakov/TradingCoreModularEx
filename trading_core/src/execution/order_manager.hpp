@@ -248,10 +248,10 @@ Description : order_manager.hpp
 #include "interfaces/execution_gateway.hpp"
 #include "model/execution_report.hpp"
 #include "model/order.hpp"
-#include "risk_manager.hpp"
-#include "position_manager.hpp"
-#include "metrics_collector.hpp"
-#include "logger.hpp"
+#include "risk/risk_manager.hpp"
+#include "position/position_manager.hpp"
+#include "metrics/metrics_collector.hpp"
+#include "logging/logger.hpp"
 
 namespace trading::execution
 {

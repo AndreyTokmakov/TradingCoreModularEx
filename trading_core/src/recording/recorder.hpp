@@ -55,8 +55,8 @@ Description : recorder.hpp
 #ifndef FINANCETECHNOLOGYPROJECTS_RECORDER_HPP
 #define FINANCETECHNOLOGYPROJECTS_RECORDER_HPP
 
-#include "model/execution_report.hpp"
-#include "model/market_event.hpp"
+#include "execution/model/execution_report.hpp"
+#include "market_data/model/market_event.hpp"
 
 namespace trading::recording
 {

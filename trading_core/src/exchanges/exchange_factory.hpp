@@ -10,16 +10,15 @@ Description : exchange_factory.hpp
 #ifndef TRADINGCOREMODULAREX_EXCHANGE_FACTORY_HPP
 #define TRADINGCOREMODULAREX_EXCHANGE_FACTORY_HPP
 
-#include "config.hpp"
-#include "queue.hpp"
+#include "config/config.hpp"
+#include "common/queue.hpp"
 
-#include "model/execution_work_item.hpp"
-
-#include "interfaces/execution_gateway.hpp"
-#include "interfaces/execution_report_source.hpp"
-#include "interfaces/market_data_parser.hpp"
-#include "interfaces/market_data_source.hpp"
-#include "interfaces/snapshot_provider.hpp"
+#include "execution/model/execution_work_item.hpp"
+#include "execution/interfaces/execution_gateway.hpp"
+#include "execution/interfaces/execution_report_source.hpp"
+#include "market_data/interfaces/market_data_parser.hpp"
+#include "market_data/interfaces/market_data_source.hpp"
+#include "market_data/interfaces/snapshot_provider.hpp"
 
 namespace trading::exchanges
 {

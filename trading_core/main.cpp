@@ -14,7 +14,7 @@ Description :
 #include <string_view>
 
 #include "app/application.hpp"
-#include "logger_factory.hpp"
+#include "logging/logger_factory.hpp"
 #include "test_support/null_logger.hpp"
 
 void price_test();
@@ -225,7 +225,7 @@ namespace
         LoggerFactory::createLogger(nullLogger);
 
         // marketdata_bookbuilder_strategy_integrataion();
-        // book_builder_module_restore_book_test();
+        book_builder_module_restore_book_test();
     }
 
 }

@@ -48,10 +48,14 @@ Description : binance_market_data_parser.hpp
 #ifndef FINANCETECHNOLOGYPROJECTS_BINANCE_MARKET_DATA_PARSER_HPP
 #define FINANCETECHNOLOGYPROJECTS_BINANCE_MARKET_DATA_PARSER_HPP
 
-#include "interfaces/market_data_parser.hpp"
+#include "market_data/interfaces/market_data_parser.hpp"
+#include "market_data/model/parse_result.hpp"
+#include "market_data/model/book_update.hpp"
 
 namespace trading::exchanges::binance
 {
+
+
     class BinanceMarketDataParser final : public market_data::IMarketDataParser
     {
     public:

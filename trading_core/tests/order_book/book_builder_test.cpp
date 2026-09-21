@@ -7,10 +7,10 @@ Copyright   : Your copyright notice
 Description : BookBuilder unit tests.
 ============================================================================**/
 
-#include "book_builder.hpp"
-#include "condition_variable_queue.hpp"
-#include "market_event_dispatcher.hpp"
-#include "recording_event.hpp"
+#include "order_book/book_builder.hpp"
+#include "common/condition_variable_queue.hpp"
+#include "market_data/market_event_dispatcher.hpp"
+#include "recording/recording_event.hpp"
 #include "test_support/testing.hpp"
 
 #include <iostream>

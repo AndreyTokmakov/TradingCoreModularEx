@@ -1,6 +1,5 @@
-#include "order_manager.hpp"
-
-#include "risk_manager.hpp"
+#include "execution/order_manager.hpp"
+#include "risk/risk_manager.hpp"
 #include "test_support/testing.hpp"
 
 #include <iostream>

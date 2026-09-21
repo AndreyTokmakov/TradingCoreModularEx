@@ -50,7 +50,8 @@ Description : Binance implementation of the market-data snapshot provider.
 #ifndef FINANCETECHNOLOGYPROJECTS_BINANCE_SNAPSHOT_PROVIDER_HPP
 #define FINANCETECHNOLOGYPROJECTS_BINANCE_SNAPSHOT_PROVIDER_HPP
 
-#include "interfaces/snapshot_provider.hpp"
+#include "market_data/model/snapshot.hpp"
+#include "market_data/interfaces/snapshot_provider.hpp"
 
 #include <functional>
 #include <string>

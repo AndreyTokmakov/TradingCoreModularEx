@@ -82,10 +82,10 @@ Description : Market data event representing the current top-of-book state.
 #ifndef FINANCETECHNOLOGYPROJECTS_MARKET_EVENT_HPP
 #define FINANCETECHNOLOGYPROJECTS_MARKET_EVENT_HPP
 
-#include "price.hpp"
-#include "quantity.hpp"
-#include "timestamp.hpp"
-#include "types.hpp"
+#include "core/price.hpp"
+#include "core/quantity.hpp"
+#include "core/timestamp.hpp"
+#include "core/types.hpp"
 
 namespace trading::market_data
 {

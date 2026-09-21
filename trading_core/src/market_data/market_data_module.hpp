@@ -12,9 +12,9 @@ Description : Market-data pipeline module.
 
 #include "interfaces/market_data_parser.hpp"
 #include "interfaces/market_data_source.hpp"
-#include "condition_variable_queue.hpp"
+#include "common/condition_variable_queue.hpp"
 #include "market_data_message_handler.hpp"
-#include "exchange_factory.hpp"
+#include "exchanges/exchange_factory.hpp"
 
 
 namespace trading::market_data

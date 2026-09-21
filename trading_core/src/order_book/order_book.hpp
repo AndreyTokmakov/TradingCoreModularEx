@@ -12,11 +12,11 @@ Description : Order book state.
 #ifndef FINANCETECHNOLOGYPROJECTS_ORDER_BOOK_HPP
 #define FINANCETECHNOLOGYPROJECTS_ORDER_BOOK_HPP
 
-#include "model/book_level.hpp"
-#include "model/book_update.hpp"
-#include "model/order_book_levels.hpp"
-#include "price.hpp"
-#include "quantity.hpp"
+#include "market_data/model/book_level.hpp"
+#include "market_data/model/book_update.hpp"
+#include "market_data/model/order_book_levels.hpp"
+#include "core/price.hpp"
+#include "core/quantity.hpp"
 
 #include <flat_map>
 #include <optional>

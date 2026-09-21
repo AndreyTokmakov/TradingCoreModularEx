@@ -7,7 +7,7 @@ Copyright   : Your copyright notice
 Description : trade_recorder_test.cpp
 ============================================================================**/
 
-#include "trade_recorder.hpp"
+#include "recording/trade_recorder.hpp"
 #include "test_support/testing.hpp"
 
 #include <iostream>

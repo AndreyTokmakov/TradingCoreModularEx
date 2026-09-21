@@ -64,8 +64,8 @@ Description : book_level.hpp
 #ifndef FINANCETECHNOLOGYPROJECTS_BOOK_LEVEL_HPP
 #define FINANCETECHNOLOGYPROJECTS_BOOK_LEVEL_HPP
 
-#include "price.hpp"
-#include "quantity.hpp"
+#include "core/price.hpp"
+#include "core/quantity.hpp"
 
 namespace trading::market_data
 {

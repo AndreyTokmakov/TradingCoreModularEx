@@ -158,8 +158,8 @@ Description : Order book snapshot.
 #define FINANCETECHNOLOGYPROJECTS_SNAPSHOT_HPP
 
 #include "order_book_levels.hpp"
-#include "timestamp.hpp"
-#include "types.hpp"
+#include "core/timestamp.hpp"
+#include "core/types.hpp"
 
 namespace trading::market_data
 {

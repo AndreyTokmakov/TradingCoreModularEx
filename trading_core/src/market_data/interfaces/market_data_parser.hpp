@@ -66,8 +66,8 @@ Description : market_data_parser.hpp
 #include <string_view>
 #include <vector>
 
-#include "model/book_update.hpp"
-#include "model/parse_result.hpp"
+#include "market_data/model/book_update.hpp"
+#include "market_data/model/parse_result.hpp"
 
 namespace trading::market_data
 {

@@ -7,7 +7,7 @@ Copyright   : Your copyright notice
 Description : position_test.cpp
 ============================================================================**/
 
-#include "position.hpp"
+#include "position/position.hpp"
 #include "test_support/testing.hpp"
 
 #include <iostream>

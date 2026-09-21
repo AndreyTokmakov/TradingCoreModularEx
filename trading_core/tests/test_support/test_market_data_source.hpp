@@ -10,8 +10,8 @@ Description : test_market_data_source.hpp
 #ifndef TRADINGCOREBASE_TEST_MARKET_DATA_SOURCE_HPP
 #define TRADINGCOREBASE_TEST_MARKET_DATA_SOURCE_HPP
 
-#include "market_data_message_handler.hpp"
-#include "interfaces/market_data_source.hpp"
+#include "market_data/market_data_message_handler.hpp"
+#include "market_data/interfaces/market_data_source.hpp"
 
 namespace trading::testing
 {

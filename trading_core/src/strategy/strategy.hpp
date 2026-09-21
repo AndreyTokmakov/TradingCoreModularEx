@@ -91,7 +91,7 @@ Description : Trading strategy interface.
 #define FINANCETECHNOLOGYPROJECTS_STRATEGY_HPP
 
 #include "signal.hpp"
-#include "model/market_event.hpp"
+#include "market_data/model/market_event.hpp"
 
 namespace trading::strategy
 {

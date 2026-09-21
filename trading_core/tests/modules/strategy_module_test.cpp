@@ -7,8 +7,8 @@ Copyright   : Your copyright notice
 Description : strategy_module_test.cpp
 ============================================================================**/
 
-#include "strategy_module.hpp"
-#include "condition_variable_queue.hpp"
+#include "strategy/strategy_module.hpp"
+#include "common/condition_variable_queue.hpp"
 #include "test_support/testing.hpp"
 
 #include <iostream>

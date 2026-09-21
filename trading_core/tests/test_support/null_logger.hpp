@@ -10,7 +10,7 @@ Description : null_logger.hpp
 #ifndef TRADINGCOREMODULAREX_TEST_SUPPORT_NULL_LOGGER_HPP
 #define TRADINGCOREMODULAREX_TEST_SUPPORT_NULL_LOGGER_HPP
 
-#include "logger.hpp"
+#include "logging/logger.hpp"
 #include <print>
 
 namespace trading::testing

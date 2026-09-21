@@ -48,7 +48,7 @@ Description : Market-data snapshot provider interface.
 #ifndef FINANCETECHNOLOGYPROJECTS_SNAPSHOT_PROVIDER_HPP
 #define FINANCETECHNOLOGYPROJECTS_SNAPSHOT_PROVIDER_HPP
 
-#include "model/snapshot.hpp"
+#include "market_data/model/snapshot.hpp"
 
 namespace trading::market_data
 {

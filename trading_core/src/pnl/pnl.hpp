@@ -63,7 +63,7 @@ Description : pnl.hpp
 #ifndef FINANCETECHNOLOGYPROJECTS_PNL_HPP
 #define FINANCETECHNOLOGYPROJECTS_PNL_HPP
 
-#include "price.hpp"
+#include "core/price.hpp"
 
 namespace trading::pnl
 {

@@ -57,24 +57,9 @@ set(STRATEGY    ${SOURCES}/strategy)
 
 set(BINANCE     ${EXCHANGES}/binance)
 
-include_directories(${CORE})
-include_directories(${CONFIG})
-include_directories(${COMMON})
-include_directories(${MARKET_DATA})
-# include_directories(${MARKET_DATA}/model)
-# include_directories(${MARKET_DATA}/interfaces)
-include_directories(${METRICS})
-include_directories(${ORDER_BOOK})
-include_directories(${EXECUTION})
-include_directories(${STRATEGY})
-include_directories(${POSITION})
-include_directories(${RECORDING})
-include_directories(${PNL})
-include_directories(${RISK})
+include_directories(${SOURCES})
 include_directories(${TESTS})
-include_directories(${EXCHANGES})
-include_directories(${BINANCE})
-include_directories(${LOGGING})
+
 
 # include all components
 add_executable(${PROJECT_NAME}

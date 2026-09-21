@@ -10,11 +10,11 @@ Description : Executes strategy processing on the strategy thread.
 #ifndef FINANCETECHNOLOGYPROJECTS_STRATEGY_MODULE_HPP
 #define FINANCETECHNOLOGYPROJECTS_STRATEGY_MODULE_HPP
 
-#include "model/market_event.hpp"
-#include "config.hpp"
+#include "market_data/model/market_event.hpp"
+#include "config/config.hpp"
 #include "imbalance_strategy.hpp"
-#include "queue.hpp"
-#include "worker.hpp"
+#include "common/queue.hpp"
+#include "common/worker.hpp"
 #include "strategy.hpp"
 #include "strategy_executor.hpp"
 

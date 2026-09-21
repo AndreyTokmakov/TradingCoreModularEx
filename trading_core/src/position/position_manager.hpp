@@ -59,9 +59,9 @@ Position semantics :
 #ifndef FINANCETECHNOLOGYPROJECTS_POSITION_MANAGER_HPP
 #define FINANCETECHNOLOGYPROJECTS_POSITION_MANAGER_HPP
 
-#include "model/execution_report.hpp"
 #include "position.hpp"
-#include "types.hpp"
+#include "execution/model/execution_report.hpp"
+#include "core/types.hpp"
 
 #include <map>
 

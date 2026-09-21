@@ -36,9 +36,9 @@ Description : Binance execution report source.
 
 #include <string>
 
-#include "interfaces/execution_report_source.hpp"
-#include "model/execution_work_item.hpp"
-#include "queue.hpp"
+#include "execution/interfaces/execution_report_source.hpp"
+#include "execution/model/execution_work_item.hpp"
+#include "common/queue.hpp"
 
 
 namespace trading::exchanges::binance

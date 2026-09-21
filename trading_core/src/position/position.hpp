@@ -63,9 +63,9 @@ Description : Position state for a single trading instrument.
 #ifndef FINANCETECHNOLOGYPROJECTS_POSITION_HPP
 #define FINANCETECHNOLOGYPROJECTS_POSITION_HPP
 
-#include "price.hpp"
-#include "types.hpp"
-#include "quantity.hpp"
+#include "core/price.hpp"
+#include "core/types.hpp"
+#include "core/quantity.hpp"
 
 #include <cstdint>
 

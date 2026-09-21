@@ -37,8 +37,8 @@ Description : risk_limits.hpp
 #ifndef FINANCETECHNOLOGYPROJECTS_RISK_LIMITS_HPP
 #define FINANCETECHNOLOGYPROJECTS_RISK_LIMITS_HPP
 
-#include "price.hpp"
-#include "quantity.hpp"
+#include "core/price.hpp"
+#include "core/quantity.hpp"
 
 namespace trading::risk
 {

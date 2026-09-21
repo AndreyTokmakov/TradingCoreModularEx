@@ -33,7 +33,7 @@ Description : market_data_message_handler.cpp
 */
 
 #include "market_data_message_handler.hpp"
-#include "logger_factory.hpp"
+#include "logging/logger_factory.hpp"
 
 namespace trading::market_data
 {
