@@ -5,6 +5,9 @@
         "thresholdNumerator": 7,
         "thresholdDenominator": 10
     },
+    "orderBook": {
+        "depthValue": 500
+    },
     "risk": {
         "maxOrderQuantity": 500000000,
         "maxPositionQuantity": 1000000000,

@@ -49,6 +49,17 @@ namespace trading::config
                 };
             }
 
+            if (json.contains("orderBook"))
+            {
+                const auto& orderBook = json.at("orderBook");
+                if (orderBook.contains("depthValue")) {
+                    config.orderBook.depthValue = orderBook.at("depthValue").get<size_t>();
+                }
+            }
+            if (config.orderBook.depthValue == 0) {
+                return std::unexpected(Error::InvalidConfiguration);
+            }
+
             if (json.contains("strategy"))
             {
                 const auto& strategy = json.at("strategy");

@@ -30,6 +30,16 @@ namespace trading::config
         InvalidConfiguration
     };
 
+    /**
+     * @brief Configuration of the order book.
+     *
+     * Defines parameters controlling the amount of market depth retained
+     * by the order book.
+     */
+    struct OrderBookConfig
+    {
+        size_t depthValue { 500 };
+    };
 
     /**
      * @brief Configuration of the trading strategy.
@@ -46,7 +56,6 @@ namespace trading::config
         int64_t thresholdDenominator { 10 };
     };
 
-
     /**
      * @brief Configuration of an exchange connection.
      *
@@ -59,7 +68,6 @@ namespace trading::config
     struct ExchangeConfig
     {
         std::string name;
-
         std::string marketDataEndpoint;
         std::string executionEndpoint;
     };
@@ -80,7 +88,6 @@ namespace trading::config
         std::filesystem::path directory {};
     };
 
-
     /**
      * @brief Canonical application configuration.
      *
@@ -97,12 +104,10 @@ namespace trading::config
     struct Config
     {
         InstrumentId instrument {};
-
         StrategyConfig strategy {};
+        OrderBookConfig orderBook {};
         risk::RiskLimits riskLimits {};
-
         std::vector<ExchangeConfig> exchanges {};
-
         RecordingConfig recording {};
     };
 }

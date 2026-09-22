@@ -83,6 +83,9 @@ namespace
                 "thresholdNumerator": 7,
                 "thresholdDenominator": 10
             },
+            "orderBook": {
+                "depthValue": 100
+            },
             "risk": {
                 "maxOrderQuantity": 500000000,
                 "maxPositionQuantity": 1000000000,
@@ -112,27 +115,61 @@ namespace
         Assert(result.has_value(), "valid full configuration must be loaded");
 
         const Config& config = *result;
-        Assert(config.instrument == InstrumentId { 42 },"invalid instrument");
-        Assert(config.strategy.orderQuantity == Quantity { 100000000 },"invalid strategy order quantity");
-        Assert(config.strategy.thresholdNumerator == 7,"invalid strategy threshold numerator");
-        Assert(config.strategy.thresholdDenominator == 10,"invalid strategy threshold denominator");
-        Assert(config.riskLimits.maxOrderQuantity == Quantity { 500000000 },"invalid maximum order quantity");
-        Assert(config.riskLimits.maxPositionQuantity == Quantity { 1000000000 },"invalid maximum position quantity");
-        Assert(config.riskLimits.maxNotional == Price { 2500000000000 },"invalid maximum notional");
-        Assert(config.exchanges.size() == 2,"invalid exchange count");
-        Assert(config.exchanges[0].name == "binance","invalid first exchange name");
-        Assert(config.exchanges[0].marketDataEndpoint == "wss://market-data.example","invalid first market data endpoint");
-        Assert(config.exchanges[0].executionEndpoint == "https://execution.example","invalid first execution endpoint");
-        Assert(config.exchanges[1].name == "test-exchange","invalid second exchange name");
-        Assert(!config.recording.enabled,"recording must be disabled");
-        Assert(config.recording.directory == "/tmp/trading-records","invalid recording directory");
+
+        Assert(config.instrument == InstrumentId { 42 }, "invalid instrument");
+        Assert(config.strategy.orderQuantity == Quantity { 100000000 }, "invalid strategy order quantity");
+        Assert(config.strategy.thresholdNumerator == 7, "invalid strategy threshold numerator");
+        Assert(config.strategy.thresholdDenominator == 10, "invalid strategy threshold denominator");
+        Assert(config.orderBook.depthValue == 100, "invalid order book depth");
+        Assert(config.riskLimits.maxOrderQuantity == Quantity { 500000000 }, "invalid maximum order quantity");
+        Assert(config.riskLimits.maxPositionQuantity == Quantity { 1000000000 }, "invalid maximum position quantity");
+        Assert(config.riskLimits.maxNotional == Price { 2500000000000 }, "invalid maximum notional");
+        Assert(config.exchanges.size() == 2, "invalid exchange count");
+        Assert(config.exchanges[0].name == "binance", "invalid first exchange name");
+        Assert(config.exchanges[0].marketDataEndpoint == "wss://market-data.example", "invalid first market data endpoint");
+        Assert(config.exchanges[0].executionEndpoint == "https://execution.example", "invalid first execution endpoint");
+        Assert(config.exchanges[1].name == "test-exchange", "invalid second exchange name");
+        Assert(!config.recording.enabled, "recording must be disabled");
+        Assert(config.recording.directory == "/tmp/trading-records", "invalid recording directory");
+    }
+
+    void testLoadOrderBookConfiguration()
+    {
+        const std::filesystem::path path = createConfigFile(R"({
+            "orderBook": {
+                "depthValue": 50
+            }
+        })");
+
+        const std::expected<Config, Error> result = JsonConfigLoader::load(path);
+
+        removeConfigFile(path);
+        Assert(result.has_value(), "order book configuration must be loaded");
+
+        const Config& config = *result;
+
+        Assert(config.orderBook.depthValue == 50, "invalid order book depth");
+    }
+
+    void testLoadFailsForZeroOrderBookDepth()
+    {
+        const std::filesystem::path path = createConfigFile(R"({
+            "orderBook": {
+                "depthValue": 0
+            }
+        })");
+
+        const std::expected<Config, Error> result = JsonConfigLoader::load(path);
+
+        removeConfigFile(path);
+
+        Assert(!result.has_value(), "zero order book depth must fail");
+        Assert(result.error() == Error::InvalidConfiguration, "invalid error for zero order book depth");
     }
 
     void testLoadFailsWhenFileDoesNotExist()
     {
-        const std::filesystem::path path =
-            std::filesystem::temp_directory_path() / "non_existing_trading_config.json";
-
+        const std::filesystem::path path = std::filesystem::temp_directory_path() / "non_existing_trading_config.json";
         const std::expected<Config, Error> result = JsonConfigLoader::load(path);
 
         Assert(!result.has_value(), "missing configuration file must fail");
@@ -281,6 +318,8 @@ void json_config_loader_test()
 {
     testLoadValidMinimalConfiguration();
     testLoadFullConfiguration();
+    testLoadOrderBookConfiguration();
+    testLoadFailsForZeroOrderBookDepth();
     testLoadFailsWhenFileDoesNotExist();
     testLoadFailsForInvalidJson();
     testLoadFailsForInvalidJsonType();

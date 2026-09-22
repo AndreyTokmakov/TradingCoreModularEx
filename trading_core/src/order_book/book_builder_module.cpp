@@ -19,7 +19,7 @@ namespace trading::order_book
                                          concurrency::ConditionVariableQueue<recording::RecordingEvent>& recordingQueue,
                                          const exchanges::IExchangeFactory& exchangeFactory) noexcept :
         bookUpdateQueue { bookUpdateQueue },
-        orderBook {},
+        orderBook { config.orderBook.depthValue },
         marketEventDispatcher {
             strategyEventQueue,recordingQueue
         },

@@ -15,7 +15,7 @@ Description :
 
 #include "app/application.hpp"
 #include "logging/logger_factory.hpp"
-#include "test_support/null_logger.hpp"
+#include "test_support/test_logger.hpp"
 
 void price_test();
 void order_book_test();
@@ -193,7 +193,7 @@ namespace
     [[maybe_unused]]
     void runTests(const std::vector<std::string_view>& )
     {
-        const auto nullLogger = std::make_shared<trading::testing::NullLogger>(true);
+        const auto nullLogger = std::make_shared<trading::testing::TestLogger>(true);
         LoggerFactory::createLogger(nullLogger);
 
         price_test();
@@ -221,11 +221,13 @@ namespace
     [[maybe_unused]]
     void runSingleTest(const std::vector<std::string_view>& )
     {
-        const auto nullLogger = std::make_shared<trading::testing::NullLogger>(true);
+        const auto nullLogger = std::make_shared<trading::testing::TestLogger>(true);
         LoggerFactory::createLogger(nullLogger);
 
         // marketdata_bookbuilder_strategy_integrataion();
-        book_builder_module_restore_book_test();
+        // book_builder_module_restore_book_test();
+
+        json_config_loader_test();
     }
 
 }
@@ -236,8 +238,8 @@ int main([[maybe_unused]] const int argc,
     const std::vector<std::string_view> parameters(argv + 1, argv + argc);
 
     // runApp(parameters);
-    // runTests(parameters);
-    runSingleTest(parameters);
+    runTests(parameters);
+    // runSingleTest(parameters);
 
     return EXIT_SUCCESS;
 }
