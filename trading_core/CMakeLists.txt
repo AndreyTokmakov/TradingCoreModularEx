@@ -201,9 +201,11 @@ add_executable(${PROJECT_NAME}
         ${TESTS}/modules/book_builder_module_test.cpp
         ${TESTS}/modules/book_builder_module_restore_book_test.cpp
         ${TESTS}/modules/market_data_module_test.cpp
-        ${TESTS}/modules/marketdata_bookbuilder_strategy_integrataion.cpp
         ${TESTS}/modules/strategy_module_test.cpp
         ${TESTS}/modules/execution_module_test.cpp
+
+        ${TESTS}/modules/marketdata_bookbuilder_strategy_integrataion.cpp
+        ${TESTS}/integration_tests/exchange_to_gateway_integration_test.cpp
 
         ${TESTS}/test_support/testing.hpp
         ${TESTS}/test_support/debug_helpers.hpp

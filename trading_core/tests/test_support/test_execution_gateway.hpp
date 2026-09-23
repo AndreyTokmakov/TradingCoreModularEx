@@ -14,6 +14,9 @@ Description : mock_execution_gateway.сpp
 
 #include <vector>
 
+#include "test_support/debug_helpers.hpp"
+using namespace  trading::testing;
+
 namespace trading::testing
 {
     class TestExecutionGateway final : public execution::IExecutionGateway
@@ -22,6 +25,7 @@ namespace trading::testing
 
         void send(const execution::Order& order) override
         {
+            std::cout << "TestExecutionGateway::send --> " << order << std::endl;
             sentOrders.push_back(order);
         }
 

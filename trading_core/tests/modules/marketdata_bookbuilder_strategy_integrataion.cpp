@@ -44,6 +44,7 @@ namespace
 
         [[nodiscard]]
         Snapshot getSnapshot() override{
+            std::cout << "getSnapshot called" << std::endl;
             return snapshot;
         }
 
@@ -660,9 +661,9 @@ namespace
 
 void marketdata_bookbuilder_strategy_integrataion()
 {
-    // testMarketDataToStrategyBuyPipeline();
+    testMarketDataToStrategyBuyPipeline();
     // testMarketDataToStrategySellPipeline();
-    testMarketDataToStrategyNoSignal();
+    // testMarketDataToStrategyNoSignal();
     // testConfiguredOrderQuantity();
     // testBuyUsesBestAsk();
     // testSellUsesBestBid();

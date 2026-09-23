@@ -28,6 +28,7 @@ void book_builder_module_test();
 void marketdata_bookbuilder_strategy_integrataion();
 void strategy_module_test();
 void execution_module_test();
+void exchange_to_gateway_integration_test();
 
 void market_event_handler_test();
 void pnl_calculator_test();
@@ -225,9 +226,8 @@ namespace
         LoggerFactory::createLogger(nullLogger);
 
         // marketdata_bookbuilder_strategy_integrataion();
+        exchange_to_gateway_integration_test();
         // book_builder_module_restore_book_test();
-
-        json_config_loader_test();
     }
 
 }
@@ -238,8 +238,8 @@ int main([[maybe_unused]] const int argc,
     const std::vector<std::string_view> parameters(argv + 1, argv + argc);
 
     // runApp(parameters);
-    runTests(parameters);
-    // runSingleTest(parameters);
+    // runTests(parameters);
+    runSingleTest(parameters);
 
     return EXIT_SUCCESS;
 }
