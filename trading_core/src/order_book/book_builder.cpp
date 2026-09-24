@@ -39,6 +39,9 @@ Description : book_builder.cpp
 
 #include "book_builder.hpp"
 
+#include "test_support/debug_helpers.hpp"
+using namespace  trading::testing;
+
 namespace trading::order_book
 {
     BookBuilder::BookBuilder(const InstrumentId instrument,
@@ -55,6 +58,7 @@ namespace trading::order_book
         if (snapshot.instrument != instrument)
             return false;
 
+        std::cout << "BookBuilder::applySnapshot --> " << snapshot << std::endl;
         orderBook.setState(snapshot.sequence, snapshot.bids, snapshot.asks);
 
         return true;
@@ -67,6 +71,8 @@ namespace trading::order_book
         if (!orderBook.applyUpdate(update)) {
             return;
         }
+
+        std::cout << "BookBuilder::onBookUpdate --> " << update << std::endl;
         publishMarketEvent(update.sequence, update.exchangeTimestamp);
     }
 

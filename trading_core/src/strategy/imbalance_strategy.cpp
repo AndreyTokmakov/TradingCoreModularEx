@@ -87,6 +87,10 @@ Description : Order book imbalance trading strategy implementation.
 
 #include "imbalance_strategy.hpp"
 
+#include "test_support/debug_helpers.hpp"
+using namespace  trading::testing;
+
+
 namespace trading::strategy
 {
     ImbalanceStrategy::ImbalanceStrategy(const Value thresholdNumerator,
@@ -98,6 +102,8 @@ namespace trading::strategy
 
     Signal ImbalanceStrategy::evaluate(const market_data::MarketEvent& event) const
     {
+        std::cout << "ImbalanceStrategy::evaluate: " << event << std::endl;
+
         using BigInt = __int128;
         const BigInt bidQuantity = event.bestBidQuantity.raw();
         const BigInt askQuantity = event.bestAskQuantity.raw();

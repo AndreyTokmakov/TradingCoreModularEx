@@ -9,6 +9,10 @@ Description : Executes strategy processing on the strategy thread.
 
 #include "strategy_module.hpp"
 
+#include "test_support/debug_helpers.hpp"
+using namespace  trading::testing;
+
+
 namespace trading::strategy
 {
     StrategyModule::StrategyModule(const config::StrategyConfig& strategyConfig,
@@ -32,6 +36,8 @@ namespace trading::strategy
         market_data::MarketEvent event {};
         while (marketEventQueue.waitPop(event))
         {
+            std::cout << "StrategyModule::run: " << event << std::endl;
+
             const Signal signal = strategy.evaluate(event);
             executor.execute(signal, event);
             /*

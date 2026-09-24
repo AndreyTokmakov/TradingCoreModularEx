@@ -53,6 +53,9 @@ Description : Strategy signal execution component implementation.
 
 #include "strategy_executor.hpp"
 
+#include "test_support/debug_helpers.hpp"
+using namespace  trading::testing;
+
 
 namespace trading::strategy
 {
@@ -66,6 +69,7 @@ namespace trading::strategy
     void StrategyExecutor::execute(const Signal signal,
                                    const market_data::MarketEvent& event) const
     {
+        std::cout << "StrategyExecutor::execute (1) --> " << signal << " | "<< event << std::endl;
         if (signal == Signal::None)
             return;
 

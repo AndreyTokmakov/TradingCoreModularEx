@@ -2,7 +2,7 @@ name: Sync to GitLab
 
 on:
   push:
-    branches: [ main, master ] # Синхронизация при пуше в эти ветки
+    branches: [ main, master, testing ] # Синхронизация при пуше в эти ветки
 
 jobs:
   sync:
