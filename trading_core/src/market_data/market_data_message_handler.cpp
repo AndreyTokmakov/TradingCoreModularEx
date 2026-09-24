@@ -49,6 +49,8 @@ namespace trading::market_data
     {
         bookUpdates.clear();
 
+        logger->info("Message: {}", message);
+
         if (parser.parse(message, bookUpdates) != ParseResult::Success) {
             logger->error("Failed to parse book updates from message");
             metrics.increment<metrics::MetricType::MarketDataParseErrors>();

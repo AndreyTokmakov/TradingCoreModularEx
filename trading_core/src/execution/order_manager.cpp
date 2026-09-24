@@ -41,6 +41,10 @@ Description : order_manager.cpp
 #include "order_manager.hpp"
 #include "logging/logger_factory.hpp"
 
+#include "test_support/debug_helpers.hpp"
+using namespace  trading::testing;
+
+
 namespace trading::execution
 {
     OrderManager::OrderManager(risk::RiskManager& riskManager,
@@ -85,6 +89,8 @@ namespace trading::execution
             .filledQuantity = Quantity {},
             .status = OrderStatus::New
         };
+
+        std::cout << "OrderManager::createOrder --> " << request << std::endl;
 
         const auto [it, inserted] = orders.emplace(orderId, order);
         if (!inserted) {
