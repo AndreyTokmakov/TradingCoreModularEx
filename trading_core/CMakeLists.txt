@@ -219,6 +219,7 @@ add_executable(${PROJECT_NAME}
         ${TESTS}/test_support/test_snapshot_provider.cpp
         ${TESTS}/test_support/test_snapshot_provider.hpp
         ${TESTS}/test_support/test_exchange_factory.hpp
+        ${TESTS}/test_support/test_exchange_factory.cpp
 
         # ${TESTS}/strategy/strategy_executor_test.cpp
         # ${TESTS}/market_data/market_event_handler_test.cpp

@@ -23,47 +23,28 @@ namespace trading::testing
     {
     public:
         explicit TestExchangeFactory(std::unique_ptr<TestMarketDataSource> testMarketDataSource,
-                                     std::unique_ptr<TestSnapshotProvider> testSnapshotProvider = nullptr) noexcept :
-            marketDataSource { std::move(testMarketDataSource) },
-            snapshotProvider { std::move(testSnapshotProvider) }
-        {
-        }
+                                     std::unique_ptr<TestSnapshotProvider> testSnapshotProvider = nullptr) noexcept;
 
         [[nodiscard]]
         std::unique_ptr<execution::IExecutionGateway>
-        createExecutionGateway(const config::Config&) const noexcept override
-        {
-            return nullptr;
-        }
+        createExecutionGateway(const config::Config&) const noexcept override;
 
         [[nodiscard]]
         std::unique_ptr<execution::IExecutionReportSource>
         createExecutionReportSource(const config::Config&,
-                                    concurrency::Queue<execution::ExecutionWorkItem>&) const noexcept override
-        {
-            return nullptr;
-        }
+                                    concurrency::Queue<execution::ExecutionWorkItem>&) const noexcept override;
 
         [[nodiscard]]
         std::unique_ptr<market_data::IMarketDataParser>
-        createMarketDataParser(const config::Config&) const noexcept override
-        {
-            return std::make_unique<TestMarketDataParser>();
-        }
+        createMarketDataParser(const config::Config&) const noexcept override;
 
         [[nodiscard]]
         std::unique_ptr<market_data::IMarketDataSource>
-        createMarketDataSource(const config::Config&) const noexcept override
-        {
-            return std::move(marketDataSource);
-        }
+        createMarketDataSource(const config::Config&) const noexcept override;
 
         [[nodiscard]]
         std::unique_ptr<market_data::ISnapshotProvider>
-        createSnapshotProvider(const config::Config&) const noexcept override
-        {
-            return std::move(snapshotProvider);
-        }
+        createSnapshotProvider(const config::Config&) const noexcept override;
 
     private:
         mutable std::unique_ptr<TestMarketDataSource> marketDataSource;
