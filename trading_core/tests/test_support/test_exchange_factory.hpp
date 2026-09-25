@@ -13,6 +13,7 @@ Description : test_exchange_factory.hpp
 #include "exchanges/exchange_factory.hpp"
 #include "test_market_data_parser.hpp"
 #include "test_market_data_source.hpp"
+#include "test_snapshot_provider.hpp"
 
 #include <memory>
 
@@ -21,8 +22,10 @@ namespace trading::testing
     class TestExchangeFactory final : public exchanges::IExchangeFactory
     {
     public:
-        explicit TestExchangeFactory(std::unique_ptr<TestMarketDataSource> marketDataSource) noexcept :
-            marketDataSource { std::move(marketDataSource) }
+        explicit TestExchangeFactory(std::unique_ptr<TestMarketDataSource> testMarketDataSource,
+                                     std::unique_ptr<TestSnapshotProvider> testSnapshotProvider = nullptr) noexcept :
+            marketDataSource { std::move(testMarketDataSource) },
+            snapshotProvider { std::move(testSnapshotProvider) }
         {
         }
 
@@ -59,11 +62,12 @@ namespace trading::testing
         std::unique_ptr<market_data::ISnapshotProvider>
         createSnapshotProvider(const config::Config&) const noexcept override
         {
-            return nullptr;
+            return std::move(snapshotProvider);
         }
 
     private:
         mutable std::unique_ptr<TestMarketDataSource> marketDataSource;
+        mutable std::unique_ptr<TestSnapshotProvider> snapshotProvider;
     };
 }
 

@@ -17,6 +17,7 @@ Description : exchange_to_gateway_integration_test.cpp
 #include "test_support/trading_test_configuration.hpp"
 #include "test_support/test_market_data_parser.hpp"
 #include "test_support/test_execution_gateway.hpp"
+#include "test_support/test_snapshot_provider.hpp"
 #include "test_support/testing.hpp"
 #include "test_support/debug_helpers.hpp"
 
@@ -38,21 +39,6 @@ namespace
     using namespace trading::market_data;
     using namespace trading::strategy;
     using namespace trading::testing;
-
-    class TestSnapshotProvider final : public ISnapshotProvider
-    {
-    public:
-        explicit TestSnapshotProvider(Snapshot snapshot) noexcept : snapshot { std::move(snapshot) } {
-        }
-
-        [[nodiscard]]
-        Snapshot getSnapshot() override{
-            return snapshot;
-        }
-
-    private:
-        Snapshot snapshot;
-    };
 
     struct TestExchangeFactoryWithSnapshot final : public exchanges::IExchangeFactory
     {

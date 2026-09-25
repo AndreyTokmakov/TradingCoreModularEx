@@ -9,9 +9,11 @@ Description : book_builder_module_test.cpp
 
 #include "order_book/book_builder_module.hpp"
 #include "test_support/testing.hpp"
+#include "test_support/test_snapshot_provider.hpp"
 
 #include <iostream>
 #include <memory>
+#include <utility>
 #include <variant>
 
 using trading::InstrumentId;
@@ -56,35 +58,11 @@ namespace
     constexpr Price SECOND_ASK { 6'500'002'000'000 };
     constexpr Quantity SECOND_ASK_QUANTITY { 70'000'000 };
 
-
-    class TestSnapshotProvider final : public ISnapshotProvider
-    {
-    public:
-        explicit TestSnapshotProvider(const Snapshot& snapshot,
-                                      std::size_t& getSnapshotCount) noexcept :
-            snapshot { snapshot },
-            getSnapshotCount { getSnapshotCount }
-        {
-        }
-
-        [[nodiscard]]
-        Snapshot getSnapshot() override
-        {
-            ++getSnapshotCount;
-            return snapshot;
-        }
-
-    private:
-        Snapshot snapshot;
-        std::size_t& getSnapshotCount;
-    };
-
-
     class TestExchangeFactory final : public IExchangeFactory
     {
     public:
-        explicit TestExchangeFactory(const Snapshot& snapshot) noexcept :
-            snapshot { snapshot }
+        explicit TestExchangeFactory(Snapshot  snapshot) noexcept :
+            snapshot {std::move( snapshot )}
         {
         }
 
@@ -123,9 +101,9 @@ namespace
         createSnapshotProvider(const Config&) const noexcept override
         {
             ++createSnapshotProviderCount;
-            return std::make_unique<TestSnapshotProvider>(
-                snapshot,
-                getSnapshotCount);
+            auto snapshotProvider = std::make_unique<TestSnapshotProvider>(snapshot);
+            ptrSnapshotProvider = snapshotProvider.get();
+            return snapshotProvider;
         }
 
         [[nodiscard]]
@@ -137,14 +115,14 @@ namespace
         [[nodiscard]]
         std::size_t getSnapshotCountValue() const noexcept
         {
-            return getSnapshotCount;
+            return ptrSnapshotProvider->getSnapshotRequestedCount();
         }
 
     private:
         Snapshot snapshot;
 
+        mutable TestSnapshotProvider* ptrSnapshotProvider { nullptr };
         mutable std::size_t createSnapshotProviderCount { 0 };
-        mutable std::size_t getSnapshotCount { 0 };
     };
 
 

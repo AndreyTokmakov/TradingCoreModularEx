@@ -15,6 +15,7 @@ Description : marketdata_bookbuilder_strategy_integrataion.cpp
 #include "test_support/test_market_data_source.hpp"
 #include "test_support/trading_test_configuration.hpp"
 #include "test_support/test_market_data_parser.hpp"
+#include "test_support/test_snapshot_provider.hpp"
 #include "test_support/testing.hpp"
 
 #include <memory>
@@ -34,23 +35,6 @@ namespace
     using namespace trading::market_data;
     using namespace trading::strategy;
     using namespace trading::testing;
-
-    class TestSnapshotProvider final : public ISnapshotProvider
-    {
-    public:
-        explicit TestSnapshotProvider(Snapshot snapshot) noexcept : snapshot { std::move(snapshot) }
-        {
-        }
-
-        [[nodiscard]]
-        Snapshot getSnapshot() override{
-            std::cout << "getSnapshot called" << std::endl;
-            return snapshot;
-        }
-
-    private:
-        Snapshot snapshot;
-    };
 
     class TestExchangeFactoryWithSnapshot final : public exchanges::IExchangeFactory
     {

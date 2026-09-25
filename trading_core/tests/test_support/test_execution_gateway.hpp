@@ -25,7 +25,6 @@ namespace trading::testing
 
         void send(const execution::Order& order) override
         {
-            std::cout << "TestExecutionGateway::send --> " << order << std::endl;
             sentOrders.push_back(order);
         }
 

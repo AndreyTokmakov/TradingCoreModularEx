@@ -216,6 +216,8 @@ add_executable(${PROJECT_NAME}
         ${TESTS}/test_support/test_market_data_source.cpp
         ${TESTS}/test_support/test_market_data_parser.cpp
         ${TESTS}/test_support/test_market_data_parser.hpp
+        ${TESTS}/test_support/test_snapshot_provider.cpp
+        ${TESTS}/test_support/test_snapshot_provider.hpp
         ${TESTS}/test_support/test_exchange_factory.hpp
 
         # ${TESTS}/strategy/strategy_executor_test.cpp

@@ -9,6 +9,7 @@ Description : book_builder_module.cpp
 
 #include "order_book/book_builder_module.hpp"
 #include "test_support/testing.hpp"
+#include "test_support/test_snapshot_provider.hpp"
 
 #include <condition_variable>
 #include <iostream>
@@ -54,38 +55,6 @@ namespace
     constexpr Quantity INITIAL_BID_QUANTITY { 120'000'000 };
     constexpr Price INITIAL_ASK { 6'500'001'000'000 };
     constexpr Quantity INITIAL_ASK_QUANTITY { 90'000'000 };
-
-    class TestSnapshotProvider final : public ISnapshotProvider
-    {
-    public:
-        explicit TestSnapshotProvider(Snapshot snapshot,
-                                      const std::chrono::milliseconds get_snapshot_delay =  std::chrono::milliseconds(0)) noexcept :
-            snapshot { std::move(snapshot) },
-            snapshotDelay {get_snapshot_delay} {
-        }
-
-        [[nodiscard]]
-        Snapshot getSnapshot() override
-        {
-            ++snapshotRequestedCount;
-            if (snapshotDelay.count() > 0) {
-                std::this_thread::sleep_for(snapshotDelay);
-            }
-            return snapshot;
-        }
-
-        [[nodiscard]]
-        uint32_t getSnapshotRequestedCount() const noexcept {
-            return snapshotRequestedCount;
-        }
-
-    private:
-        Snapshot snapshot;
-
-        std::chrono::milliseconds snapshotDelay {};
-
-        uint32_t snapshotRequestedCount { 0 };
-    };
 
     class BlockingTestExchangeFactory final : public IExchangeFactory
     {
@@ -222,7 +191,7 @@ namespace
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(250));
-        AssertEqual(1U, snapshotProviderPtr->getSnapshotRequestedCount(), "Snapshot shall be call once at this moment");
+        AssertEqual(1UL, snapshotProviderPtr->getSnapshotRequestedCount(), "Snapshot shall be call once at this moment");
 
         {
             Assert(strategyEventQueue.waitPop(marketEvent),"update with snapshot sequence + 1 must be processed");
