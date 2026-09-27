@@ -13,13 +13,14 @@ Description : exchange_to_gateway_integration_test.cpp
 #include "strategy/strategy_module.hpp"
 #include "execution/execution_module.hpp"
 
+#include "test_support/testing.hpp"
+#include "test_support/debug_helpers.hpp"
 #include "test_support/test_market_data_source.hpp"
 #include "test_support/trading_test_configuration.hpp"
 #include "test_support/test_market_data_parser.hpp"
 #include "test_support/test_execution_gateway.hpp"
 #include "test_support/test_snapshot_provider.hpp"
-#include "test_support/testing.hpp"
-#include "test_support/debug_helpers.hpp"
+#include "test_support/test_exchange_factory.hpp"
 
 
 #include <memory>
@@ -40,6 +41,7 @@ namespace
     using namespace trading::strategy;
     using namespace trading::testing;
 
+    /*
     struct TestExchangeFactoryWithSnapshot final : public exchanges::IExchangeFactory
     {
     public:
@@ -95,7 +97,7 @@ namespace
         TestMarketDataSource* marketDataSourcePtr { nullptr };
 
         Snapshot snapshot;
-    };
+    };*/
 
     constexpr Price BidPrice { 6'500'000'000'000 };
     constexpr Price AskPrice { 6'500'001'000'000 };
@@ -150,15 +152,18 @@ namespace
         std::unique_ptr<TestMarketDataSource> marketDataSource = createMarketDataSource({
             "1,101,10000001,Buy,6500000000000,1000000000"
         });
+
         std::unique_ptr<TestExecutionGateway> gateway = std::make_unique<TestExecutionGateway>();
+        auto ptrGateway = gateway.get();
 
         const Snapshot snapshot = createSnapshot( InstrumentId { 1 }, SequenceNumber { 100 } );
 
-        TestExchangeFactoryWithSnapshot exchangeFactory {
-            std::move(marketDataSource),
-            std::move(gateway),
-            snapshot
-        };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .executionGateway = std::move(gateway),
+            .marketDataParser = std::make_unique<TestMarketDataParser>(),
+            .marketDataSource = std::move(marketDataSource),
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(snapshot)
+        }};
 
         MarketDataModule marketDataModule { config, bookUpdateQueue, exchangeFactory };
         BookBuilderModule bookBuilderModule { config,bookUpdateQueue, marketEventQueue, recordingQueue,exchangeFactory };
@@ -207,8 +212,6 @@ namespace
         bookUpdateQueue.close();
         bookBuilderModule.stop();
         marketDataModule.stop();
-
-        auto* ptrGateway = exchangeFactory.executionGatewayPtr;
 
         if (ptrGateway->sendOrdersCount()) {
             std::cout << ptrGateway->getOrderByIndex(0) << std::endl;

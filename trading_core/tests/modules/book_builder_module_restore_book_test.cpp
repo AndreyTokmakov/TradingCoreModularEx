@@ -10,6 +10,7 @@ Description : book_builder_module.cpp
 #include "order_book/book_builder_module.hpp"
 #include "test_support/testing.hpp"
 #include "test_support/test_snapshot_provider.hpp"
+#include "test_support/test_exchange_factory.hpp"
 
 #include <condition_variable>
 #include <iostream>
@@ -56,56 +57,6 @@ namespace
     constexpr Price INITIAL_ASK { 6'500'001'000'000 };
     constexpr Quantity INITIAL_ASK_QUANTITY { 90'000'000 };
 
-    class BlockingTestExchangeFactory final : public IExchangeFactory
-    {
-    public:
-        explicit BlockingTestExchangeFactory(std::unique_ptr<TestSnapshotProvider> snapshotProvider) noexcept :
-            snapshotProvider { std::move(snapshotProvider) }
-        {
-        }
-
-        [[nodiscard]]
-        std::unique_ptr<trading::execution::IExecutionGateway>
-        createExecutionGateway(const Config&) const noexcept override {
-            return nullptr;
-        }
-
-        [[nodiscard]]
-        std::unique_ptr<trading::execution::IExecutionReportSource>
-        createExecutionReportSource(const Config&,
-                                    Queue<trading::execution::ExecutionWorkItem>&) const noexcept override
-        {
-            return nullptr;
-        }
-
-        [[nodiscard]]
-        std::unique_ptr<IMarketDataParser>
-        createMarketDataParser(const Config&) const noexcept override {
-            return nullptr;
-        }
-
-        [[nodiscard]]
-        std::unique_ptr<IMarketDataSource>
-        createMarketDataSource(const Config&) const noexcept override {
-            return nullptr;
-        }
-
-        [[nodiscard]]
-        std::unique_ptr<ISnapshotProvider>
-        createSnapshotProvider(const Config&) const noexcept override {
-            return std::move(snapshotProvider);
-        }
-
-        [[nodiscard]]
-        TestSnapshotProvider* getSnapshotProvider() const noexcept {
-            return snapshotProvider.get();
-        }
-
-    private:
-        mutable std::unique_ptr<TestSnapshotProvider> snapshotProvider;
-    };
-
-
     Config createConfig()
     {
         Config config;
@@ -129,7 +80,6 @@ namespace
         };
     }
 
-
     BookUpdate createBidUpdate(const SequenceNumber sequence,
                                const Quantity quantity)
     {
@@ -142,7 +92,6 @@ namespace
             .quantity = quantity
         };
     }
-
 
     BookUpdate createAskUpdate(const SequenceNumber sequence,
                                const Quantity quantity)
@@ -171,8 +120,11 @@ namespace
         std::unique_ptr<TestSnapshotProvider> snapshotProvider = std::make_unique<TestSnapshotProvider>(
             createSnapshot(), std::chrono::milliseconds(100)
         );
+
         TestSnapshotProvider* snapshotProviderPtr = snapshotProvider.get();
-        BlockingTestExchangeFactory exchangeFactory { std::move(snapshotProvider) };
+        TestExchangeFactory exchangeFactory { TestMocks  {
+            .snapshotProvider = std::move(snapshotProvider)
+        }};
         BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory,};
 
         module.start();
@@ -219,7 +171,7 @@ namespace
 
         auto snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot(150));
         TestSnapshotProvider* snapshotProviderPtr = snapshotProvider.get();
-        BlockingTestExchangeFactory exchangeFactory { std::move(snapshotProvider) };
+        TestExchangeFactory exchangeFactory { nullptr, nullptr,  std::move(snapshotProvider) };
         BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory};
 
         module.start();

@@ -19,6 +19,8 @@ Description : market_data_module_test.cpp
 #include <string>
 #include <vector>
 
+#include "test_support/test_market_data_parser.hpp"
+
 namespace
 {
     using testing::Assert;
@@ -30,6 +32,8 @@ namespace
     using trading::config::Config;
     using trading::market_data::BookUpdates;
     using trading::market_data::MarketDataModule;
+    using trading::testing::TestMocks;
+    using trading::testing::TestMarketDataParser;
     using trading::testing::TestExchangeFactory;
     using trading::testing::TestMarketDataSource;
 
@@ -48,7 +52,10 @@ namespace
         std::unique_ptr<TestMarketDataSource> marketDataSource = std::make_unique<TestMarketDataSource>();
         marketDataSource->addTestMarketData({"1,101,10000001,Buy,6500000000000,120000000"});
 
-        TestExchangeFactory exchangeFactory { std::move(marketDataSource) };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .marketDataParser = std::make_unique<TestMarketDataParser>(),
+            .marketDataSource = std::move(marketDataSource),
+        }};
         MarketDataModule module { config, bookUpdateQueue, exchangeFactory};
 
         module.start();
@@ -83,7 +90,10 @@ namespace
             "1,103,10000003,Buy,6499999000000,250000000"
         });
 
-        TestExchangeFactory exchangeFactory { std::move(marketDataSource) };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .marketDataParser = std::make_unique<TestMarketDataParser>(),
+            .marketDataSource = std::move(marketDataSource),
+        }};
         MarketDataModule module { config, bookUpdateQueue, exchangeFactory };
 
         module.start();
@@ -123,7 +133,10 @@ namespace
             "1,103,10000003,Buy,6499999000000,250000000"
         });
 
-        TestExchangeFactory exchangeFactory { std::move(marketDataSource) };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .marketDataParser = std::make_unique<TestMarketDataParser>(),
+            .marketDataSource = std::move(marketDataSource),
+        }};
         MarketDataModule module { config, bookUpdateQueue, exchangeFactory };
 
         module.start();
@@ -157,7 +170,10 @@ namespace
             "1,102,10000002,Sell,6500001000000,90000000"
         });
 
-        TestExchangeFactory exchangeFactory { std::move(marketDataSource) };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .marketDataParser = std::make_unique<TestMarketDataParser>(),
+            .marketDataSource = std::move(marketDataSource),
+        }};
         MarketDataModule module { config, bookUpdateQueue, exchangeFactory };
 
         module.start();
@@ -195,7 +211,10 @@ namespace
             "invalid message"
         });
 
-        TestExchangeFactory exchangeFactory { std::move(marketDataSource) };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .marketDataParser = std::make_unique<TestMarketDataParser>(),
+            .marketDataSource = std::move(marketDataSource),
+        }};
         MarketDataModule module { config, bookUpdateQueue, exchangeFactory };
 
         module.start();
@@ -219,7 +238,10 @@ namespace
             "1,101,10000001,Buy,6500000000000,120000000"
         });
 
-        TestExchangeFactory exchangeFactory { std::move(marketDataSource) };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .marketDataParser = std::make_unique<TestMarketDataParser>(),
+            .marketDataSource = std::move(marketDataSource),
+        }};
         MarketDataModule module { config, bookUpdateQueue, exchangeFactory };
 
         module.start();
@@ -255,7 +277,10 @@ namespace
             "1,103,10000003,Sell,6500001000000,90000000"
         });
 
-        TestExchangeFactory exchangeFactory { std::move(marketDataSource) };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .marketDataParser = std::make_unique<TestMarketDataParser>(),
+            .marketDataSource = std::move(marketDataSource),
+        }};
         MarketDataModule module { config, bookUpdateQueue, exchangeFactory };
 
         module.start();
@@ -289,7 +314,10 @@ namespace
             "1,101,10000001,Buy,6500000000000,120000000"
         });
 
-        TestExchangeFactory exchangeFactory { std::move(marketDataSource) };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .marketDataParser = std::make_unique<TestMarketDataParser>(),
+            .marketDataSource = std::move(marketDataSource),
+        }};
         MarketDataModule module { config, bookUpdateQueue, exchangeFactory };
 
         module.start();

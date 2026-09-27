@@ -16,6 +16,7 @@ Description : marketdata_bookbuilder_strategy_integrataion.cpp
 #include "test_support/trading_test_configuration.hpp"
 #include "test_support/test_market_data_parser.hpp"
 #include "test_support/test_snapshot_provider.hpp"
+#include "test_support/test_exchange_factory.hpp"
 #include "test_support/testing.hpp"
 
 #include <memory>
@@ -35,57 +36,6 @@ namespace
     using namespace trading::market_data;
     using namespace trading::strategy;
     using namespace trading::testing;
-
-    class TestExchangeFactoryWithSnapshot final : public exchanges::IExchangeFactory
-    {
-    public:
-        TestExchangeFactoryWithSnapshot(std::unique_ptr<TestMarketDataSource> marketDataSource,
-                                         Snapshot snapshot) noexcept :
-            marketDataSource { std::move(marketDataSource) },
-            snapshot { std::move(snapshot) }
-        {
-        }
-
-        [[nodiscard]]
-        std::unique_ptr<IExecutionGateway>
-        createExecutionGateway(const config::Config&) const noexcept override
-        {
-            return nullptr;
-        }
-
-        [[nodiscard]]
-        std::unique_ptr<IExecutionReportSource>
-        createExecutionReportSource(const config::Config&,
-                                    Queue<ExecutionWorkItem>&) const noexcept override
-        {
-            return nullptr;
-        }
-
-        [[nodiscard]]
-        std::unique_ptr<IMarketDataParser>
-        createMarketDataParser(const config::Config&) const noexcept override
-        {
-            return std::make_unique<TestMarketDataParser>();
-        }
-
-        [[nodiscard]]
-        std::unique_ptr<IMarketDataSource>
-        createMarketDataSource(const config::Config&) const noexcept override
-        {
-            return std::move(marketDataSource);
-        }
-
-        [[nodiscard]]
-        std::unique_ptr<ISnapshotProvider>
-        createSnapshotProvider(const config::Config&) const noexcept override
-        {
-            return std::make_unique<TestSnapshotProvider>(snapshot);
-        }
-
-    private:
-        mutable std::unique_ptr<TestMarketDataSource> marketDataSource;
-        Snapshot snapshot;
-    };
 
     [[nodiscard]]
     config::Config createConfig()
@@ -121,7 +71,7 @@ namespace
         return source;
     }
 
-
+    [[maybe_unused]]
     void testMarketDataToStrategyBuyPipeline()
     {
         const config::Config config = createConfig();
@@ -137,7 +87,12 @@ namespace
 
         const Snapshot snapshot = createSnapshot( InstrumentId { 1 }, SequenceNumber { 100 } );
 
-        TestExchangeFactoryWithSnapshot exchangeFactory { std::move(marketDataSource), snapshot };
+        TestExchangeFactory exchangeFactory { TestMocks  {
+            .marketDataParser = std::make_unique<TestMarketDataParser>(),
+            .marketDataSource = std::move(marketDataSource),
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(snapshot)
+        }};
+
         MarketDataModule marketDataModule { config, bookUpdateQueue, exchangeFactory };
         BookBuilderModule bookBuilderModule { config,bookUpdateQueue, marketEventQueue, recordingQueue,exchangeFactory };
         StrategyModule strategyModule { config.strategy,marketEventQueue, executionQueue};
@@ -169,7 +124,8 @@ namespace
         marketDataModule.stop();
     }
 
-      void testMarketDataToStrategySellPipeline()
+    [[maybe_unused]]
+    void testMarketDataToStrategySellPipeline()
     {
         const config::Config config = createConfig();
 
@@ -184,7 +140,11 @@ namespace
 
         const Snapshot snapshot = createSnapshot(InstrumentId { 1 }, SequenceNumber { 100 });
 
-        TestExchangeFactoryWithSnapshot exchangeFactory { std::move(marketDataSource), snapshot};
+        TestExchangeFactory exchangeFactory { TestMocks  {
+            .marketDataParser = std::make_unique<TestMarketDataParser>(),
+            .marketDataSource = std::move(marketDataSource),
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(snapshot)
+        }};
         MarketDataModule marketDataModule { config, bookUpdateQueue, exchangeFactory};
         BookBuilderModule bookBuilderModule { config, bookUpdateQueue, marketEventQueue, recordingQueue, exchangeFactory };
         StrategyModule strategyModule { config.strategy,marketEventQueue, executionQueue };
@@ -217,6 +177,7 @@ namespace
         marketDataModule.stop();
     }
 
+    [[maybe_unused]]
     void testMarketDataToStrategyNoSignal()
     {
         const config::Config config = createConfig();
@@ -231,7 +192,12 @@ namespace
         });
 
         const Snapshot snapshot = createSnapshot(InstrumentId { 1 }, SequenceNumber { 100 } );
-        TestExchangeFactoryWithSnapshot exchangeFactory { std::move(marketDataSource), snapshot };
+        TestExchangeFactory exchangeFactory { TestMocks  {
+            .marketDataParser = std::make_unique<TestMarketDataParser>(),
+            .marketDataSource = std::move(marketDataSource),
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(snapshot)
+        }};
+
         MarketDataModule marketDataModule { config, bookUpdateQueue, exchangeFactory };
         BookBuilderModule bookBuilderModule { config,bookUpdateQueue, marketEventQueue, recordingQueue, exchangeFactory };
 
@@ -253,6 +219,7 @@ namespace
         marketDataModule.stop();
     }
 
+    [[maybe_unused]]
     void testConfiguredOrderQuantity()
     {
         config::Config config = createConfig();
@@ -267,35 +234,16 @@ namespace
             "1,101,10000001,Buy,6500000000000,1000000000"
         });
 
-        const Snapshot snapshot = createSnapshot(
-            InstrumentId { 1 },
-            SequenceNumber { 100 }
-        );
+        const Snapshot snapshot = createSnapshot(InstrumentId { 1 }, SequenceNumber { 100 });
+        TestExchangeFactory exchangeFactory { TestMocks  {
+            .marketDataParser = std::make_unique<TestMarketDataParser>(),
+            .marketDataSource = std::move(marketDataSource),
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(snapshot)
+        }};
 
-        TestExchangeFactoryWithSnapshot exchangeFactory {
-            std::move(marketDataSource),
-            snapshot
-        };
-
-        MarketDataModule marketDataModule {
-            config,
-            bookUpdateQueue,
-            exchangeFactory
-        };
-
-        BookBuilderModule bookBuilderModule {
-            config,
-            bookUpdateQueue,
-            marketEventQueue,
-            recordingQueue,
-            exchangeFactory
-        };
-
-        StrategyModule strategyModule {
-            config.strategy,
-            marketEventQueue,
-            executionQueue
-        };
+        MarketDataModule marketDataModule {config,bookUpdateQueue,exchangeFactory};
+        BookBuilderModule bookBuilderModule {config,bookUpdateQueue,marketEventQueue,recordingQueue,exchangeFactory};
+        StrategyModule strategyModule {config.strategy,marketEventQueue,executionQueue};
 
         marketDataModule.start();
         bookBuilderModule.start();
@@ -303,29 +251,24 @@ namespace
 
         ExecutionWorkItem workItem {};
 
-        while (!executionQueue.tryPop(workItem))
-        {
+        while (!executionQueue.tryPop(workItem)) {
             std::this_thread::yield();
         }
 
-        Assert(std::holds_alternative<OrderRequest>(workItem),
-               "Strategy pipeline must produce an OrderRequest");
+        Assert(std::holds_alternative<OrderRequest>(workItem),"Strategy pipeline must produce an OrderRequest");
 
         const OrderRequest& request = std::get<OrderRequest>(workItem);
 
-        Assert(request.quantity == Quantity { 250'000'000 },
-               "Strategy must use configured order quantity");
+        Assert(request.quantity == Quantity { 250'000'000 },"Strategy must use configured order quantity");
 
         strategyModule.stop();
-
         marketEventQueue.close();
-
         bookUpdateQueue.close();
         bookBuilderModule.stop();
-
         marketDataModule.stop();
     }
 
+    [[maybe_unused]]
     void testBuyUsesBestAsk()
     {
         const config::Config config = createConfig();
@@ -344,31 +287,15 @@ namespace
             InstrumentId { 1 },
             SequenceNumber { 100 }
         );
+        TestExchangeFactory exchangeFactory { TestMocks  {
+            .marketDataParser = std::make_unique<TestMarketDataParser>(),
+            .marketDataSource = std::move(marketDataSource),
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(snapshot)
+        }};
 
-        TestExchangeFactoryWithSnapshot exchangeFactory {
-            std::move(marketDataSource),
-            snapshot
-        };
-
-        MarketDataModule marketDataModule {
-            config,
-            bookUpdateQueue,
-            exchangeFactory
-        };
-
-        BookBuilderModule bookBuilderModule {
-            config,
-            bookUpdateQueue,
-            marketEventQueue,
-            recordingQueue,
-            exchangeFactory
-        };
-
-        StrategyModule strategyModule {
-            config.strategy,
-            marketEventQueue,
-            executionQueue
-        };
+        MarketDataModule marketDataModule { config, bookUpdateQueue, exchangeFactory };
+        BookBuilderModule bookBuilderModule { config, bookUpdateQueue, marketEventQueue, recordingQueue, exchangeFactory };
+        StrategyModule strategyModule { config.strategy, marketEventQueue, executionQueue };
 
         marketDataModule.start();
         bookBuilderModule.start();
@@ -381,27 +308,22 @@ namespace
             std::this_thread::yield();
         }
 
-        Assert(std::holds_alternative<OrderRequest>(workItem),
-               "Strategy pipeline must produce an OrderRequest");
+        Assert(std::holds_alternative<OrderRequest>(workItem),"Strategy pipeline must produce an OrderRequest");
 
         const OrderRequest& request = std::get<OrderRequest>(workItem);
 
-        Assert(request.side == Side::Buy,
-               "Expected Buy order");
+        Assert(request.side == Side::Buy,"Expected Buy order");
 
-        Assert(request.price == Price { 6501000000000 },
-               "Buy order must use best ask");
+        Assert(request.price == Price { 6501000000000 },"Buy order must use best ask");
 
         strategyModule.stop();
-
         marketEventQueue.close();
-
         bookUpdateQueue.close();
         bookBuilderModule.stop();
-
         marketDataModule.stop();
     }
 
+    [[maybe_unused]]
     void testSellUsesBestBid()
     {
         const config::Config config = createConfig();
@@ -420,31 +342,15 @@ namespace
             InstrumentId { 1 },
             SequenceNumber { 100 }
         );
+        TestExchangeFactory exchangeFactory { TestMocks  {
+            .marketDataParser = std::make_unique<TestMarketDataParser>(),
+            .marketDataSource = std::move(marketDataSource),
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(snapshot)
+        }};
 
-        TestExchangeFactoryWithSnapshot exchangeFactory {
-            std::move(marketDataSource),
-            snapshot
-        };
-
-        MarketDataModule marketDataModule {
-            config,
-            bookUpdateQueue,
-            exchangeFactory
-        };
-
-        BookBuilderModule bookBuilderModule {
-            config,
-            bookUpdateQueue,
-            marketEventQueue,
-            recordingQueue,
-            exchangeFactory
-        };
-
-        StrategyModule strategyModule {
-            config.strategy,
-            marketEventQueue,
-            executionQueue
-        };
+        MarketDataModule marketDataModule { config, bookUpdateQueue, exchangeFactory };
+        BookBuilderModule bookBuilderModule { config, bookUpdateQueue, marketEventQueue, recordingQueue, exchangeFactory };
+        StrategyModule strategyModule { config.strategy, marketEventQueue, executionQueue };
 
         marketDataModule.start();
         bookBuilderModule.start();
@@ -452,32 +358,25 @@ namespace
 
         ExecutionWorkItem workItem {};
 
-        while (!executionQueue.tryPop(workItem))
-        {
+        while (!executionQueue.tryPop(workItem)){
             std::this_thread::yield();
         }
 
-        Assert(std::holds_alternative<OrderRequest>(workItem),
-               "Strategy pipeline must produce an OrderRequest");
+        Assert(std::holds_alternative<OrderRequest>(workItem),"Strategy pipeline must produce an OrderRequest");
 
         const OrderRequest& request = std::get<OrderRequest>(workItem);
 
-        Assert(request.side == Side::Sell,
-               "Expected Sell order");
-
-        Assert(request.price == Price { 6500000000000 },
-               "Sell order must use best bid");
+        Assert(request.side == Side::Sell,"Expected Sell order");
+        Assert(request.price == Price { 6500000000000 },"Sell order must use best bid");
 
         strategyModule.stop();
-
         marketEventQueue.close();
-
         bookUpdateQueue.close();
         bookBuilderModule.stop();
-
         marketDataModule.stop();
     }
 
+    [[maybe_unused]]
     void testMarketDataSequenceReachesStrategy()
     {
         const config::Config config = createConfig();
@@ -495,31 +394,15 @@ namespace
             InstrumentId { 1 },
             SequenceNumber { 100 }
         );
+        TestExchangeFactory exchangeFactory { TestMocks  {
+            .marketDataParser = std::make_unique<TestMarketDataParser>(),
+            .marketDataSource = std::move(marketDataSource),
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(snapshot)
+        }};
 
-        TestExchangeFactoryWithSnapshot exchangeFactory {
-            std::move(marketDataSource),
-            snapshot
-        };
-
-        MarketDataModule marketDataModule {
-            config,
-            bookUpdateQueue,
-            exchangeFactory
-        };
-
-        BookBuilderModule bookBuilderModule {
-            config,
-            bookUpdateQueue,
-            marketEventQueue,
-            recordingQueue,
-            exchangeFactory
-        };
-
-        StrategyModule strategyModule {
-            config.strategy,
-            marketEventQueue,
-            executionQueue
-        };
+        MarketDataModule marketDataModule { config, bookUpdateQueue, exchangeFactory };
+        BookBuilderModule bookBuilderModule { config, bookUpdateQueue, marketEventQueue, recordingQueue, exchangeFactory };
+        StrategyModule strategyModule { config.strategy, marketEventQueue, executionQueue };
 
         marketDataModule.start();
         bookBuilderModule.start();
@@ -531,11 +414,8 @@ namespace
             std::this_thread::yield();
         }
 
-        Assert(event.instrument == InstrumentId { 1 },
-               "Market event instrument must match source message");
-
-        Assert(event.sequence == SequenceNumber { 101 },
-               "Market event sequence must match source message");
+        Assert(event.instrument == InstrumentId { 1 },"Market event instrument must match source message");
+        Assert(event.sequence == SequenceNumber { 101 },"Market event sequence must match source message");
 
         strategyModule.start();
 
@@ -550,6 +430,7 @@ namespace
         marketDataModule.stop();
     }
 
+    [[maybe_unused]]
     void testMultipleMarketDataEvents()
     {
         const config::Config config = createConfig();
@@ -568,31 +449,15 @@ namespace
             InstrumentId { 1 },
             SequenceNumber { 100 }
         );
+        TestExchangeFactory exchangeFactory { TestMocks  {
+            .marketDataParser = std::make_unique<TestMarketDataParser>(),
+            .marketDataSource = std::move(marketDataSource),
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(snapshot)
+        }};
 
-        TestExchangeFactoryWithSnapshot exchangeFactory {
-            std::move(marketDataSource),
-            snapshot
-        };
-
-        MarketDataModule marketDataModule {
-            config,
-            bookUpdateQueue,
-            exchangeFactory
-        };
-
-        BookBuilderModule bookBuilderModule {
-            config,
-            bookUpdateQueue,
-            marketEventQueue,
-            recordingQueue,
-            exchangeFactory
-        };
-
-        StrategyModule strategyModule {
-            config.strategy,
-            marketEventQueue,
-            executionQueue
-        };
+        MarketDataModule marketDataModule { config, bookUpdateQueue, exchangeFactory };
+        BookBuilderModule bookBuilderModule { config, bookUpdateQueue, marketEventQueue, recordingQueue, exchangeFactory };
+        StrategyModule strategyModule { config.strategy, marketEventQueue, executionQueue };
 
         marketDataModule.start();
         bookBuilderModule.start();
@@ -601,44 +466,29 @@ namespace
         ExecutionWorkItem first {};
         ExecutionWorkItem second {};
 
-        while (!executionQueue.tryPop(first))
-        {
+        while (!executionQueue.tryPop(first)) {
+            std::this_thread::yield();
+        }
+        while (!executionQueue.tryPop(second)) {
             std::this_thread::yield();
         }
 
-        while (!executionQueue.tryPop(second))
-        {
-            std::this_thread::yield();
-        }
+        Assert(std::holds_alternative<OrderRequest>(first),"First execution work item must be an OrderRequest");
 
-        Assert(std::holds_alternative<OrderRequest>(first),
-               "First execution work item must be an OrderRequest");
-
-        Assert(std::holds_alternative<OrderRequest>(second),
-               "Second execution work item must be an OrderRequest");
+        Assert(std::holds_alternative<OrderRequest>(second),"Second execution work item must be an OrderRequest");
 
         const OrderRequest& firstRequest = std::get<OrderRequest>(first);
         const OrderRequest& secondRequest = std::get<OrderRequest>(second);
 
-        Assert(firstRequest.side == Side::Buy,
-               "First signal must be Buy");
-
-        Assert(secondRequest.side == Side::Buy,
-               "Second signal must remain Buy");
-
-        Assert(firstRequest.price == Price { 6501000000000 },
-               "First Buy must use the best ask");
-
-        Assert(secondRequest.price == Price { 6501000000000 },
-               "Second Buy must use the current best ask");
+        Assert(firstRequest.side == Side::Buy,"First signal must be Buy");
+        Assert(secondRequest.side == Side::Buy,"Second signal must remain Buy");
+        Assert(firstRequest.price == Price { 6501000000000 },"First Buy must use the best ask");
+        Assert(secondRequest.price == Price { 6501000000000 },"Second Buy must use the current best ask");
 
         strategyModule.stop();
-
         marketEventQueue.close();
-
         bookUpdateQueue.close();
         bookBuilderModule.stop();
-
         marketDataModule.stop();
     }
 }

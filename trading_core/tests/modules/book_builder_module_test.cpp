@@ -10,6 +10,7 @@ Description : book_builder_module_test.cpp
 #include "order_book/book_builder_module.hpp"
 #include "test_support/testing.hpp"
 #include "test_support/test_snapshot_provider.hpp"
+#include "test_support/test_exchange_factory.hpp"
 
 #include <iostream>
 #include <memory>
@@ -58,81 +59,12 @@ namespace
     constexpr Price SECOND_ASK { 6'500'002'000'000 };
     constexpr Quantity SECOND_ASK_QUANTITY { 70'000'000 };
 
-    class TestExchangeFactory final : public IExchangeFactory
-    {
-    public:
-        explicit TestExchangeFactory(Snapshot  snapshot) noexcept :
-            snapshot {std::move( snapshot )}
-        {
-        }
-
-        [[nodiscard]]
-        std::unique_ptr<trading::execution::IExecutionGateway>
-        createExecutionGateway(const Config&) const noexcept override
-        {
-            return nullptr;
-        }
-
-        [[nodiscard]]
-        std::unique_ptr<trading::execution::IExecutionReportSource>
-        createExecutionReportSource(
-            const Config&,
-            trading::concurrency::Queue<trading::execution::ExecutionWorkItem>&) const noexcept override
-        {
-            return nullptr;
-        }
-
-        [[nodiscard]]
-        std::unique_ptr<IMarketDataParser>
-        createMarketDataParser(const Config&) const noexcept override
-        {
-            return nullptr;
-        }
-
-        [[nodiscard]]
-        std::unique_ptr<IMarketDataSource>
-        createMarketDataSource(const Config&) const noexcept override
-        {
-            return nullptr;
-        }
-
-        [[nodiscard]]
-        std::unique_ptr<ISnapshotProvider>
-        createSnapshotProvider(const Config&) const noexcept override
-        {
-            ++createSnapshotProviderCount;
-            auto snapshotProvider = std::make_unique<TestSnapshotProvider>(snapshot);
-            ptrSnapshotProvider = snapshotProvider.get();
-            return snapshotProvider;
-        }
-
-        [[nodiscard]]
-        std::size_t createSnapshotProviderCountValue() const noexcept
-        {
-            return createSnapshotProviderCount;
-        }
-
-        [[nodiscard]]
-        std::size_t getSnapshotCountValue() const noexcept
-        {
-            return ptrSnapshotProvider->getSnapshotRequestedCount();
-        }
-
-    private:
-        Snapshot snapshot;
-
-        mutable TestSnapshotProvider* ptrSnapshotProvider { nullptr };
-        mutable std::size_t createSnapshotProviderCount { 0 };
-    };
-
-
     Config createConfig()
     {
         Config config;
         config.instrument = INSTRUMENT;
         return config;
     }
-
 
     Snapshot createSnapshot()
     {
@@ -149,7 +81,7 @@ namespace
         };
     }
 
-
+    [[maybe_unused]]
     Snapshot createSnapshotWithoutBid()
     {
         return Snapshot {
@@ -163,7 +95,7 @@ namespace
         };
     }
 
-
+    [[maybe_unused]]
     Snapshot createSnapshotWithoutAsk()
     {
         return Snapshot {
@@ -176,7 +108,6 @@ namespace
             .asks = {}
         };
     }
-
 
     BookUpdate createBidUpdate(const SequenceNumber sequence,
                                const Quantity quantity)
@@ -191,7 +122,6 @@ namespace
         };
     }
 
-
     BookUpdate createAskUpdate(const SequenceNumber sequence,
                                const Quantity quantity)
     {
@@ -204,7 +134,6 @@ namespace
             .quantity = quantity
         };
     }
-
 
     BookUpdate createSecondBidUpdate(const SequenceNumber sequence,
                                      const Quantity quantity)
@@ -232,7 +161,6 @@ namespace
         };
     }
 
-
     BookUpdate createWrongInstrumentUpdate(const SequenceNumber sequence,
                                            const Quantity quantity)
     {
@@ -245,7 +173,6 @@ namespace
             .quantity = quantity
         };
     }
-
 
     void stopModule(ConditionVariableQueue<BookUpdates>& bookUpdateQueue)
     {
@@ -260,7 +187,9 @@ namespace
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
-        TestExchangeFactory exchangeFactory { createSnapshot() };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
+        }};
         BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory };
 
         Assert(exchangeFactory.createSnapshotProviderCountValue() == 1, "snapshot provider must be created once");
@@ -279,13 +208,17 @@ namespace
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
-        TestExchangeFactory exchangeFactory { createSnapshot() };
+        auto snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot());
+        auto snapshotProviderPtr = snapshotProvider.get();
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .snapshotProvider = std::move(snapshotProvider)
+        }};
         BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue,exchangeFactory};
 
         bookUpdateQueue.close();
         module.run();
 
-        Assert(exchangeFactory.getSnapshotCountValue() == 1, "snapshot must be requested exactly once");
+        Assert(snapshotProviderPtr->getSnapshotRequestedCount() == 1, "snapshot must be requested exactly once");
     }
 
     void testSnapshotDoesNotProduceEvents()
@@ -296,7 +229,9 @@ namespace
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
-        TestExchangeFactory exchangeFactory { createSnapshot() };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
+        }};
         BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue,exchangeFactory};
 
         bookUpdateQueue.close();
@@ -311,7 +246,9 @@ namespace
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
-        TestExchangeFactory exchangeFactory { createSnapshot() };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
+        }};
         BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue,exchangeFactory};
 
         bookUpdateQueue.push(BookUpdates {
@@ -351,7 +288,9 @@ namespace
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
-        TestExchangeFactory exchangeFactory { createSnapshot() };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
+        }};
         BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue,exchangeFactory};
 
         bookUpdateQueue.push(BookUpdates {
@@ -385,7 +324,9 @@ namespace
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
-        TestExchangeFactory exchangeFactory { createSnapshot() };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
+        }};
         BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue,exchangeFactory};
 
         bookUpdateQueue.push(BookUpdates {createBidUpdate(
@@ -419,7 +360,9 @@ namespace
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
-        TestExchangeFactory exchangeFactory { createSnapshot() };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
+        }};
         BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue, exchangeFactory};
 
         bookUpdateQueue.push(BookUpdates {
@@ -447,7 +390,9 @@ namespace
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
-        TestExchangeFactory exchangeFactory { createSnapshot() };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
+        }};
         BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue, exchangeFactory};
 
         bookUpdateQueue.push(BookUpdates {
@@ -468,7 +413,9 @@ namespace
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
-        TestExchangeFactory exchangeFactory { createSnapshot() };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
+        }};
         BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue, exchangeFactory};
 
         bookUpdateQueue.push(BookUpdates {
@@ -495,7 +442,9 @@ namespace
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
-        TestExchangeFactory exchangeFactory { createSnapshot() };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
+        }};
         BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue, exchangeFactory};
 
         bookUpdateQueue.push(BookUpdates {
@@ -529,7 +478,9 @@ namespace
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
-        TestExchangeFactory exchangeFactory { createSnapshot() };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
+        }};
         BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue, exchangeFactory};
 
         bookUpdateQueue.push(BookUpdates {
@@ -557,7 +508,9 @@ namespace
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
-        TestExchangeFactory exchangeFactory { createSnapshot() };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
+        }};
         BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue, exchangeFactory};
 
         bookUpdateQueue.push(BookUpdates {
@@ -585,7 +538,9 @@ namespace
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
-        TestExchangeFactory exchangeFactory { createSnapshot() };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
+        }};
         BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue, exchangeFactory};
 
         bookUpdateQueue.push(BookUpdates {
@@ -617,7 +572,9 @@ namespace
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
-        TestExchangeFactory exchangeFactory { createSnapshot() };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
+        }};
         BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue, exchangeFactory};
 
         bookUpdateQueue.push(BookUpdates {
@@ -659,7 +616,9 @@ namespace
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
-        TestExchangeFactory exchangeFactory { invalidSnapshot };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(invalidSnapshot)
+        }};
         BookBuilderModule module {config,bookUpdateQueue,strategyEventQueue,recordingQueue, exchangeFactory};
 
         bookUpdateQueue.push(BookUpdates {
@@ -680,7 +639,9 @@ namespace
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
-        TestExchangeFactory exchangeFactory { createSnapshot() };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
+        }};
         BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue, exchangeFactory};
 
         bookUpdateQueue.push(BookUpdates {});
@@ -699,7 +660,9 @@ namespace
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
-        TestExchangeFactory exchangeFactory { createSnapshot() };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
+        }};
         BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue, exchangeFactory};
 
         bookUpdateQueue.push(BookUpdates {
@@ -735,7 +698,9 @@ namespace
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
-        TestExchangeFactory exchangeFactory { createSnapshot() };
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
+        }};
         BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue, exchangeFactory};
 
         bookUpdateQueue.push(BookUpdates {
@@ -751,9 +716,7 @@ namespace
         Assert(marketEvent.receiveTimestamp != Timestamp {},"market event must contain receive timestamp");
         Assert(strategyEventQueue.empty(),"strategy event queue must be empty");
     }
-
 }
-
 
 void book_builder_module_test()
 {

@@ -13,6 +13,7 @@ Description : execution_module_test.cpp
 #include "test_support/testing.hpp"
 #include "test_support/test_exchange_factory.hpp"
 #include "test_support/test_execution_gateway.hpp"
+#include "test_support/test_exchange_factory.hpp"
 
 #include <iostream>
 #include <variant>
@@ -77,55 +78,6 @@ namespace
         };
     }
 
-
-    class TestExecutionExchangeFactory final : public trading::exchanges::IExchangeFactory
-    {
-    public:
-        explicit TestExecutionExchangeFactory(std::unique_ptr<TestExecutionGateway> gateway) noexcept:
-                                               gateway { std::move(gateway) }
-        {
-        }
-
-        [[nodiscard]]
-        std::unique_ptr<trading::execution::IExecutionGateway>
-        createExecutionGateway(const trading::config::Config&) const noexcept override
-        {
-            return std::move(gateway);
-        }
-
-        [[nodiscard]]
-        std::unique_ptr<trading::execution::IExecutionReportSource>
-        createExecutionReportSource(const trading::config::Config&,
-                                    trading::concurrency::Queue<ExecutionWorkItem>&) const noexcept override
-        {
-            return nullptr;
-        }
-
-        [[nodiscard]]
-        std::unique_ptr<trading::market_data::IMarketDataParser>
-        createMarketDataParser(const trading::config::Config&) const noexcept override
-        {
-            return nullptr;
-        }
-
-        [[nodiscard]]
-        std::unique_ptr<trading::market_data::IMarketDataSource>
-        createMarketDataSource(const trading::config::Config&) const noexcept override
-        {
-            return nullptr;
-        }
-
-        [[nodiscard]]
-        std::unique_ptr<trading::market_data::ISnapshotProvider>
-        createSnapshotProvider(const trading::config::Config&) const noexcept override
-        {
-            return nullptr;
-        }
-
-    private:
-        mutable std::unique_ptr<TestExecutionGateway> gateway;
-    };
-
     /**
      * Tests that a valid OrderRequest is accepted by the ExecutionModule,
      * converted into an Order by OrderManager and sent to the execution gateway.
@@ -144,7 +96,9 @@ namespace
         auto gateway = std::make_unique<TestExecutionGateway>();
         TestExecutionGateway* gatewayPtr = gateway.get();
 
-        TestExecutionExchangeFactory exchangeFactory { std::move(gateway) };
+        TestExchangeFactory exchangeFactory { TestMocks  {
+            .executionGateway = std::move(gateway)
+        }};
         ExecutionModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory };
 
         executionQueue.push(createBuyOrderRequest());
@@ -181,7 +135,9 @@ namespace
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
         auto gateway = std::make_unique<TestExecutionGateway>();
-        TestExecutionExchangeFactory exchangeFactory { std::move(gateway) };
+        TestExchangeFactory exchangeFactory { TestMocks  {
+            .executionGateway = std::move(gateway)
+        }};
         ExecutionModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory };
 
         const OrderRequest request = createBuyOrderRequest();
@@ -222,7 +178,9 @@ namespace
         auto gateway = std::make_unique<TestExecutionGateway>();
         TestExecutionGateway* gatewayPtr = gateway.get();
 
-        TestExecutionExchangeFactory exchangeFactory { std::move(gateway) };
+        TestExchangeFactory exchangeFactory { TestMocks  {
+            .executionGateway = std::move(gateway)
+        }};
         ExecutionModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory};
 
         OrderRequest request = createBuyOrderRequest();
@@ -258,7 +216,9 @@ namespace
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
         auto gateway = std::make_unique<TestExecutionGateway>();
-        TestExecutionExchangeFactory exchangeFactory { std::move(gateway) };
+        TestExchangeFactory exchangeFactory { TestMocks  {
+            .executionGateway = std::move(gateway)
+        }};
         ExecutionModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory};
 
         executionQueue.push(createBuyOrderRequest());
@@ -293,7 +253,9 @@ namespace
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
         auto gateway = std::make_unique<TestExecutionGateway>();
-        TestExecutionExchangeFactory exchangeFactory { std::move(gateway) };
+        TestExchangeFactory exchangeFactory { TestMocks  {
+            .executionGateway = std::move(gateway)
+        }};
         ExecutionModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory};
 
         executionQueue.push(createTradeReport());
@@ -335,7 +297,9 @@ namespace
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
         auto gateway = std::make_unique<TestExecutionGateway>();
-        TestExecutionExchangeFactory exchangeFactory { std::move(gateway) };
+        TestExchangeFactory exchangeFactory { TestMocks  {
+            .executionGateway = std::move(gateway)
+        }};
         ExecutionModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory};
 
         executionQueue.push(createBuyOrderRequest());
@@ -368,7 +332,9 @@ namespace
         auto gateway = std::make_unique<trading::testing::TestExecutionGateway>();
         auto* gatewayPtr = gateway.get();
 
-        TestExecutionExchangeFactory exchangeFactory { std::move(gateway) };
+        TestExchangeFactory exchangeFactory { TestMocks  {
+            .executionGateway = std::move(gateway)
+        }};
         ExecutionModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory};
 
         ExecutionReport report = createTradeReport();
@@ -405,7 +371,9 @@ namespace
         auto gateway = std::make_unique<TestExecutionGateway>();
         TestExecutionGateway* gatewayPtr = gateway.get();
 
-        TestExecutionExchangeFactory exchangeFactory { std::move(gateway) };
+        TestExchangeFactory exchangeFactory { TestMocks  {
+            .executionGateway = std::move(gateway)
+        }};
         ExecutionModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory};
 
         const OrderRequest firstRequest = createBuyOrderRequest();
