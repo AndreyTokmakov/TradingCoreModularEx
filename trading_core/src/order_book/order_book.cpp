@@ -85,8 +85,14 @@ namespace trading::order_book
                              const Levels& snapBids,
                              const Levels& snapAsks)
     {
-        bids = BidLevels{snapBids.cbegin(), snapBids.cend()};
-        asks = AskLevels{snapAsks.cbegin(), snapAsks.cend()};
+        bids.clear();
+        for (const auto& [price, quantity] : snapBids) {
+            bids.emplace(price, quantity);
+        }
+        asks.clear();
+        for (const auto& [price, quantity] : snapAsks) {
+            asks.emplace(price, quantity);
+        }
         sequenceNumber = sequence;
     }
 

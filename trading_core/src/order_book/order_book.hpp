@@ -29,7 +29,7 @@ namespace trading::order_book
     class OrderBook
     {
     public:
-        using Levels    = std::vector<std::pair<Price, Quantity>>;
+        using Levels    = std::vector<BookLevel>;
         using BidLevels = std::flat_map<Price, Quantity, std::greater<>>;
         using AskLevels = std::flat_map<Price, Quantity, std::less<>>;
         using size_type = size_t;

@@ -49,5 +49,4 @@ namespace trading
     };
 }
 
-
 #endif //FINANCETECHNOLOGYPROJECTS_TYPES_HPP

@@ -47,12 +47,13 @@ Description : Order book price levels.
 
 #include "core/price.hpp"
 #include "core/quantity.hpp"
+#include "book_level.hpp"
 
 #include <vector>
 
 namespace trading::market_data
 {
-    using OrderBookLevels = std::vector<std::pair<Price, Quantity>>;
+    using OrderBookLevels = std::vector<BookLevel>;
 }
 
 #endif //FINANCETECHNOLOGYPROJECTS_ORDER_BOOK_LEVELS_HPP
