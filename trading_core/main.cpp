@@ -165,6 +165,31 @@ using Levels    = std::vector<std::pair<Price, Quantity>>;
 **/
 
 
+/**    ----------- OBookUpdate ----------------
+
+struct SequenceRange
+{
+    SequenceNumber first {};
+    SequenceNumber last {};
+};
+
+struct PriceLevelUpdate
+{
+    Side side { Side::Buy };
+    Price price {};
+    Quantity quantity {};
+};
+
+struct BookUpdate
+{
+    InstrumentId instrument {};
+    SequenceRange sequenceRange {};
+    Timestamp exchangeTimestamp {};
+    std::vector<PriceLevelUpdate> updates;
+};
+
+**/
+
 namespace
 {
     using LoggerFactory = trading::logging::LoggerFactory;
@@ -225,7 +250,7 @@ namespace
         const auto nullLogger = std::make_shared<trading::testing::TestLogger>(true);
         LoggerFactory::createLogger(nullLogger);
 
-        marketdata_bookbuilder_strategy_integrataion();
+        // marketdata_bookbuilder_strategy_integrataion();
         // exchange_to_gateway_integration_test();
         // book_builder_module_restore_book_test();
         // book_builder_module_test();
