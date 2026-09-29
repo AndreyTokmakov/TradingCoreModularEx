@@ -76,21 +76,33 @@ Description : Market data update representing a single order book level change.
 #ifndef FINANCETECHNOLOGYPROJECTS_BOOK_UPDATE_HPP
 #define FINANCETECHNOLOGYPROJECTS_BOOK_UPDATE_HPP
 
-#include "core/price.hpp"
-#include "core/quantity.hpp"
 #include "core/timestamp.hpp"
 #include "core/types.hpp"
+
+#include "sequence_range.hpp"
+#include "book_level_update.hpp"
 
 namespace trading::market_data
 {
     struct BookUpdate
     {
         InstrumentId instrument { 0 };
-        SequenceNumber sequence { 0 };
+        SequenceRange sequenceRange { 0 };
         Timestamp exchangeTimestamp {};
-        Side side { Side::Buy };
-        Price price {};
-        Quantity quantity {};
+        std::vector<PriceLevelUpdate> updates;
+
+        void clear()
+        {
+            instrument = InstrumentId{ 0 };
+            sequenceRange = SequenceRange { .first = 0, .last = 0 };
+            exchangeTimestamp = Timestamp { 0 };
+            updates.clear();
+        }
+
+        [[nodiscard]]
+        bool empty() const noexcept {
+            return updates.empty();
+        }
     };
 }
 

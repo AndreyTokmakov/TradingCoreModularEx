@@ -223,12 +223,18 @@ namespace trading::testing
 
         stream << "BookUpdate {"
                << "\n\t instrument       : " << update.instrument
-               << "\n\t sequence         : " << update.sequence
+               << "\n\t sequence         : [" << update.sequenceRange.first
+               << ", " << update.sequenceRange.last << "]"
                << "\n\t exchangeTimestamp: " << update.exchangeTimestamp.nanoseconds()
-               << "\n\t side             : " << update.side
-               << "\n\t price            : " << update.price.raw()
-               << "\n\t quantity         : " << update.quantity.raw()
-               << "\n}";
+               << "\n\t updates          : " << update.updates.size();
+
+        for (const auto& levelUpdate : update.updates) {
+            stream << "\n\t\t side     : " << levelUpdate.side
+                   << "\n\t\t price    : " << levelUpdate.price.raw()
+                   << "\n\t\t quantity : " << levelUpdate.quantity.raw();
+        }
+
+        stream << "\n}";
 
         return stream.str();
     }

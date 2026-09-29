@@ -21,7 +21,7 @@ namespace trading::testing
     public:
         [[nodiscard]]
         market_data::ParseResult parse(std::string_view message,
-                                       market_data::BookUpdates& bookUpdates) const override;
+                                       market_data::BookUpdate& bookUpdate) const override;
     private:
         static market_data::ParseResult parseBookUpdate(std::string_view data,
                                                         market_data::BookUpdate& bookUpdate);

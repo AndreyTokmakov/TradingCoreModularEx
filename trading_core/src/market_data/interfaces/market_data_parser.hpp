@@ -64,14 +64,12 @@ Description : market_data_parser.hpp
 #define FINANCETECHNOLOGYPROJECTS_MARKET_DATA_PARSER_HPP
 
 #include <string_view>
-#include <vector>
 
 #include "market_data/model/book_update.hpp"
 #include "market_data/model/parse_result.hpp"
 
 namespace trading::market_data
 {
-    using BookUpdates = std::vector<BookUpdate>;
 
     struct IMarketDataParser
     {
@@ -79,7 +77,7 @@ namespace trading::market_data
 
         [[nodiscard]]
         virtual ParseResult parse(std::string_view message,
-                                   BookUpdates& bookUpdates) const = 0;
+                                  BookUpdate& bookUpdates) const = 0;
     };
 }
 

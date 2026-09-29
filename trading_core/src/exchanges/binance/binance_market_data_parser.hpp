@@ -54,14 +54,12 @@ Description : binance_market_data_parser.hpp
 
 namespace trading::exchanges::binance
 {
-
-
     class BinanceMarketDataParser final : public market_data::IMarketDataParser
     {
     public:
         [[nodiscard]]
         market_data::ParseResult parse(std::string_view message,
-                                       market_data::BookUpdates& bookUpdates) const override;
+                                       market_data::BookUpdate& bookUpdate) const override;
     };
 }
 

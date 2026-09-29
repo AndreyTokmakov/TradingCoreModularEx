@@ -153,42 +153,12 @@ Replace         namespace trading::market_data
 **/
 
 
-
-
-
 /**        ----------- ORDER BOOK ----------------
- *
- *
+
 using Levels    = std::map<Price, Quantity>;
 using Levels    = std::vector<std::pair<Price, Quantity>>;
-
 **/
 
-
-/**    ----------- OBookUpdate ----------------
-
-struct SequenceRange
-{
-    SequenceNumber first {};
-    SequenceNumber last {};
-};
-
-struct PriceLevelUpdate
-{
-    Side side { Side::Buy };
-    Price price {};
-    Quantity quantity {};
-};
-
-struct BookUpdate
-{
-    InstrumentId instrument {};
-    SequenceRange sequenceRange {};
-    Timestamp exchangeTimestamp {};
-    std::vector<PriceLevelUpdate> updates;
-};
-
-**/
 
 namespace
 {
@@ -222,10 +192,10 @@ namespace
         const auto nullLogger = std::make_shared<trading::testing::TestLogger>(true);
         LoggerFactory::createLogger(nullLogger);
 
-        price_test();
-
         // market_event_handler_test();
         // strategy_executor_test();
+
+        price_test();
 
         json_config_loader_test();
         trade_recorder_test();
@@ -254,6 +224,8 @@ namespace
         // exchange_to_gateway_integration_test();
         // book_builder_module_restore_book_test();
         // book_builder_module_test();
+
+        order_manager_test();
     }
 }
 

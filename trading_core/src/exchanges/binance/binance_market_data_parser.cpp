@@ -39,9 +39,9 @@ namespace trading::exchanges::binance
 {
     market_data::ParseResult
     BinanceMarketDataParser::parse([[maybe_unused]] std::string_view message,
-                                    market_data::BookUpdates& bookUpdates) const
+                                    market_data::BookUpdate& bookUpdate) const
     {
-        bookUpdates.clear();
+        bookUpdate.clear();
 
         /*
             Existing Binance parsing logic goes here.

@@ -23,7 +23,7 @@ namespace trading::market_data
     {
     public:
         MarketDataModule(const config::Config& config,
-                         concurrency::Queue<BookUpdates>& bookUpdateQueue,
+                         concurrency::Queue<BookUpdate>& bookUpdateQueue,
                          const exchanges::IExchangeFactory& exchangeFactory) noexcept;
 
         MarketDataModule(const MarketDataModule&) = delete;

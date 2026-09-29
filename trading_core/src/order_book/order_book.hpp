@@ -23,7 +23,7 @@ Description : Order book state.
 
 namespace trading::order_book
 {
-    using market_data::BookUpdate;
+    using market_data::PriceLevelUpdate;
     using market_data::BookLevel;
 
     class OrderBook
@@ -47,9 +47,6 @@ namespace trading::order_book
         OrderBook(OrderBook&&) noexcept = default;
         OrderBook& operator=(OrderBook&&) noexcept = default;
 
-        [[nodiscard]]
-        SequenceNumber sequence() const noexcept;
-
         void clear() noexcept;
 
         void setState(SequenceNumber sequence,
@@ -57,7 +54,12 @@ namespace trading::order_book
                       const Levels& snapAsks);
 
         [[nodiscard]]
-        bool applyUpdate(const BookUpdate& update) noexcept;
+        bool applyUpdate(const PriceLevelUpdate& levelUpdate) noexcept;
+
+        [[nodiscard]]
+        SequenceNumber sequence() const noexcept;
+
+        void setSequence(SequenceNumber sequence) noexcept;
 
         [[nodiscard]]
         std::optional<BookLevel> bestBid() const;

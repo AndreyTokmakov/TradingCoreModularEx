@@ -54,7 +54,6 @@ namespace trading::order_book
     {
         if (snapshot.instrument != instrument)
             return false;
-
         orderBook.setState(snapshot.sequence, snapshot.bids, snapshot.asks);
 
         return true;
@@ -64,10 +63,25 @@ namespace trading::order_book
     {
         if (update.instrument != instrument)
             return;
-        if (!orderBook.applyUpdate(update)) {
+        if (!isSequenceValid(update))
             return;
+        if (!applyBookUpdate(update))
+            return;
+
+        orderBook.setSequence(update.sequenceRange.last);
+        publishMarketEvent(update.sequenceRange.last, update.exchangeTimestamp);
+    }
+
+    bool BookBuilder::isSequenceValid(const BookUpdate& update) const noexcept
+    {
+        return update.sequenceRange.first == orderBook.sequence() + 1;
         }
-        publishMarketEvent(update.sequence, update.exchangeTimestamp);
+
+    bool BookBuilder::applyBookUpdate(const BookUpdate& update) const noexcept
+    {
+        return std::ranges::all_of(update.updates, [this](const PriceLevelUpdate& levelUpdate) {
+            return true == orderBook.applyUpdate(levelUpdate);
+        });
     }
 
     void BookBuilder::publishMarketEvent(const SequenceNumber sequence,

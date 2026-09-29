@@ -59,7 +59,7 @@ namespace trading::app
 
         config::Config config;
 
-        concurrency::ConditionVariableQueue<market_data::BookUpdates> bookUpdateQueue;
+        concurrency::ConditionVariableQueue<market_data::BookUpdate> bookUpdateQueue;
         concurrency::ConditionVariableQueue<market_data::MarketEvent> strategyEventQueue;
         concurrency::ConditionVariableQueue<recording::RecordingEvent> recordingEventQueue;
         concurrency::ConditionVariableQueue<execution::ExecutionWorkItem> executionQueue;

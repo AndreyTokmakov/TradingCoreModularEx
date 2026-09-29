@@ -33,16 +33,14 @@ namespace
 namespace trading::testing
 {
     using BookUpdate = market_data::BookUpdate;
-    using BookUpdates = market_data::BookUpdates;
     using ParseResult = market_data::ParseResult;
 
     ParseResult
     TestMarketDataParser::parse(const std::string_view message,
-                                BookUpdates& bookUpdates) const
+                                BookUpdate& bookUpdate) const
     {
-        const ParseResult result = parseBookUpdate(message,bookUpdates.emplace_back());
+        const ParseResult result = parseBookUpdate(message,bookUpdate);
         if (ParseResult::Success != result) {
-            bookUpdates.pop_back();
             return result;
         }
 
@@ -63,35 +61,47 @@ namespace trading::testing
             }
         }
 
-        if (fields.size() != 6)
+        if (fields.size() < 4) {
             return ParseResult::InvalidMessage;
+        }
 
         if (!parseNumber(fields[0], bookUpdate.instrument))
             return ParseResult::InvalidInstrument;
-        if (!parseNumber(fields[1], bookUpdate.sequence))
+        if (!parseNumber(fields[1], bookUpdate.sequenceRange.first))
+            return ParseResult::InvalidSequence;
+        if (!parseNumber(fields[2], bookUpdate.sequenceRange.last))
             return ParseResult::InvalidSequence;
 
         int64_t value { 0 };
-        if (!parseNumber(fields[2], value))
+        if (!parseNumber(fields[3], value))
             return ParseResult::InvalidTimestamp;
         bookUpdate.exchangeTimestamp = static_cast<decltype(bookUpdate.exchangeTimestamp)>(value);
 
-        if (fields[3] == "Buy") {
-            bookUpdate.side = Side::Buy;
-        } else if (fields[3] == "Sell") {
-            bookUpdate.side = Side::Sell;
-        } else {
-            return ParseResult::InvalidSide;
+        for (uint32_t idx = 4; (idx + 3) < fields.size();)
+        {
+            auto&[side, price, quantity] = bookUpdate.updates.emplace_back();
+            if (fields[idx] == "Buy") {
+                side = Side::Buy;
+            } else if (fields[idx] == "Sell") {
+                side = Side::Sell;
+            } else {
+                return ParseResult::InvalidSide;
+            }
+
+            ++idx;
+
+            if (!parseNumber(fields[idx], value))
+                return ParseResult::InvalidPrice;
+            price = static_cast<decltype(price)>(value);
+
+            ++idx;
+
+            if (!parseNumber(fields[idx], value))
+                return ParseResult::InvalidPrice;
+            quantity = static_cast<decltype(quantity)>(value);
+
+            ++idx;
         }
-
-        if (!parseNumber(fields[4], value))
-            return ParseResult::InvalidPrice;
-        bookUpdate.price = static_cast<decltype(bookUpdate.price)>(value);
-
-        if (!parseNumber(fields[5], value))
-            return ParseResult::InvalidPrice;
-        bookUpdate.quantity = static_cast<decltype(bookUpdate.quantity)>(value);
-
         return ParseResult::Success;
     }
 

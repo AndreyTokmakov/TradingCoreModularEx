@@ -15,9 +15,11 @@ Description : book_level_update.hpp
 
 namespace trading::market_data
 {
-    struct PriceLevelUpdate: BookLevel
+    struct PriceLevelUpdate
     {
         Side side { Side::Buy };
+        Price price {};
+        Quantity quantity {};
     };
 }
 
