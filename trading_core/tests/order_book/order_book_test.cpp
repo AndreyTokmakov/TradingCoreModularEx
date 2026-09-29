@@ -15,8 +15,11 @@ Description : OrderBook tests.
 namespace
 {
     using trading::Price;
+    using trading::InstrumentId;
     using trading::Quantity;
+    using trading::Timestamp;
     using trading::SequenceNumber;
+    using trading::market_data::SequenceRange;
     using trading::Side;
     using trading::market_data::BookUpdate;
     using trading::order_book::OrderBook;
@@ -34,6 +37,27 @@ namespace
     constexpr Quantity SecondQuantity { 200'000'000 };
     constexpr Quantity ThirdQuantity { 300'000'000 };
 
+    BookUpdate createBookUpdate(const InstrumentId Instrument,
+                                const SequenceNumber first,
+                                const SequenceNumber last,
+                                const std::vector<std::pair<Price, Quantity>>& bids,
+                                const std::vector<std::pair<Price, Quantity>>& asks)
+    {
+        BookUpdate update  {
+            .instrument = Instrument,
+            .sequenceRange = SequenceRange { .first = first, .last = last },
+            .exchangeTimestamp = Timestamp {1},
+            .updates = {}
+        };
+
+        for (const auto& [price, quantity] : bids) {
+            update.updates.emplace_back(Side::Buy, price, quantity);
+        }
+        for (const auto& [price, quantity] : asks) {
+            update.updates.emplace_back(Side::Sell, price, quantity);
+        }
+        return update;
+    }
 
     BookUpdate createBidUpdate(const SequenceNumber sequence,
                                const Price price,

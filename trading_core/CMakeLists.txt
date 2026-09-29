@@ -197,19 +197,17 @@ add_executable(${PROJECT_NAME}
         ${TESTS}/strategy/imbalance_strategy_test.cpp
 
         ${TESTS}/execution/order_manager_test.cpp
-        # ${TESTS}/order_book/order_book_test.cpp
+        ${TESTS}/order_book/order_book_test.cpp
         # ${TESTS}/order_book/book_builder_test.cpp
 
-        #[[
-        ${TESTS}/modules/book_builder_module_test.cpp
-        ${TESTS}/modules/book_builder_module_restore_book_test.cpp
-        ${TESTS}/modules/market_data_module_test.cpp
+        # ${TESTS}/modules/book_builder_module_test.cpp
+        # ${TESTS}/modules/book_builder_module_restore_book_test.cpp
+        # ${TESTS}/modules/market_data_module_test.cpp
         ${TESTS}/modules/strategy_module_test.cpp
         ${TESTS}/modules/execution_module_test.cpp
 
-        ${TESTS}/modules/marketdata_bookbuilder_strategy_integrataion.cpp
-        ${TESTS}/integration_tests/exchange_to_gateway_integration_test.cpp
-        #]]
+        # ${TESTS}/modules/marketdata_bookbuilder_strategy_integrataion.cpp
+        # ${TESTS}/integration_tests/exchange_to_gateway_integration_test.cpp
 
         ${TESTS}/test_support/testing.hpp
         ${TESTS}/test_support/debug_helpers.hpp
@@ -224,7 +222,6 @@ add_executable(${PROJECT_NAME}
         ${TESTS}/test_support/test_snapshot_provider.hpp
         ${TESTS}/test_support/test_exchange_factory.hpp
         ${TESTS}/test_support/test_exchange_factory.cpp
-
 
         # ${TESTS}/strategy/strategy_executor_test.cpp
         # ${TESTS}/market_data/market_event_handler_test.cpp

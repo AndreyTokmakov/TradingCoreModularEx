@@ -77,7 +77,7 @@ namespace trading::testing
             return ParseResult::InvalidTimestamp;
         bookUpdate.exchangeTimestamp = static_cast<decltype(bookUpdate.exchangeTimestamp)>(value);
 
-        for (uint32_t idx = 4; (idx + 3) < fields.size();)
+        for (uint32_t idx = 4; (idx + 3) <= fields.size();)
         {
             auto&[side, price, quantity] = bookUpdate.updates.emplace_back();
             if (fields[idx] == "Buy") {
@@ -90,17 +90,13 @@ namespace trading::testing
 
             ++idx;
 
-            if (!parseNumber(fields[idx], value))
+            if (!parseNumber(fields[idx++], value))
                 return ParseResult::InvalidPrice;
             price = static_cast<decltype(price)>(value);
 
-            ++idx;
-
-            if (!parseNumber(fields[idx], value))
+            if (!parseNumber(fields[idx++], value))
                 return ParseResult::InvalidPrice;
             quantity = static_cast<decltype(quantity)>(value);
-
-            ++idx;
         }
         return ParseResult::Success;
     }

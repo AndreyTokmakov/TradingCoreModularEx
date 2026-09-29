@@ -225,7 +225,7 @@ namespace
         // book_builder_module_restore_book_test();
         // book_builder_module_test();
 
-        order_manager_test();
+        order_book_test();
     }
 }
 
