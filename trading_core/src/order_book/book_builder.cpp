@@ -75,7 +75,7 @@ namespace trading::order_book
     bool BookBuilder::isSequenceValid(const BookUpdate& update) const noexcept
     {
         return update.sequenceRange.first == orderBook.sequence() + 1;
-        }
+    }
 
     bool BookBuilder::applyBookUpdate(const BookUpdate& update) const noexcept
     {

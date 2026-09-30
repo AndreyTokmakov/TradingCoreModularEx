@@ -198,7 +198,7 @@ add_executable(${PROJECT_NAME}
 
         ${TESTS}/execution/order_manager_test.cpp
         ${TESTS}/order_book/order_book_test.cpp
-        # ${TESTS}/order_book/book_builder_test.cpp
+        ${TESTS}/order_book/book_builder_test.cpp
 
         # ${TESTS}/modules/book_builder_module_test.cpp
         # ${TESTS}/modules/book_builder_module_restore_book_test.cpp
