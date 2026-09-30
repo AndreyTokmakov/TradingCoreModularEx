@@ -62,6 +62,9 @@ namespace trading::testing
     std::string toString(const market_data::BookLevel& level);
 
     [[nodiscard]]
+    std::string toString(const market_data::PriceLevelUpdate& levelUpdate);
+
+    [[nodiscard]]
     std::string toString(const market_data::OrderBookLevels& levels);
 
     [[nodiscard]]
@@ -80,8 +83,11 @@ namespace trading::testing
     std::ostream& operator<<(std::ostream& stream, const market_data::BookUpdate& update);
     std::ostream& operator<<(std::ostream& stream, const market_data::MarketEvent& event);
     std::ostream& operator<<(std::ostream& stream, const market_data::BookLevel& level);
+    std::ostream& operator<<(std::ostream& stream, const market_data::PriceLevelUpdate& levelUpdate);
     std::ostream& operator<<(std::ostream& stream, const market_data::OrderBookLevels& levels);
     std::ostream& operator<<(std::ostream& stream, const market_data::Snapshot& snapshot);
 }
+
+using namespace trading::testing;
 
 #endif //TRADINGCOREMODULAREX_DEBUG_HELPERS_HPP

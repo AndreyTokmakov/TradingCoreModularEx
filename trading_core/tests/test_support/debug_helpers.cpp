@@ -283,6 +283,24 @@ namespace trading::testing
     }
 
     [[nodiscard]]
+    std::string toString(const market_data::PriceLevelUpdate& levelUpdate)
+    {
+        std::ostringstream stream;
+        stream << "BookLevel {"
+               << "\n\t side    : " << levelUpdate.side
+               << "\n\t price   : " << levelUpdate.price.raw()
+               << "\n\t quantity: " << levelUpdate.quantity.raw()
+               << "\n}";
+        return stream.str();
+    }
+
+    std::ostream& operator<<(std::ostream& stream, const market_data::PriceLevelUpdate& levelUpdate)
+    {
+        return stream << toString(levelUpdate);
+    }
+
+
+    [[nodiscard]]
     std::string toString(const market_data::OrderBookLevels& levels)
     {
         std::ostringstream stream;
