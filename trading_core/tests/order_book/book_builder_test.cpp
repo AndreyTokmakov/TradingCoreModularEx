@@ -375,10 +375,8 @@ namespace
             SequenceNumber { 102 },
             { createBidUpdate(BidPrice, Quantity { 200'000'000 }) }));
 
-        Assert(orderBook.sequence() == SequenceNumber { 100 },
-               "sequence must not change after gap");
-        Assert(orderBook.bidVolume(BidPrice) == BidQuantity,
-               "book must not change after gap");
+        Assert(orderBook.sequence() == SequenceNumber { 100 }, "sequence must not change after gap");
+        Assert(orderBook.bidVolume(BidPrice) == BidQuantity, "book must not change after gap");
         Assert(strategyQueue.empty(), "strategy queue must be empty");
         Assert(recordingQueue.empty(), "recording queue must be empty");
     }
@@ -409,12 +407,9 @@ namespace
                 createBidUpdate(BidPrice2, BidQuantity2)
             }));
 
-        Assert(orderBook.sequence() == SequenceNumber { 100 },
-               "sequence must not change after sequence gap");
-        Assert(orderBook.bidVolume(BidPrice) == BidQuantity,
-               "book must not change after sequence gap");
-        Assert(orderBook.bidVolume(BidPrice2).isZero(),
-               "new levels must not be applied after sequence gap");
+        Assert(orderBook.sequence() == SequenceNumber { 100 },"sequence must not change after sequence gap");
+        Assert(orderBook.bidVolume(BidPrice) == BidQuantity,"book must not change after sequence gap");
+        Assert(orderBook.bidVolume(BidPrice2).isZero(),"new levels must not be applied after sequence gap");
         Assert(strategyQueue.empty(), "strategy queue must be empty");
         Assert(recordingQueue.empty(), "recording queue must be empty");
     }
@@ -442,10 +437,8 @@ namespace
             SequenceNumber { 100 },
             { createBidUpdate(BidPrice, Quantity { 200'000'000 }) }));
 
-        Assert(orderBook.sequence() == SequenceNumber { 100 },
-               "sequence must not change after stale update");
-        Assert(orderBook.bidVolume(BidPrice) == BidQuantity,
-               "book must not change after stale update");
+        Assert(orderBook.sequence() == SequenceNumber { 100 },"sequence must not change after stale update");
+        Assert(orderBook.bidVolume(BidPrice) == BidQuantity,"book must not change after stale update");
         Assert(strategyQueue.empty(), "strategy queue must be empty");
         Assert(recordingQueue.empty(), "recording queue must be empty");
     }
@@ -473,10 +466,8 @@ namespace
             SequenceNumber { 101 },
             { createBidUpdate(BidPrice, Quantity { 200'000'000 }) }));
 
-        Assert(orderBook.sequence() == SequenceNumber { 100 },
-               "sequence must not change after overlapping update");
-        Assert(orderBook.bidVolume(BidPrice) == BidQuantity,
-               "book must not change after overlapping update");
+        Assert(orderBook.sequence() == SequenceNumber { 100 },"sequence must not change after overlapping update");
+        Assert(orderBook.bidVolume(BidPrice) == BidQuantity,"book must not change after overlapping update");
         Assert(strategyQueue.empty(), "strategy queue must be empty");
         Assert(recordingQueue.empty(), "recording queue must be empty");
     }
@@ -516,24 +507,19 @@ namespace
         };
 
         Assert(builder.applySnapshot(recoverySnapshot), "recovery snapshot must be applied");
-        Assert(orderBook.sequence() == SequenceNumber { 200 },
-               "recovery snapshot must replace sequence");
-        Assert(orderBook.bidVolume(BidPrice) == BidQuantity2,
-               "recovery snapshot must replace book state");
+        Assert(orderBook.sequence() == SequenceNumber { 200 },"recovery snapshot must replace sequence");
+        Assert(orderBook.bidVolume(BidPrice) == BidQuantity2,"recovery snapshot must replace book state");
 
         builder.onBookUpdate(createBookUpdate(
             SequenceNumber { 201 },
             SequenceNumber { 201 },
             { createBidUpdate(BidPrice, BidQuantity3) }));
 
-        Assert(orderBook.sequence() == SequenceNumber { 201 },
-               "update after recovery snapshot must be accepted");
-        Assert(orderBook.bidVolume(BidPrice) == BidQuantity3,
-               "update after recovery snapshot must modify book");
+        Assert(orderBook.sequence() == SequenceNumber { 201 },"update after recovery snapshot must be accepted");
+        Assert(orderBook.bidVolume(BidPrice) == BidQuantity3,"update after recovery snapshot must modify book");
 
         const MarketEvent event = popStrategyEvent(strategyQueue);
-        Assert(event.sequence == SequenceNumber { 201 },
-               "invalid event sequence after recovery");
+        Assert(event.sequence == SequenceNumber { 201 },"invalid event sequence after recovery");
 
         [[maybe_unused]]
         const MarketEvent recordingEvent = popRecordingEvent(recordingQueue);
@@ -565,10 +551,8 @@ namespace
         const MarketEvent event = popStrategyEvent(strategyQueue);
 
         Assert(event.sequence == SequenceNumber { 101 }, "invalid final sequence");
-        Assert(event.exchangeTimestamp == Timestamp { 2'000'000 },
-               "invalid final exchange timestamp");
-        Assert(event.bestBidQuantity == Quantity { 200'000'000 },
-               "invalid final best bid quantity");
+        Assert(event.exchangeTimestamp == Timestamp { 2'000'000 },"invalid final exchange timestamp");
+        Assert(event.bestBidQuantity == Quantity { 200'000'000 },"invalid final best bid quantity");
 
         [[maybe_unused]]
         const MarketEvent recordingEvent = popRecordingEvent(recordingQueue);
@@ -593,12 +577,9 @@ namespace
         const bool applied = builder.applySnapshot(snapshot);
 
         Assert(applied, "empty snapshot must be applied");
-        Assert(orderBook.sequence() == SequenceNumber { 100 },
-               "invalid order book sequence");
-        Assert(!orderBook.bestBid().has_value(),
-               "empty book must not have best bid");
-        Assert(!orderBook.bestAsk().has_value(),
-               "empty book must not have best ask");
+        Assert(orderBook.sequence() == SequenceNumber { 100 },"invalid order book sequence");
+        Assert(!orderBook.bestBid().has_value(),"empty book must not have best bid");
+        Assert(!orderBook.bestAsk().has_value(),"empty book must not have best ask");
         Assert(strategyQueue.empty(), "strategy queue must be empty");
         Assert(recordingQueue.empty(), "recording queue must be empty");
     }
@@ -619,14 +600,10 @@ namespace
             .asks = {{ AskPrice, AskQuantity }}
         };
 
-        Assert(!builder.applySnapshot(snapshot),
-               "snapshot with wrong instrument must be rejected");
-        Assert(orderBook.sequence() == SequenceNumber { 0 },
-               "order book sequence must remain unchanged");
-        Assert(orderBook.bidVolume(BidPrice).isZero(),
-               "book must remain empty");
-        Assert(orderBook.askVolume(AskPrice).isZero(),
-               "book must remain empty");
+        Assert(!builder.applySnapshot(snapshot),"snapshot with wrong instrument must be rejected");
+        Assert(orderBook.sequence() == SequenceNumber { 0 },"order book sequence must remain unchanged");
+        Assert(orderBook.bidVolume(BidPrice).isZero(),"book must remain empty");
+        Assert(orderBook.askVolume(AskPrice).isZero(),"book must remain empty");
         Assert(strategyQueue.empty(), "strategy queue must be empty");
         Assert(recordingQueue.empty(), "recording queue must be empty");
     }
@@ -661,10 +638,8 @@ namespace
             }
         });
 
-        Assert(orderBook.sequence() == SequenceNumber { 100 },
-               "order book sequence must not change");
-        Assert(orderBook.bidVolume(BidPrice).isZero(),
-               "wrong-instrument update must not change book");
+        Assert(orderBook.sequence() == SequenceNumber { 100 },"order book sequence must not change");
+        Assert(orderBook.bidVolume(BidPrice).isZero(),"wrong-instrument update must not change book");
         Assert(strategyQueue.empty(), "strategy queue must be empty");
         Assert(recordingQueue.empty(), "recording queue must be empty");
     }
