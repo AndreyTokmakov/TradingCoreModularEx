@@ -45,6 +45,18 @@ namespace testing
     template<typename Ty>
     concept FloatingPoint = std::floating_point<Ty>;
 
+    template<typename Ty>
+    concept Empty = requires(const Ty& value)
+    {
+        { value.empty() } -> std::convertible_to<bool>;
+    };
+
+    template<typename Ty>
+    concept Sized = requires(const Ty& value)
+    {
+        value.size();
+    };
+
     constexpr void printLocation(const std::source_location& location)
     {
         std::println(std::cerr, "\tFile: {}\n\tFunction: {}\n\tLine: {}",
@@ -401,6 +413,68 @@ namespace testing
                                        const std::source_location location = std::source_location::current())
     {
         AssertExpectedError(actual, expected, "Assertion failed:", action, location);
+    }
+    
+    template<Empty Ty>
+    constexpr void AssertEmpty(const Ty& actual,
+                               const std::string_view message,
+                               const Action action = Action::Terminate,
+                               const std::source_location location = std::source_location::current())
+    {
+        if (!actual.empty())
+        {
+            reportFailure(message, action, location);
+        }
+    }
+
+    template<Empty Ty>
+    constexpr void AssertEmpty(const Ty& actual,
+                               const Action action = Action::Terminate,
+                               const std::source_location location = std::source_location::current())
+    {
+        AssertEmpty(actual, "Assertion failed (Collection is not empty)", action, location);
+    }
+
+    template<Empty Ty>
+    constexpr void AssertNotEmpty(const Ty& actual,
+                                  const std::string_view message,
+                                  const Action action = Action::Terminate,
+                                  const std::source_location location = std::source_location::current())
+    {
+        if (actual.empty())
+        {
+            reportFailure(message, action, location);
+        }
+    }
+
+    template<Empty Ty>
+    constexpr void AssertNotEmpty(const Ty& actual,
+                                  const Action action = Action::Terminate,
+                                  const std::source_location location = std::source_location::current())
+    {
+        AssertNotEmpty(actual, "Assertion failed (Collection is empty)", action, location);
+    }
+
+    template<Sized Ty>
+    constexpr void AssertSize(const std::size_t expected,
+                              const Ty& actual,
+                              const std::string_view message,
+                              const Action action = Action::Terminate,
+                              const std::source_location location = std::source_location::current())
+    {
+        if (actual.size() != expected)
+        {
+            reportComparisonFailure(message, expected, actual.size(), action, location);
+        }
+    }
+
+    template<Sized Ty>
+    constexpr void AssertSize(const std::size_t expected,
+                              const Ty& actual,
+                              const Action action = Action::Terminate,
+                              const std::source_location location = std::source_location::current())
+    {
+        AssertSize(expected, actual, "Assertion failed:", action, location);
     }
 }
 

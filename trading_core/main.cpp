@@ -220,12 +220,7 @@ namespace
         const auto nullLogger = std::make_shared<trading::testing::TestLogger>(true);
         LoggerFactory::createLogger(nullLogger);
 
-        // marketdata_bookbuilder_strategy_integrataion();
-        // exchange_to_gateway_integration_test();
-        // book_builder_module_restore_book_test();
-        // book_builder_module_test();
-
-        book_builder_test();
+        book_builder_module_test();
     }
 }
 
