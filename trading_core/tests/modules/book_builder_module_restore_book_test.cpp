@@ -25,21 +25,17 @@ using trading::Quantity;
 using trading::SequenceNumber;
 using trading::Side;
 using trading::Timestamp;
-
 using trading::config::Config;
 using trading::exchanges::IExchangeFactory;
-
 using trading::concurrency::ConditionVariableQueue;
-
 using trading::order_book::BookBuilderModule;
 using trading::market_data::BookUpdate;
-using trading::market_data::BookUpdates;
 using trading::market_data::IMarketDataParser;
 using trading::market_data::IMarketDataSource;
 using trading::market_data::ISnapshotProvider;
 using trading::market_data::MarketEvent;
 using trading::market_data::Snapshot;
-
+using trading::market_data::PriceLevelUpdate;
 using trading::recording::RecordingEvent;
 
 namespace
@@ -64,7 +60,6 @@ namespace
         return config;
     }
 
-
     Snapshot createSnapshot(const SequenceNumber sequenceNumber = SequenceNumber { 100 })
     {
         return Snapshot {
@@ -81,15 +76,19 @@ namespace
     }
 
     BookUpdate createBidUpdate(const SequenceNumber sequence,
-                               const Quantity quantity)
+                           const Quantity quantity)
     {
         return BookUpdate {
             .instrument = INSTRUMENT,
-            .sequence = sequence,
+            .sequenceRange = { .first = sequence, .last = sequence },
             .exchangeTimestamp = Timestamp { sequence },
-            .side = Side::Buy,
-            .price = INITIAL_BID,
-            .quantity = quantity
+            .updates = {
+                PriceLevelUpdate {
+                    .side = Side::Buy,
+                    .price = INITIAL_BID,
+                    .quantity = quantity
+                }
+            }
         };
     }
 
@@ -98,11 +97,15 @@ namespace
     {
         return BookUpdate {
             .instrument = INSTRUMENT,
-            .sequence = sequence,
+            .sequenceRange = { .first = sequence, .last = sequence },
             .exchangeTimestamp = Timestamp { sequence },
-            .side = Side::Sell,
-            .price = INITIAL_ASK,
-            .quantity = quantity
+            .updates = {
+                PriceLevelUpdate {
+                    .side = Side::Sell,
+                    .price = INITIAL_ASK,
+                    .quantity = quantity
+                }
+            }
         };
     }
 }
@@ -113,7 +116,7 @@ namespace
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
@@ -129,11 +132,11 @@ namespace
 
         module.start();
 
-        bookUpdateQueue.push(BookUpdates {
+        bookUpdateQueue.push(BookUpdate {
             createBidUpdate(SequenceNumber { 101 },Quantity { 200'000'000 })
         });
 
-        bookUpdateQueue.push(BookUpdates {
+        bookUpdateQueue.push(BookUpdate {
             createAskUpdate(SequenceNumber { 102 },Quantity { 150'000'000 })
         });
 
@@ -165,7 +168,7 @@ namespace
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
@@ -177,7 +180,7 @@ namespace
         module.start();
 
         for (SequenceNumber sequence{100}; sequence <= SequenceNumber { 200 }  ; ++sequence) {
-            bookUpdateQueue.push(BookUpdates {
+            bookUpdateQueue.push(BookUpdate {
                 createBidUpdate(sequence, Quantity {static_cast<int64_t>(sequence)} )
             });
         }
