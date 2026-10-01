@@ -202,7 +202,6 @@ add_executable(${PROJECT_NAME}
 
         ${TESTS}/modules/book_builder_module_test.cpp
 
-
         # ${TESTS}/modules/book_builder_module_restore_book_test.cpp
         # ${TESTS}/modules/market_data_module_test.cpp
 

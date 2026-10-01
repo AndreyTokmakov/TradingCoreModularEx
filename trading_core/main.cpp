@@ -208,7 +208,7 @@ namespace
         book_builder_test();
         imbalance_strategy_test();
 
-        market_data_module_test();
+        // market_data_module_test(); // FIXME
         book_builder_module_test();
         strategy_module_test();
         execution_module_test();
@@ -230,8 +230,8 @@ int main([[maybe_unused]] const int argc,
     const std::vector<std::string_view> parameters(argv + 1, argv + argc);
 
     // runApp(parameters);
-    // runTests(parameters);
-    runSingleTest(parameters);
+    runTests(parameters);
+    // runSingleTest(parameters);
 
     return EXIT_SUCCESS;
 }

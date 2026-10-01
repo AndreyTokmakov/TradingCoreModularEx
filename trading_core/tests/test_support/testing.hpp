@@ -54,7 +54,14 @@ namespace testing
     template<typename Ty>
     concept Sized = requires(const Ty& value)
     {
-        value.size();
+        { value.size() } -> std::convertible_to<std::size_t>;
+    };
+
+    template<typename Ty>
+    concept ExpectedType = requires
+    {
+        typename Ty::value_type;
+        typename Ty::error_type;
     };
 
     constexpr void printLocation(const std::source_location& location)
@@ -72,32 +79,27 @@ namespace testing
         performAction(action);
     }
 
-    template<Streamable Ty>
+    template<typename Expected, typename Actual>
     constexpr void reportComparisonFailure(const std::string_view message,
-                                           const Ty& expected,
-                                           const Ty& actual,
+                                           const Expected& expected,
+                                           const Actual& actual,
                                            const Action action,
                                            const std::source_location location)
     {
-        std::println(std::cerr, "{}\n\tExpected: {}\n\tActual:   {}",
-                     message, expected, actual);
+        if constexpr (Streamable<Expected> && Streamable<Actual>) {
+            std::println(std::cerr, "{}\n\tExpected: {}\n\tActual:   {}", message, expected, actual);
+        } else {
+            std::println(std::cerr, "{}", message);
+        }
+
         printLocation(location);
         performAction(action);
     }
 
-    template<typename Ty>
-    constexpr void reportComparisonFailure(const std::string_view message,
-                                           const Ty&,
-                                           const Ty&,
-                                           const Action action,
-                                           const std::source_location location)
-    {
-        reportFailure(message, action, location);
-    }
-
-    template<Comparable Ty>
-    constexpr void AssertEqual(const Ty& expected,
-                               const Ty& actual,
+    template<typename Expected, typename Actual>
+        requires std::equality_comparable_with<Expected, Actual>
+    constexpr void AssertEqual(const Expected& expected,
+                               const Actual& actual,
                                const std::string_view message,
                                const Action action = Action::Terminate,
                                const std::source_location location = std::source_location::current())
@@ -108,18 +110,20 @@ namespace testing
         }
     }
 
-    template<Comparable Ty>
-    constexpr void AssertEqual(const Ty& expected,
-                               const Ty& actual,
+    template<typename Expected, typename Actual>
+        requires std::equality_comparable_with<Expected, Actual>
+    constexpr void AssertEqual(const Expected& expected,
+                               const Actual& actual,
                                const Action action = Action::Terminate,
                                const std::source_location location = std::source_location::current())
     {
         AssertEqual(expected, actual, "Assertion failed:", action, location);
     }
 
-    template<Comparable Ty>
-    constexpr void AssertNotEqual(const Ty& expected,
-                                  const Ty& actual,
+    template<typename Expected, typename Actual>
+        requires std::equality_comparable_with<Expected, Actual>
+    constexpr void AssertNotEqual(const Expected& expected,
+                                  const Actual& actual,
                                   const std::string_view message,
                                   const Action action = Action::Terminate,
                                   const std::source_location location = std::source_location::current())
@@ -130,15 +134,15 @@ namespace testing
         }
     }
 
-    template<Comparable Ty>
-    constexpr void AssertNotEqual(const Ty& expected,
-                                  const Ty& actual,
+    template<typename Expected, typename Actual>
+        requires std::equality_comparable_with<Expected, Actual>
+    constexpr void AssertNotEqual(const Expected& expected,
+                                  const Actual& actual,
                                   const Action action = Action::Terminate,
                                   const std::source_location location = std::source_location::current())
     {
         AssertNotEqual(expected, actual, "Assertion failed:", action, location);
     }
-
     template<typename Ty>
     constexpr void AssertNotNull(const Ty* actual,
                                  const std::string_view message,
@@ -222,9 +226,10 @@ namespace testing
         AssertFalse(condition, "Condition is True (False expected)", action, location);
     }
 
-    template<Ordered Ty>
-    constexpr void AssertGreater(const Ty& actual,
-                                 const Ty& expected,
+    template<typename Actual, typename Expected>
+        requires std::totally_ordered_with<Actual, Expected>
+    constexpr void AssertGreater(const Actual& actual,
+                                 const Expected& expected,
                                  const std::string_view message,
                                  const Action action = Action::Terminate,
                                  const std::source_location location = std::source_location::current())
@@ -235,18 +240,20 @@ namespace testing
         }
     }
 
-    template<Ordered Ty>
-    constexpr void AssertGreater(const Ty& actual,
-                                 const Ty& expected,
+    template<typename Actual, typename Expected>
+        requires std::totally_ordered_with<Actual, Expected>
+    constexpr void AssertGreater(const Actual& actual,
+                                 const Expected& expected,
                                  const Action action = Action::Terminate,
                                  const std::source_location location = std::source_location::current())
     {
         AssertGreater(actual, expected, "Assertion failed:", action, location);
     }
 
-    template<Ordered Ty>
-    constexpr void AssertGreaterEqual(const Ty& actual,
-                                      const Ty& expected,
+    template<typename Actual, typename Expected>
+        requires std::totally_ordered_with<Actual, Expected>
+    constexpr void AssertGreaterEqual(const Actual& actual,
+                                      const Expected& expected,
                                       const std::string_view message,
                                       const Action action = Action::Terminate,
                                       const std::source_location location = std::source_location::current())
@@ -257,18 +264,20 @@ namespace testing
         }
     }
 
-    template<Ordered Ty>
-    constexpr void AssertGreaterEqual(const Ty& actual,
-                                      const Ty& expected,
+    template<typename Actual, typename Expected>
+        requires std::totally_ordered_with<Actual, Expected>
+    constexpr void AssertGreaterEqual(const Actual& actual,
+                                      const Expected& expected,
                                       const Action action = Action::Terminate,
                                       const std::source_location location = std::source_location::current())
     {
         AssertGreaterEqual(actual, expected, "Assertion failed:", action, location);
     }
 
-    template<Ordered Ty>
-    constexpr void AssertLess(const Ty& actual,
-                              const Ty& expected,
+    template<typename Actual, typename Expected>
+        requires std::totally_ordered_with<Actual, Expected>
+    constexpr void AssertLess(const Actual& actual,
+                              const Expected& expected,
                               const std::string_view message,
                               const Action action = Action::Terminate,
                               const std::source_location location = std::source_location::current())
@@ -279,26 +288,24 @@ namespace testing
         }
     }
 
-    template<Ordered Ty>
-    constexpr void AssertLess(const Ty& actual,
-                              const Ty& expected,
+    template<typename Actual, typename Expected>
+        requires std::totally_ordered_with<Actual, Expected>
+    constexpr void AssertLess(const Actual& actual,
+                              const Expected& expected,
                               const Action action = Action::Terminate,
                               const std::source_location location = std::source_location::current())
     {
         AssertLess(actual, expected, "Assertion failed:", action, location);
     }
 
-    template<Ordered Ty>
-    constexpr void AssertLessEqual(const Ty& actual,
-                                   const Ty& expected,
-                                   const std::string_view message,
+    template<typename Actual, typename Expected>
+        requires std::totally_ordered_with<Actual, Expected>
+    constexpr void AssertLessEqual(const Actual& actual,
+                                   const Expected& expected,
                                    const Action action = Action::Terminate,
                                    const std::source_location location = std::source_location::current())
     {
-        if (actual > expected)
-        {
-            reportComparisonFailure(message, expected, actual, action, location);
-        }
+        AssertLessEqual(actual, expected, "Assertion failed:", action, location);
     }
 
     template<Ordered Ty>
@@ -333,13 +340,6 @@ namespace testing
     {
         AssertNear(expected, actual, tolerance, "Assertion failed:", action, location);
     }
-
-    template<typename Ty>
-    concept ExpectedType = requires
-    {
-        typename Ty::value_type;
-        typename Ty::error_type;
-    };
 
     template<ExpectedType Ty>
     constexpr void AssertExpected(const Ty& actual,
@@ -414,7 +414,7 @@ namespace testing
     {
         AssertExpectedError(actual, expected, "Assertion failed:", action, location);
     }
-    
+
     template<Empty Ty>
     constexpr void AssertEmpty(const Ty& actual,
                                const std::string_view message,
