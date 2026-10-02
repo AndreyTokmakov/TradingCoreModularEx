@@ -27,10 +27,11 @@ namespace
     using trading::InstrumentId;
     using trading::Price;
     using trading::Quantity;
+    using trading::Timestamp;
     using trading::Side;
     using trading::concurrency::ConditionVariableQueue;
     using trading::config::Config;
-    using trading::market_data::BookUpdates;
+    using trading::market_data::BookUpdate;
     using trading::market_data::MarketDataModule;
     using trading::testing::TestMocks;
     using trading::testing::TestMarketDataParser;
@@ -46,157 +47,184 @@ namespace
 
     void testMarketDataPipeline()
     {
-        Config config = createConfig(InstrumentId { 1 });
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
-
+        const Config config = createConfig(InstrumentId { 1 });
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         std::unique_ptr<TestMarketDataSource> marketDataSource = std::make_unique<TestMarketDataSource>();
-        marketDataSource->addTestMarketData({"1,101,10000001,Buy,6500000000000,120000000"});
+
+        marketDataSource->addTestMarketData({
+            "1,101,101,10000001,Buy,6500000000000,120000000"
+        });
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .marketDataParser = std::make_unique<TestMarketDataParser>(),
             .marketDataSource = std::move(marketDataSource),
         }};
-        MarketDataModule module { config, bookUpdateQueue, exchangeFactory};
+
+        MarketDataModule module { config, bookUpdateQueue, exchangeFactory };
 
         module.start();
 
-        BookUpdates updates;
-        const bool popped = bookUpdateQueue.tryPop(updates);
+        BookUpdate update;
 
-        Assert(popped, "parsed book updates must be pushed to queue");
-        Assert(updates.size() == 1, "queue must contain one book update");
+        Assert(bookUpdateQueue.tryPop(update), "parsed book update must be pushed to queue");
+        Assert(update.instrument == InstrumentId { 1 }, "invalid instrument");
+        Assert(update.sequenceRange.first == 101, "invalid first sequence");
+        Assert(update.sequenceRange.last == 101, "invalid last sequence");
+        Assert(update.exchangeTimestamp == trading::Timestamp { 10'000'001 }, "invalid exchange timestamp");
+        Assert(update.updates.size() == 1, "book update must contain one price level update");
 
-        const auto& update = updates.front();
+        const auto& levelUpdate = update.updates.front();
 
-        Assert(update.instrument == InstrumentId { 1 },"invalid instrument");
-        Assert(update.sequence == 101,"invalid sequence");
-        Assert(update.side == Side::Buy,"invalid side");
-        Assert(update.price == Price { 6'500'000'000'000 },"invalid price");
-        Assert(update.quantity == Quantity { 120'000'000 },"invalid quantity");
+        Assert(levelUpdate.side == Side::Buy, "invalid side");
+        Assert(levelUpdate.price == Price { 6'500'000'000'000 }, "invalid price");
+        Assert(levelUpdate.quantity == Quantity { 120'000'000 }, "invalid quantity");
 
         module.stop();
     }
 
     void testMultipleMessages()
     {
-        Config config = createConfig(InstrumentId { 1 });
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
-
+        const Config config = createConfig(InstrumentId { 1 });
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         std::unique_ptr<TestMarketDataSource> marketDataSource = std::make_unique<TestMarketDataSource>();
 
         marketDataSource->addTestMarketData({
-            "1,101,10000001,Buy,6500000000000,120000000",
-            "1,102,10000002,Sell,6500001000000,90000000",
-            "1,103,10000003,Buy,6499999000000,250000000"
+            "1,101,101,10000001,Buy,6500000000000,120000000",
+            "1,102,102,10000002,Sell,6500001000000,90000000",
+            "1,103,103,10000003,Buy,6499999000000,250000000"
         });
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .marketDataParser = std::make_unique<TestMarketDataParser>(),
             .marketDataSource = std::move(marketDataSource),
         }};
+
         MarketDataModule module { config, bookUpdateQueue, exchangeFactory };
 
         module.start();
 
-        BookUpdates firstUpdates;
-        BookUpdates secondUpdates;
-        BookUpdates thirdUpdates;
+        BookUpdate firstUpdate;
+        BookUpdate secondUpdate;
+        BookUpdate thirdUpdate;
 
-        Assert(bookUpdateQueue.tryPop(firstUpdates),"first message updates must be pushed to queue");
-        Assert(bookUpdateQueue.tryPop(secondUpdates),"second message updates must be pushed to queue");
-        Assert(bookUpdateQueue.tryPop(thirdUpdates),"third message updates must be pushed to queue");
-        Assert(firstUpdates.size() == 1, "first batch must contain one update");
-        Assert(secondUpdates.size() == 1, "second batch must contain one update");
-        Assert(thirdUpdates.size() == 1, "third batch must contain one update");
-        Assert(firstUpdates.front().sequence == 101, "invalid first update sequence");
-        Assert(firstUpdates.front().side == Side::Buy, "invalid first update side");
-        Assert(secondUpdates.front().sequence == 102, "invalid second update sequence");
-        Assert(secondUpdates.front().side == Side::Sell, "invalid second update side");
-        Assert(thirdUpdates.front().sequence == 103, "invalid third update sequence");
-        Assert(thirdUpdates.front().side == Side::Buy, "invalid third update side");
-        Assert(bookUpdateQueue.empty(), "queue must contain exactly three update batches");
+        Assert(bookUpdateQueue.tryPop(firstUpdate), "first message must be pushed to queue");
+        Assert(bookUpdateQueue.tryPop(secondUpdate), "second message must be pushed to queue");
+        Assert(bookUpdateQueue.tryPop(thirdUpdate), "third message must be pushed to queue");
+
+        Assert(firstUpdate.instrument == InstrumentId { 1 }, "invalid first instrument");
+        Assert(firstUpdate.sequenceRange.first == 101, "invalid first sequence");
+        Assert(firstUpdate.sequenceRange.last == 101, "invalid first last sequence");
+        Assert(firstUpdate.exchangeTimestamp == Timestamp { 10'000'001 }, "invalid first timestamp");
+        Assert(firstUpdate.updates.size() == 1, "first update must contain one price level update");
+        Assert(firstUpdate.updates.front().side == Side::Buy, "invalid first update side");
+
+        Assert(secondUpdate.instrument == InstrumentId { 1 }, "invalid second instrument");
+        Assert(secondUpdate.sequenceRange.first == 102, "invalid second sequence");
+        Assert(secondUpdate.sequenceRange.last == 102, "invalid second last sequence");
+        Assert(secondUpdate.exchangeTimestamp == Timestamp { 10'000'002 }, "invalid second timestamp");
+        Assert(secondUpdate.updates.size() == 1, "second update must contain one price level update");
+        Assert(secondUpdate.updates.front().side == Side::Sell, "invalid second update side");
+
+        Assert(thirdUpdate.instrument == InstrumentId { 1 }, "invalid third instrument");
+        Assert(thirdUpdate.sequenceRange.first == 103, "invalid third sequence");
+        Assert(thirdUpdate.sequenceRange.last == 103, "invalid third last sequence");
+        Assert(thirdUpdate.exchangeTimestamp == Timestamp { 10'000'003 }, "invalid third timestamp");
+        Assert(thirdUpdate.updates.size() == 1, "third update must contain one price level update");
+        Assert(thirdUpdate.updates.front().side == Side::Buy, "invalid third update side");
+
+        Assert(bookUpdateQueue.empty(), "queue must contain exactly three book updates");
 
         module.stop();
     }
 
     void testMultipleMessages2()
     {
-        Config config = createConfig(InstrumentId { 1 });
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
-
-        std::unique_ptr<TestMarketDataSource> marketDataSource =
-            std::make_unique<TestMarketDataSource>();
+        const Config config = createConfig(InstrumentId { 1 });
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
+        std::unique_ptr<TestMarketDataSource> marketDataSource = std::make_unique<TestMarketDataSource>();
 
         marketDataSource->addTestMarketData({
-            "1,101,10000001,Buy,6500000000000,120000000",
-            "1,102,10000002,Sell,6500001000000,90000000",
-            "1,103,10000003,Buy,6499999000000,250000000"
+            "1,101,101,10000001,Buy,6500000000000,120000000",
+            "1,102,102,10000002,Sell,6500001000000,90000000",
+            "1,103,103,10000003,Buy,6499999000000,250000000"
         });
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .marketDataParser = std::make_unique<TestMarketDataParser>(),
             .marketDataSource = std::move(marketDataSource),
         }};
+
         MarketDataModule module { config, bookUpdateQueue, exchangeFactory };
 
         module.start();
 
         for (trading::SequenceNumber expectedSequence { 101 }; expectedSequence <= 103; ++expectedSequence)
         {
-            BookUpdates updates;
+            BookUpdate update;
 
-            const bool popped = bookUpdateQueue.tryPop(updates);
+            const bool popped = bookUpdateQueue.tryPop(update);
 
             Assert(popped, "each market-data message must produce a queue item");
-            Assert(updates.size() == 1, "each message must contain one book update");
-            Assert(updates.front().sequence == expectedSequence, "invalid update sequence");
+            Assert(update.instrument == InstrumentId { 1 }, "invalid instrument");
+            Assert(update.sequenceRange.first == expectedSequence, "invalid first sequence");
+            Assert(update.sequenceRange.last == expectedSequence, "invalid last sequence");
+            Assert(update.updates.size() == 1, "each message must contain one price level update");
         }
 
-        BookUpdates updates;
-        Assert(!bookUpdateQueue.tryPop(updates),"queue must contain no unexpected updates");
+        BookUpdate update;
+
+        Assert(!bookUpdateQueue.tryPop(update), "queue must contain no unexpected updates");
 
         module.stop();
     }
 
-    [[maybe_unused]]
     void testMultipleUpdatesInSingleMessage()
     {
-        Config config = createConfig(InstrumentId { 1 });
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        const Config config = createConfig(InstrumentId { 1 });
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         std::unique_ptr<TestMarketDataSource> marketDataSource = std::make_unique<TestMarketDataSource>();
 
         marketDataSource->addTestMarketData({
-            "1,101,10000001,Buy,6500000000000,120000000",
-            "1,102,10000002,Sell,6500001000000,90000000"
+            "1,101,103,10000003,Buy,6500000000000,120000000,"
+            "Sell,6500001000000,90000000,"
+            "Buy,6499999000000,250000000"
         });
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .marketDataParser = std::make_unique<TestMarketDataParser>(),
             .marketDataSource = std::move(marketDataSource),
         }};
+
         MarketDataModule module { config, bookUpdateQueue, exchangeFactory };
 
         module.start();
 
-        BookUpdates updates;
+        BookUpdate update;
 
-        Assert(bookUpdateQueue.tryPop(updates),"parsed updates must be pushed to queue");
-        Assert(updates.size() == 2, "batch must contain two updates");
+        Assert(bookUpdateQueue.tryPop(update), "parsed BookUpdate must be pushed to queue");
+        Assert(update.instrument == InstrumentId { 1 }, "invalid instrument");
+        Assert(update.sequenceRange.first == 101, "invalid first sequence");
+        Assert(update.sequenceRange.last == 103, "invalid last sequence");
+        Assert(update.exchangeTimestamp == Timestamp { 10'000'003 }, "invalid exchange timestamp");
+        Assert(update.updates.size() == 3, "BookUpdate must contain three price level updates");
 
-        const auto& firstUpdate = updates[0];
-        const auto& secondUpdate = updates[1];
+        const auto& firstUpdate = update.updates[0];
+        const auto& secondUpdate = update.updates[1];
+        const auto& thirdUpdate = update.updates[2];
 
-        Assert(firstUpdate.instrument == InstrumentId { 1 }, "invalid first instrument");
-        Assert(firstUpdate.sequence == 101, "invalid first sequence");
         Assert(firstUpdate.side == Side::Buy, "invalid first side");
         Assert(firstUpdate.price == Price { 6'500'000'000'000 }, "invalid first price");
         Assert(firstUpdate.quantity == Quantity { 120'000'000 }, "invalid first quantity");
-        Assert(secondUpdate.instrument == InstrumentId { 1 }, "invalid second instrument");
-        Assert(secondUpdate.sequence == 102, "invalid second sequence");
+
         Assert(secondUpdate.side == Side::Sell, "invalid second side");
         Assert(secondUpdate.price == Price { 6'500'001'000'000 }, "invalid second price");
         Assert(secondUpdate.quantity == Quantity { 90'000'000 }, "invalid second quantity");
-        Assert(bookUpdateQueue.empty(), "all updates must be contained in one batch");
+
+        Assert(thirdUpdate.side == Side::Buy, "invalid third side");
+        Assert(thirdUpdate.price == Price { 6'499'999'000'000 }, "invalid third price");
+        Assert(thirdUpdate.quantity == Quantity { 250'000'000 }, "invalid third quantity");
+
+        Assert(bookUpdateQueue.empty(), "all updates must be contained in one BookUpdate");
 
         module.stop();
     }
@@ -204,60 +232,61 @@ namespace
     void testInvalidMessageIsNotPushed()
     {
         Config config = createConfig(InstrumentId { 1 });
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         std::unique_ptr<TestMarketDataSource> marketDataSource = std::make_unique<TestMarketDataSource>();
 
-        marketDataSource->addTestMarketData({
-            "invalid message"
-        });
+        marketDataSource->addTestMarketData({"invalid message"});
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .marketDataParser = std::make_unique<TestMarketDataParser>(),
             .marketDataSource = std::move(marketDataSource),
         }};
+
         MarketDataModule module { config, bookUpdateQueue, exchangeFactory };
 
         module.start();
 
-        BookUpdates updates;
+        BookUpdate update;
 
-        Assert(!bookUpdateQueue.tryPop(updates),"invalid message must not produce queue updates");
-        Assert(bookUpdateQueue.empty(), "queue must remain empty after invalid message");
+        Assert(!bookUpdateQueue.tryPop(update),"invalid message must not produce a BookUpdate");
+        Assert(bookUpdateQueue.empty(),"queue must remain empty after invalid message");
 
         module.stop();
     }
 
     void testInvalidMessageDoesNotPreventNextMessage()
     {
-        Config config = createConfig(InstrumentId { 1 });
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        const Config config = createConfig(InstrumentId { 1 });
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         std::unique_ptr<TestMarketDataSource> marketDataSource = std::make_unique<TestMarketDataSource>();
 
         marketDataSource->addTestMarketData({
             "invalid message",
-            "1,101,10000001,Buy,6500000000000,120000000"
+            "1,101,101,10000001,Buy,6500000000000,120000000"
         });
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .marketDataParser = std::make_unique<TestMarketDataParser>(),
             .marketDataSource = std::move(marketDataSource),
         }};
-        MarketDataModule module { config, bookUpdateQueue, exchangeFactory };
 
+        MarketDataModule module { config, bookUpdateQueue, exchangeFactory };
         module.start();
 
-        BookUpdates updates;
+        BookUpdate update;
 
-        Assert(bookUpdateQueue.tryPop(updates),"valid message after invalid message must still be processed");
-        Assert(updates.size() == 1, "valid message must produce one update");
-
-        const auto& update = updates.front();
-
+        Assert(bookUpdateQueue.tryPop(update), "valid message after invalid message must still be processed");
         Assert(update.instrument == InstrumentId { 1 }, "invalid instrument");
-        Assert(update.sequence == 101, "invalid sequence");
-        Assert(update.side == Side::Buy, "invalid side");
-        Assert(update.price == Price { 6'500'000'000'000 }, "invalid price");
-        Assert(update.quantity == Quantity { 120'000'000 }, "invalid quantity");
+        Assert(update.sequenceRange.first == 101, "invalid first sequence");
+        Assert(update.sequenceRange.last == 101, "invalid last sequence");
+        Assert(update.updates.size() == 1, "valid message must contain one price level update");
+
+        const auto& levelUpdate = update.updates.front();
+
+        Assert(levelUpdate.side == Side::Buy, "invalid side");
+        Assert(levelUpdate.price == Price { 6'500'000'000'000 }, "invalid price");
+        Assert(levelUpdate.quantity == Quantity { 120'000'000 }, "invalid quantity");
+
         Assert(bookUpdateQueue.empty(), "queue must contain only valid message updates");
 
         module.stop();
@@ -265,80 +294,44 @@ namespace
 
     void testMixedValidAndInvalidMessages()
     {
-        Config config = createConfig(InstrumentId { 1 });
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
-
-        std::unique_ptr<TestMarketDataSource> marketDataSource =
-            std::make_unique<TestMarketDataSource>();
-
-        marketDataSource->addTestMarketData({
-            "1,101,10000001,Buy,6500000000000,120000000",
-            "invalid-message",
-            "1,103,10000003,Sell,6500001000000,90000000"
-        });
-
-        TestExchangeFactory exchangeFactory { TestMocks {
-            .marketDataParser = std::make_unique<TestMarketDataParser>(),
-            .marketDataSource = std::move(marketDataSource),
-        }};
-        MarketDataModule module { config, bookUpdateQueue, exchangeFactory };
-
-        module.start();
-
-        BookUpdates updates;
-
-        Assert(bookUpdateQueue.tryPop(updates),"first valid message must reach queue");
-        Assert(updates.size() == 1, "first message must contain one update");
-        Assert(updates.front().sequence == 101,"invalid sequence for first valid message");
-
-        updates.clear();
-
-        Assert(bookUpdateQueue.tryPop(updates),"second valid message must reach queue");
-        Assert(updates.size() == 1, "second message must contain one update");
-        Assert(updates.front().sequence == 103,"invalid sequence for second valid message");
-
-        updates.clear();
-
-        Assert(!bookUpdateQueue.tryPop(updates),"invalid message must not produce a queue item");
-        module.stop();
-    }
-
-    [[maybe_unused]]
-    void testStartProcessesMarketDataAgain()
-    {
-        Config config = createConfig(InstrumentId { 1 });
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        const Config config = createConfig(InstrumentId { 1 });
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         std::unique_ptr<TestMarketDataSource> marketDataSource = std::make_unique<TestMarketDataSource>();
 
         marketDataSource->addTestMarketData({
-            "1,101,10000001,Buy,6500000000000,120000000"
+            "1,101,101,10000001,Buy,6500000000000,120000000",
+            "invalid-message",
+            "1,103,103,10000003,Sell,6500001000000,90000000"
         });
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .marketDataParser = std::make_unique<TestMarketDataParser>(),
             .marketDataSource = std::move(marketDataSource),
         }};
+
         MarketDataModule module { config, bookUpdateQueue, exchangeFactory };
 
         module.start();
 
-        BookUpdates firstUpdates;
+        BookUpdate update;
 
-        Assert(bookUpdateQueue.tryPop(firstUpdates),"first start must produce market data");
-        Assert(firstUpdates.size() == 1, "first start must produce one update");
-        Assert(firstUpdates.front().sequence == 101,"invalid sequence after first start");
+        Assert(bookUpdateQueue.tryPop(update), "first valid message must reach queue");
+        Assert(update.instrument == InstrumentId { 1 }, "invalid instrument");
+        Assert(update.sequenceRange.first == 101, "invalid first sequence");
+        Assert(update.sequenceRange.last == 101, "invalid last sequence");
+        Assert(update.updates.size() == 1, "first message must contain one price level update");
 
-        module.start();
+        update.clear();
 
-        BookUpdates secondUpdates;
+        Assert(bookUpdateQueue.tryPop(update), "second valid message must reach queue");
+        Assert(update.instrument == InstrumentId { 1 }, "invalid instrument");
+        Assert(update.sequenceRange.first == 103, "invalid first sequence");
+        Assert(update.sequenceRange.last == 103, "invalid last sequence");
+        Assert(update.updates.size() == 1, "second message must contain one price level update");
 
-        Assert(bookUpdateQueue.tryPop(secondUpdates),"second start must process market data again");
-        Assert(secondUpdates.size() == 1, "second start must produce one update");
-        Assert(secondUpdates.front().sequence == 101,"invalid sequence after second start");
+        update.clear();
 
-        BookUpdates updates;
-
-        Assert(!bookUpdateQueue.tryPop(updates),"queue must contain no unexpected updates");
+        Assert(!bookUpdateQueue.tryPop(update), "invalid message must not produce a queue item");
 
         module.stop();
     }
@@ -349,11 +342,10 @@ void market_data_module_test()
     testMarketDataPipeline();
     testMultipleMessages();
     testMultipleMessages2();
-    // testMultipleUpdatesInSingleMessage(); /** NotSupported**/
+    testMultipleUpdatesInSingleMessage();
     testInvalidMessageIsNotPushed();
     testInvalidMessageDoesNotPreventNextMessage();
     testMixedValidAndInvalidMessages();
-    // testStartProcessesMarketDataAgain();
 
     std::cout << "All MarketDataModule tests: OK\n";
 }

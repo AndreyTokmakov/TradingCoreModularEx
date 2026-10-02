@@ -46,13 +46,13 @@ namespace testing
     concept FloatingPoint = std::floating_point<Ty>;
 
     template<typename Ty>
-    concept Empty = requires(const Ty& value)
+    concept HasEmpty = requires(const Ty& value)
     {
         { value.empty() } -> std::convertible_to<bool>;
     };
 
     template<typename Ty>
-    concept Sized = requires(const Ty& value)
+    concept HasSized = requires(const Ty& value)
     {
         { value.size() } -> std::convertible_to<std::size_t>;
     };
@@ -421,7 +421,7 @@ namespace testing
         AssertExpectedError(actual, expected, "Assertion failed:", action, location);
     }
 
-    template<Empty Ty>
+    template<HasEmpty Ty>
     void AssertEmpty(const Ty& actual,
                      const std::string_view message,
                      const Action action = Action::Terminate,
@@ -429,11 +429,20 @@ namespace testing
     {
         if (!actual.empty())
         {
-            reportFailure(message, action, location);
+            if constexpr (HasSized<Ty>)
+            {
+                std::println(std::cerr, "{}. Actual size = {}", message, actual.size());
+            }
+            else
+            {
+                std::println(std::cerr, "{}", message);
+            }
         }
+        printLocation(location);
+        performAction(action);
     }
 
-    template<Empty Ty>
+    template<HasEmpty Ty>
     void AssertEmpty(const Ty& actual,
                      const Action action = Action::Terminate,
                      const std::source_location location = std::source_location::current())
@@ -441,7 +450,7 @@ namespace testing
         AssertEmpty(actual, "Assertion failed (Collection is not empty)", action, location);
     }
 
-    template<Empty Ty>
+    template<HasEmpty Ty>
     void AssertNotEmpty(const Ty& actual,
                         const std::string_view message,
                         const Action action = Action::Terminate,
@@ -453,7 +462,7 @@ namespace testing
         }
     }
 
-    template<Empty Ty>
+    template<HasEmpty Ty>
     void AssertNotEmpty(const Ty& actual,
                         const Action action = Action::Terminate,
                         const std::source_location location = std::source_location::current())
@@ -461,9 +470,9 @@ namespace testing
         AssertNotEmpty(actual, "Assertion failed (Collection is empty)", action, location);
     }
 
-    template<Sized Ty>
-    void AssertSize(const std::size_t expected,
-                    const Ty& actual,
+    template<HasSized Ty>
+    void AssertSize(const Ty& actual,
+                    const std::size_t expected,
                     const std::string_view message,
                     const Action action = Action::Terminate,
                     const std::source_location location = std::source_location::current())
@@ -474,9 +483,9 @@ namespace testing
         }
     }
 
-    template<Sized Ty>
-    void AssertSize(const std::size_t expected,
-                    const Ty& actual,
+    template<HasSized Ty>
+    void AssertSize(const Ty& actual,
+                    const std::size_t expected,
                     const Action action = Action::Terminate,
                     const std::source_location location = std::source_location::current())
     {

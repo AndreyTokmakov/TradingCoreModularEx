@@ -144,13 +144,13 @@ namespace
     {
         const config::Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> marketEventQueue;
         ConditionVariableQueue<ExecutionWorkItem> executionQueue;
         ConditionVariableQueue<recording::RecordingEvent> recordingQueue;
 
         std::unique_ptr<TestMarketDataSource> marketDataSource = createMarketDataSource({
-            "1,101,10000001,Buy,6500000000000,1000000000"
+            "1,101,101,10000001,Buy,6500000000000,1000000000"
         });
 
         std::unique_ptr<TestExecutionGateway> gateway = std::make_unique<TestExecutionGateway>();
