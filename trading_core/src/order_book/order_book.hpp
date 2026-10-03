@@ -14,7 +14,6 @@ Description : Order book state.
 
 #include "market_data/model/book_level.hpp"
 #include "market_data/model/book_update.hpp"
-#include "market_data/model/order_book_levels.hpp"
 #include "core/price.hpp"
 #include "core/quantity.hpp"
 
@@ -23,13 +22,13 @@ Description : Order book state.
 
 namespace trading::order_book
 {
-    using market_data::BookUpdate;
+    using market_data::PriceLevelUpdate;
     using market_data::BookLevel;
 
     class OrderBook
     {
     public:
-        using Levels    = std::vector<std::pair<Price, Quantity>>;
+        using Levels    = std::vector<BookLevel>;
         using BidLevels = std::flat_map<Price, Quantity, std::greater<>>;
         using AskLevels = std::flat_map<Price, Quantity, std::less<>>;
         using size_type = size_t;
@@ -47,9 +46,6 @@ namespace trading::order_book
         OrderBook(OrderBook&&) noexcept = default;
         OrderBook& operator=(OrderBook&&) noexcept = default;
 
-        [[nodiscard]]
-        SequenceNumber sequence() const noexcept;
-
         void clear() noexcept;
 
         void setState(SequenceNumber sequence,
@@ -57,7 +53,12 @@ namespace trading::order_book
                       const Levels& snapAsks);
 
         [[nodiscard]]
-        bool applyUpdate(const BookUpdate& update) noexcept;
+        bool applyUpdate(const PriceLevelUpdate& levelUpdate) noexcept;
+
+        [[nodiscard]]
+        SequenceNumber sequence() const noexcept;
+
+        void setSequence(SequenceNumber sequence) noexcept;
 
         [[nodiscard]]
         std::optional<BookLevel> bestBid() const;

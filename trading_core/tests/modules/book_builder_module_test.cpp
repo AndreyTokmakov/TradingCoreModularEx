@@ -29,20 +29,23 @@ using trading::exchanges::IExchangeFactory;
 
 using trading::concurrency::ConditionVariableQueue;
 
-using trading::order_book::BookBuilderModule;
 using trading::market_data::BookUpdate;
-using trading::market_data::BookUpdates;
 using trading::market_data::IMarketDataParser;
 using trading::market_data::IMarketDataSource;
 using trading::market_data::ISnapshotProvider;
 using trading::market_data::MarketEvent;
+using trading::market_data::PriceLevelUpdate;
 using trading::market_data::Snapshot;
-
+using trading::order_book::BookBuilderModule;
 using trading::recording::RecordingEvent;
 
 namespace
 {
     using testing::Assert;
+    using testing::AssertTrue;
+    using testing::AssertEqual;
+    using testing::AssertNotEqual;
+    using testing::AssertEmpty;
 
     constexpr InstrumentId INSTRUMENT { 42 };
     constexpr InstrumentId OTHER_INSTRUMENT { 999 };
@@ -114,11 +117,15 @@ namespace
     {
         return BookUpdate {
             .instrument = INSTRUMENT,
-            .sequence = sequence,
+            .sequenceRange = { .first = sequence, .last = sequence },
             .exchangeTimestamp = Timestamp { sequence },
-            .side = Side::Buy,
-            .price = INITIAL_BID,
-            .quantity = quantity
+            .updates = {
+                PriceLevelUpdate {
+                    .side = Side::Buy,
+                    .price = INITIAL_BID,
+                    .quantity = quantity
+                }
+            }
         };
     }
 
@@ -127,11 +134,15 @@ namespace
     {
         return BookUpdate {
             .instrument = INSTRUMENT,
-            .sequence = sequence,
+            .sequenceRange = { .first = sequence, .last = sequence },
             .exchangeTimestamp = Timestamp { sequence },
-            .side = Side::Sell,
-            .price = INITIAL_ASK,
-            .quantity = quantity
+            .updates = {
+                PriceLevelUpdate {
+                    .side = Side::Sell,
+                    .price = INITIAL_ASK,
+                    .quantity = quantity
+                }
+            }
         };
     }
 
@@ -140,11 +151,15 @@ namespace
     {
         return BookUpdate {
             .instrument = INSTRUMENT,
-            .sequence = sequence,
+            .sequenceRange = { .first = sequence, .last = sequence },
             .exchangeTimestamp = Timestamp { sequence },
-            .side = Side::Buy,
-            .price = SECOND_BID,
-            .quantity = quantity
+            .updates = {
+                PriceLevelUpdate {
+                    .side = Side::Buy,
+                    .price = SECOND_BID,
+                    .quantity = quantity
+                }
+            }
         };
     }
 
@@ -153,11 +168,15 @@ namespace
     {
         return BookUpdate {
             .instrument = INSTRUMENT,
-            .sequence = sequence,
+            .sequenceRange = { .first = sequence, .last = sequence },
             .exchangeTimestamp = Timestamp { sequence },
-            .side = Side::Sell,
-            .price = SECOND_ASK,
-            .quantity = quantity
+            .updates = {
+                PriceLevelUpdate {
+                    .side = Side::Sell,
+                    .price = SECOND_ASK,
+                    .quantity = quantity
+                }
+            }
         };
     }
 
@@ -166,15 +185,19 @@ namespace
     {
         return BookUpdate {
             .instrument = OTHER_INSTRUMENT,
-            .sequence = sequence,
+            .sequenceRange = { .first = sequence, .last = sequence },
             .exchangeTimestamp = Timestamp { sequence },
-            .side = Side::Buy,
-            .price = INITIAL_BID,
-            .quantity = quantity
+            .updates = {
+                PriceLevelUpdate {
+                    .side = Side::Buy,
+                    .price = INITIAL_BID,
+                    .quantity = quantity
+                }
+            }
         };
     }
 
-    void stopModule(ConditionVariableQueue<BookUpdates>& bookUpdateQueue)
+    void stopModule(ConditionVariableQueue<BookUpdate>& bookUpdateQueue)
     {
         bookUpdateQueue.close();
     }
@@ -183,7 +206,7 @@ namespace
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
@@ -204,7 +227,7 @@ namespace
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
@@ -213,128 +236,130 @@ namespace
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::move(snapshotProvider)
         }};
-        BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue,exchangeFactory};
+        BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory };
 
         bookUpdateQueue.close();
         module.run();
 
-        Assert(snapshotProviderPtr->getSnapshotRequestedCount() == 1, "snapshot must be requested exactly once");
+        AssertEqual(snapshotProviderPtr->getSnapshotRequestedCount(), 1UL, "snapshot must be requested exactly once");
     }
 
     void testSnapshotDoesNotProduceEvents()
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
         }};
-        BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue,exchangeFactory};
+        BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory };
 
         bookUpdateQueue.close();
         module.run();
     }
 
-    void testSingleUpdateIsProcessed()
+     void testSingleUpdateIsProcessed()
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
         }};
-        BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue,exchangeFactory};
+        BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory };
 
-        bookUpdateQueue.push(BookUpdates {
-            createBidUpdate(SequenceNumber { 101 }, Quantity { 200'000'000 })
-        });
+        bookUpdateQueue.push(createBidUpdate(SequenceNumber { 101 }, Quantity { 200'000'000 }));
 
         stopModule(bookUpdateQueue);
         module.run();
 
         MarketEvent marketEvent;
 
-        Assert(strategyEventQueue.waitPop(marketEvent),"one valid update must produce one strategy event");
-        Assert(marketEvent.instrument == INSTRUMENT,"invalid market event instrument");
-        Assert(marketEvent.sequence == SequenceNumber { 101 },"invalid market event sequence");
-        Assert(marketEvent.exchangeTimestamp == Timestamp { 101 },"invalid market event exchange timestamp");
-        Assert(marketEvent.bestBid == INITIAL_BID,"invalid best bid");
-        Assert(marketEvent.bestBidQuantity == Quantity { 200'000'000 },"invalid best bid quantity");
-        Assert(marketEvent.bestAsk == INITIAL_ASK,"best ask must remain unchanged");
-        Assert(marketEvent.bestAskQuantity == INITIAL_ASK_QUANTITY,"best ask quantity must remain unchanged");
+        AssertTrue(strategyEventQueue.waitPop(marketEvent), "one valid update must produce one strategy event");
+        AssertEqual(marketEvent.instrument, INSTRUMENT, "invalid market event instrument");
+        AssertEqual(marketEvent.sequence, SequenceNumber { 101 }, "invalid market event sequence");
+        AssertEqual(marketEvent.exchangeTimestamp, Timestamp { 101 }, "invalid market event exchange timestamp");
+        AssertEqual(marketEvent.bestBid, INITIAL_BID, "invalid best bid");
+        AssertEqual(marketEvent.bestBidQuantity, Quantity { 200'000'000 }, "invalid best bid quantity");
+        AssertEqual(marketEvent.bestAsk, INITIAL_ASK, "best ask must remain unchanged");
+        AssertEqual(marketEvent.bestAskQuantity, INITIAL_ASK_QUANTITY, "best ask quantity must remain unchanged");
 
         RecordingEvent recordingEvent;
 
-        Assert(recordingQueue.waitPop(recordingEvent),"one valid update must produce one recording event");
-        Assert(std::holds_alternative<MarketEvent>(recordingEvent),"recording event must contain MarketEvent");
+        AssertTrue(recordingQueue.waitPop(recordingEvent), "one valid update must produce one recording event");
+        Assert(std::holds_alternative<MarketEvent>(recordingEvent), "recording event must contain MarketEvent");
 
         const auto& recordedMarketEvent = std::get<MarketEvent>(recordingEvent);
 
-        Assert(recordedMarketEvent.sequence == SequenceNumber { 101 },"recorded event must preserve sequence");
-        Assert(recordedMarketEvent.bestBidQuantity == Quantity { 200'000'000 },"recorded event must preserve bid quantity");
+        AssertEqual(recordedMarketEvent.sequence, SequenceNumber { 101 }, "recorded event must preserve sequence");
+        AssertEqual(recordedMarketEvent.bestBidQuantity, Quantity { 200'000'000 }, "recorded event must preserve bid quantity");
     }
 
     void testMultipleUpdatesInOneBatch()
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
         }};
-        BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue,exchangeFactory};
+        BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory };
 
-        bookUpdateQueue.push(BookUpdates {
-            createBidUpdate(SequenceNumber { 101 }, Quantity { 200'000'000 }),
-            createAskUpdate(SequenceNumber { 102 },Quantity { 150'000'000 })
+        bookUpdateQueue.push(BookUpdate {
+            .instrument = INSTRUMENT,
+            .sequenceRange = { .first = 101, .last = 102 },
+            .exchangeTimestamp = Timestamp { 102 },
+            .updates = {
+                PriceLevelUpdate {
+                    .side = Side::Buy,
+                    .price = INITIAL_BID,
+                    .quantity = Quantity { 200'000'000 }
+                },
+                PriceLevelUpdate {
+                    .side = Side::Sell,
+                    .price = INITIAL_ASK,
+                    .quantity = Quantity { 150'000'000 }
+                }
+            }
         });
 
         stopModule(bookUpdateQueue);
         module.run();
 
-        MarketEvent firstEvent;
-        MarketEvent secondEvent;
+        MarketEvent marketEvent;
 
-        Assert(strategyEventQueue.waitPop(firstEvent),"first update must produce market event");
-        Assert(strategyEventQueue.waitPop(secondEvent),"second update must produce market event");
-        Assert(firstEvent.sequence == SequenceNumber { 101 },"first event must have sequence 101");
-        Assert(firstEvent.bestBidQuantity == Quantity { 200'000'000 },"first event must contain updated bid quantity");
-        Assert(firstEvent.bestAskQuantity == INITIAL_ASK_QUANTITY,"first event must contain original ask quantity");
-        Assert(secondEvent.sequence == SequenceNumber { 102 },"second event must have sequence 102");
-        Assert(secondEvent.bestBidQuantity == Quantity { 200'000'000 },"second event must preserve updated bid quantity");
-        Assert(secondEvent.bestAskQuantity == Quantity { 150'000'000 },"second event must contain updated ask quantity");
+        AssertTrue(strategyEventQueue.waitPop(marketEvent), "book update must produce market event");
+        AssertEqual(marketEvent.sequence, SequenceNumber { 102 }, "event must use last sequence from sequence range");
+        AssertEqual(marketEvent.bestBidQuantity, Quantity { 200'000'000 }, "event must contain updated bid quantity");
+        AssertEqual(marketEvent.bestAskQuantity, Quantity { 150'000'000 }, "event must contain updated ask quantity");
 
-        Assert(strategyEventQueue.empty(),"strategy event queue must be empty");
+        AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
     }
 
     void testMultipleBatchesAreProcessed()
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
         }};
-        BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue,exchangeFactory};
+        BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory };
 
-        bookUpdateQueue.push(BookUpdates {createBidUpdate(
-            SequenceNumber { 101 }, Quantity { 200'000'000 })
-        });
-        bookUpdateQueue.push(BookUpdates {createAskUpdate(
-            SequenceNumber { 102 }, Quantity { 150'000'000 })
-        });
+        bookUpdateQueue.push(createBidUpdate(SequenceNumber { 101 }, Quantity { 200'000'000 }));
+        bookUpdateQueue.push(createAskUpdate(SequenceNumber { 102 }, Quantity { 150'000'000 }));
 
         bookUpdateQueue.close();
         module.run();
@@ -342,117 +367,109 @@ namespace
         MarketEvent firstEvent;
         MarketEvent secondEvent;
 
-        Assert(strategyEventQueue.waitPop(firstEvent),"first batch must produce event");
-        Assert(strategyEventQueue.waitPop(secondEvent),"second batch must produce event");
-        Assert(firstEvent.sequence == SequenceNumber { 101 },"first batch event must have sequence 101");
-        Assert(secondEvent.sequence == SequenceNumber { 102 },"second batch event must have sequence 102");
-        Assert(secondEvent.bestBidQuantity == Quantity { 200'000'000 },"second batch must observe first batch update");
-        Assert(secondEvent.bestAskQuantity == Quantity { 150'000'000 },"second batch must update ask");
+        AssertTrue(strategyEventQueue.waitPop(firstEvent), "first batch must produce event");
+        AssertTrue(strategyEventQueue.waitPop(secondEvent), "second batch must produce event");
+        AssertEqual(firstEvent.sequence, SequenceNumber { 101 }, "first batch event must have sequence 101");
+        AssertEqual(secondEvent.sequence, SequenceNumber { 102 }, "second batch event must have sequence 102");
+        AssertEqual(secondEvent.bestBidQuantity, Quantity { 200'000'000 }, "second batch must observe first batch update");
+        AssertEqual(secondEvent.bestAskQuantity, Quantity { 150'000'000 }, "second batch must update ask");
 
-        Assert(strategyEventQueue.empty(),"strategy event queue must be empty");
+        AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
     }
 
-    void testWrongInstrumentUpdateIsIgnored()
+        void testWrongInstrumentUpdateIsIgnored()
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
         }};
-        BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue, exchangeFactory};
+        BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory };
 
-        bookUpdateQueue.push(BookUpdates {
-            createWrongInstrumentUpdate(SequenceNumber { 101 }, Quantity { 500'000'000 }),
-            createBidUpdate(SequenceNumber { 101 },Quantity { 200'000'000 })
-        });
+        bookUpdateQueue.push(createWrongInstrumentUpdate(SequenceNumber { 101 }, Quantity { 500'000 }));
+        bookUpdateQueue.push(createBidUpdate(SequenceNumber { 101 }, Quantity { 200'000 }));
 
         stopModule(bookUpdateQueue);
         module.run();
 
         MarketEvent marketEvent;
 
-        Assert(strategyEventQueue.waitPop(marketEvent), "valid update after wrong instrument update must be processed");
-        Assert(marketEvent.sequence == SequenceNumber { 101 }, "valid update must preserve its sequence");
-        Assert(marketEvent.bestBidQuantity == Quantity { 200'000'000 }, "wrong instrument update must not modify book");
+        AssertTrue(strategyEventQueue.waitPop(marketEvent), "valid update after wrong instrument update must be processed");
+        AssertEqual(marketEvent.sequence, SequenceNumber { 101 }, "valid update must preserve its sequence");
+        AssertEqual(marketEvent.bestBidQuantity, Quantity { 200'000 }, "wrong instrument update must not modify book");
 
-        Assert(strategyEventQueue.empty(),"strategy event queue must be empty");
+        AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
     }
 
     void testSequenceGapDoesNotProduceEvent()
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
         }};
-        BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue, exchangeFactory};
+        BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory };
 
-        bookUpdateQueue.push(BookUpdates {
-            createBidUpdate(SequenceNumber { 102 },Quantity { 200'000'000 })
-        });
+        bookUpdateQueue.push(createBidUpdate(SequenceNumber { 102 }, Quantity { 200'000 }));
 
         stopModule(bookUpdateQueue);
         module.run();
 
-        Assert(strategyEventQueue.empty(),"strategy event queue must be empty");
+        AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
     }
 
     void testDuplicateSequenceDoesNotProduceEvent()
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
         }};
-        BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue, exchangeFactory};
+        BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory };
 
-        bookUpdateQueue.push(BookUpdates {
-            createBidUpdate(SequenceNumber { 101 }, Quantity { 200'000'000 }),
-            createBidUpdate(SequenceNumber { 101 },Quantity { 300'000'000 })
-        });
+        bookUpdateQueue.push(createBidUpdate(SequenceNumber { 101 }, Quantity { 200'000 }));
+        bookUpdateQueue.push(createBidUpdate(SequenceNumber { 101 }, Quantity { 300'000 }));
 
         stopModule(bookUpdateQueue);
         module.run();
 
         MarketEvent marketEvent;
 
-        Assert(strategyEventQueue.waitPop(marketEvent),"first update must produce event");
-        Assert(marketEvent.sequence == SequenceNumber { 101 }, "first event must have sequence 101");
-        Assert(marketEvent.bestBidQuantity == Quantity { 200'000'000 }, "first update quantity must be preserved");
+        AssertTrue(strategyEventQueue.waitPop(marketEvent), "first update must produce event");
+        AssertEqual(marketEvent.sequence, SequenceNumber { 101 }, "first event must have sequence 101");
+        AssertEqual(marketEvent.bestBidQuantity, Quantity { 200'000 }, "first update quantity must be preserved");
 
-        Assert(strategyEventQueue.empty(),"strategy event queue must be empty");
+        AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
     }
 
     void testOutOfOrderUpdateDoesNotAdvanceSequence()
     {
         Config config = createConfig();
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
         }};
-        BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue, exchangeFactory};
+        BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory };
 
-        bookUpdateQueue.push(BookUpdates {
-            createBidUpdate(SequenceNumber { 101 },Quantity { 200'000'000 }),
-            createBidUpdate(SequenceNumber { 103 },Quantity { 300'000'000 }),
-            createBidUpdate(SequenceNumber { 102 },Quantity { 250'000'000 }),
-            createBidUpdate(SequenceNumber { 103 },Quantity { 350'000'000 })
-        });
+        bookUpdateQueue.push(createBidUpdate(SequenceNumber { 101 }, Quantity { 200'000 }));
+        bookUpdateQueue.push(createBidUpdate(SequenceNumber { 103 }, Quantity { 300'000 }));
+        bookUpdateQueue.push(createBidUpdate(SequenceNumber { 102 }, Quantity { 250'000 }));
+        bookUpdateQueue.push(createBidUpdate(SequenceNumber { 103 }, Quantity { 350'000 }));
 
         stopModule(bookUpdateQueue);
         module.run();
@@ -461,92 +478,86 @@ namespace
         MarketEvent secondEvent;
         MarketEvent thirdEvent;
 
-        Assert(strategyEventQueue.waitPop(firstEvent),"sequence 101 must produce event");
-        Assert(strategyEventQueue.waitPop(secondEvent),"sequence 102 must produce event");
-        Assert(strategyEventQueue.waitPop(thirdEvent),"sequence 103 must produce event");
-        Assert(firstEvent.sequence == SequenceNumber { 101 },"first event must have sequence 101");
-        Assert(secondEvent.sequence == SequenceNumber { 102 },"second event must have sequence 102");
-        Assert(thirdEvent.sequence == SequenceNumber { 103 },"third event must have sequence 103");
-        Assert(thirdEvent.bestBidQuantity == Quantity { 350'000'000 },"latest valid update must determine final quantity");
-        Assert(strategyEventQueue.empty(),"strategy event queue must be empty");
+        AssertTrue(strategyEventQueue.waitPop(firstEvent), "sequence 101 must produce event");
+        AssertTrue(strategyEventQueue.waitPop(secondEvent), "sequence 102 must produce event");
+        AssertTrue(strategyEventQueue.waitPop(thirdEvent), "sequence 103 must produce event");
+        AssertEqual(firstEvent.sequence, SequenceNumber { 101 }, "first event must have sequence 101");
+        AssertEqual(secondEvent.sequence, SequenceNumber { 102 }, "second event must have sequence 102");
+        AssertEqual(thirdEvent.sequence, SequenceNumber { 103 }, "third event must have sequence 103");
+        AssertEqual(thirdEvent.bestBidQuantity, Quantity { 350'000 }, "latest valid update must determine final quantity");
+        AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
     }
 
     void testBidRemovalProducesEmptyBestBid()
     {
         Config config = createConfig();
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
         }};
-        BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue, exchangeFactory};
+        BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory };
 
-        bookUpdateQueue.push(BookUpdates {
-            createBidUpdate(SequenceNumber { 101 },Quantity {})
-        });
+        bookUpdateQueue.push(createBidUpdate(SequenceNumber { 101 }, Quantity {}));
 
         stopModule(bookUpdateQueue);
         module.run();
 
         MarketEvent marketEvent;
 
-        Assert(strategyEventQueue.waitPop(marketEvent),"bid removal must produce market event");
-        Assert(marketEvent.sequence == SequenceNumber { 101 },"bid removal event must preserve sequence");
-        Assert(marketEvent.bestBid == Price {},"best bid must be empty after bid removal");
-        Assert(marketEvent.bestBidQuantity == Quantity {},"best bid quantity must be zero after bid removal");
-        Assert(marketEvent.bestAsk == INITIAL_ASK,"best ask must remain unchanged");
-        Assert(marketEvent.bestAskQuantity == INITIAL_ASK_QUANTITY,"best ask quantity must remain unchanged");
-        Assert(strategyEventQueue.empty(),"strategy event queue must be empty");
+        AssertTrue(strategyEventQueue.waitPop(marketEvent), "bid removal must produce market event");
+        AssertEqual(marketEvent.sequence, SequenceNumber { 101 }, "bid removal event must preserve sequence");
+        AssertEqual(marketEvent.bestBid, Price {}, "best bid must be empty after bid removal");
+        AssertEqual(marketEvent.bestBidQuantity, Quantity {}, "best bid quantity must be zero after bid removal");
+        AssertEqual(marketEvent.bestAsk, INITIAL_ASK, "best ask must remain unchanged");
+        AssertEqual(marketEvent.bestAskQuantity, INITIAL_ASK_QUANTITY, "best ask quantity must remain unchanged");
+        AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
     }
 
     void testAskRemovalProducesEmptyBestAsk()
     {
         Config config = createConfig();
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
         }};
-        BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue, exchangeFactory};
+        BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory };
 
-        bookUpdateQueue.push(BookUpdates {
-            createAskUpdate(SequenceNumber { 101 },Quantity {})
-        });
+        bookUpdateQueue.push(createAskUpdate(SequenceNumber { 101 }, Quantity {}));
 
         stopModule(bookUpdateQueue);
         module.run();
 
         MarketEvent marketEvent;
 
-        Assert(strategyEventQueue.waitPop(marketEvent),"ask removal must produce market event");
-        Assert(marketEvent.sequence == SequenceNumber { 101 },"ask removal event must preserve sequence");
-        Assert(marketEvent.bestBid == INITIAL_BID,"best bid must remain unchanged");
-        Assert(marketEvent.bestBidQuantity == INITIAL_BID_QUANTITY,"best bid quantity must remain unchanged");
-        Assert(marketEvent.bestAsk == Price {},"best ask must be empty after ask removal");
-        Assert(marketEvent.bestAskQuantity == Quantity {},"best ask quantity must be zero after ask removal");
-        Assert(strategyEventQueue.empty(),"strategy event queue must be empty");
+        AssertTrue(strategyEventQueue.waitPop(marketEvent), "ask removal must produce market event");
+        AssertEqual(marketEvent.sequence, SequenceNumber { 101 }, "ask removal event must preserve sequence");
+        AssertEqual(marketEvent.bestBid, INITIAL_BID, "best bid must remain unchanged");
+        AssertEqual(marketEvent.bestBidQuantity, INITIAL_BID_QUANTITY, "best bid quantity must remain unchanged");
+        AssertEqual(marketEvent.bestAsk, Price {}, "best ask must be empty after ask removal");
+        AssertEqual(marketEvent.bestAskQuantity, Quantity {}, "best ask quantity must be zero after ask removal");
+        AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
     }
 
     void testBothSidesCanBeUpdated()
     {
         Config config = createConfig();
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
         }};
-        BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue, exchangeFactory};
+        BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory };
 
-        bookUpdateQueue.push(BookUpdates {
-            createSecondBidUpdate(SequenceNumber { 101 },SECOND_BID_QUANTITY),
-            createSecondAskUpdate(SequenceNumber { 102 },SECOND_ASK_QUANTITY)
-        });
+        bookUpdateQueue.push(createSecondBidUpdate(SequenceNumber { 101 }, SECOND_BID_QUANTITY));
+        bookUpdateQueue.push(createSecondAskUpdate(SequenceNumber { 102 }, SECOND_ASK_QUANTITY));
 
         stopModule(bookUpdateQueue);
         module.run();
@@ -554,34 +565,32 @@ namespace
         MarketEvent firstEvent;
         MarketEvent secondEvent;
 
-        Assert(strategyEventQueue.waitPop(firstEvent),"bid update must produce event");
-        Assert(strategyEventQueue.waitPop(secondEvent),"ask update must produce event");
-        Assert(firstEvent.bestBid == INITIAL_BID,"initial bid must remain the best bid");
-        Assert(firstEvent.bestBidQuantity == INITIAL_BID_QUANTITY,"initial best bid quantity must remain unchanged");
-        Assert(firstEvent.bestAsk == INITIAL_ASK,"initial ask must remain the best ask");
-        Assert(firstEvent.bestAskQuantity == INITIAL_ASK_QUANTITY,"initial best ask quantity must remain unchanged");
-        Assert(secondEvent.bestBid == INITIAL_BID,"best bid must remain unchanged");
-        Assert(secondEvent.bestAsk == INITIAL_ASK,"initial ask must remain the best ask");
-        Assert(strategyEventQueue.empty(),"strategy event queue must be empty");
+        AssertTrue(strategyEventQueue.waitPop(firstEvent), "bid update must produce event");
+        AssertTrue(strategyEventQueue.waitPop(secondEvent), "ask update must produce event");
+        AssertEqual(firstEvent.bestBid, INITIAL_BID, "initial bid must remain the best bid");
+        AssertEqual(firstEvent.bestBidQuantity, INITIAL_BID_QUANTITY, "initial best bid quantity must remain unchanged");
+        AssertEqual(firstEvent.bestAsk, INITIAL_ASK, "initial ask must remain the best ask");
+        AssertEqual(firstEvent.bestAskQuantity, INITIAL_ASK_QUANTITY, "initial best ask quantity must remain unchanged");
+        AssertEqual(secondEvent.bestBid, INITIAL_BID, "best bid must remain unchanged");
+        AssertEqual(secondEvent.bestAsk, INITIAL_ASK, "initial ask must remain the best ask");
+        AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
     }
 
     void testRecordingReceivesSameNumberOfEvents()
     {
         Config config = createConfig();
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
         }};
-        BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue, exchangeFactory};
+        BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory };
 
-        bookUpdateQueue.push(BookUpdates {
-            createBidUpdate(SequenceNumber { 101 },Quantity { 200'000'000 }),
-            createAskUpdate(SequenceNumber { 102 },Quantity { 150'000'000 }),
-            createBidUpdate(SequenceNumber { 103 },Quantity { 300'000'000 })
-        });
+        bookUpdateQueue.push(createBidUpdate(SequenceNumber { 101 }, Quantity { 200'000 }));
+        bookUpdateQueue.push(createAskUpdate(SequenceNumber { 102 }, Quantity { 150'000 }));
+        bookUpdateQueue.push(createBidUpdate(SequenceNumber { 103 }, Quantity { 300'000 }));
 
         stopModule(bookUpdateQueue);
         module.run();
@@ -589,15 +598,15 @@ namespace
         MarketEvent marketEvent;
         RecordingEvent recordingEvent;
 
-        Assert(strategyEventQueue.waitPop(marketEvent),"first strategy event must exist");
-        Assert(strategyEventQueue.waitPop(marketEvent),"second strategy event must exist");
-        Assert(strategyEventQueue.waitPop(marketEvent),"third strategy event must exist");
-        Assert(recordingQueue.waitPop(recordingEvent),"first recording event must exist");
-        Assert(recordingQueue.waitPop(recordingEvent),"second recording event must exist");
-        Assert(recordingQueue.waitPop(recordingEvent),"third recording event must exist");
+        AssertTrue(strategyEventQueue.waitPop(marketEvent), "first strategy event must exist");
+        AssertTrue(strategyEventQueue.waitPop(marketEvent), "second strategy event must exist");
+        AssertTrue(strategyEventQueue.waitPop(marketEvent), "third strategy event must exist");
+        AssertTrue(recordingQueue.waitPop(recordingEvent), "first recording event must exist");
+        AssertTrue(recordingQueue.waitPop(recordingEvent), "second recording event must exist");
+        AssertTrue(recordingQueue.waitPop(recordingEvent), "third recording event must exist");
 
-        Assert(strategyEventQueue.empty(),"strategy event queue must be empty");
-        Assert(recordingQueue.empty(),"recording event queue must be empty");
+        AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
+        AssertEmpty(recordingQueue, "recording event queue must be empty");
     }
 
     void testInvalidSnapshotStopsProcessing()
@@ -612,66 +621,62 @@ namespace
 
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(invalidSnapshot)
         }};
-        BookBuilderModule module {config,bookUpdateQueue,strategyEventQueue,recordingQueue, exchangeFactory};
+        BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory };
 
-        bookUpdateQueue.push(BookUpdates {
-            createBidUpdate(SequenceNumber { 101 },Quantity { 200'000'000 })
-        });
+        bookUpdateQueue.push(createBidUpdate(SequenceNumber { 101 }, Quantity { 200'000 }));
 
         stopModule(bookUpdateQueue);
         module.run();
 
-        Assert(strategyEventQueue.empty(),"strategy event queue must be empty");
-        Assert(recordingQueue.empty(),"recording event queue must be empty");
+        AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
+        AssertEmpty(recordingQueue, "recording event queue must be empty");
     }
 
     void testEmptyBookUpdatesBatchDoesNotProduceEvent()
     {
         Config config = createConfig();
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
         }};
-        BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue, exchangeFactory};
+        BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory };
 
-        bookUpdateQueue.push(BookUpdates {});
+        bookUpdateQueue.push(BookUpdate {});
 
         stopModule(bookUpdateQueue);
         module.run();
 
-        Assert(strategyEventQueue.empty(),"strategy event queue must be empty");
-        Assert(recordingQueue.empty(),"recording event queue must be empty");
+        AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
+        AssertEmpty(recordingQueue, "recording event queue must be empty");
     }
 
     void testMixedValidAndInvalidUpdates()
     {
         Config config = createConfig();
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
         }};
-        BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue, exchangeFactory};
+        BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory };
 
-        bookUpdateQueue.push(BookUpdates {
-            createWrongInstrumentUpdate(SequenceNumber { 101 },Quantity { 500'000'000 }),
-            createBidUpdate(SequenceNumber { 101 },Quantity { 200'000'000 }),
-            createBidUpdate(SequenceNumber { 103 },Quantity { 300'000'000 }),
-            createBidUpdate(SequenceNumber { 102 },Quantity { 250'000'000 }),
-            createBidUpdate(SequenceNumber { 103 },Quantity { 350'000'000 })
-        });
+        bookUpdateQueue.push(createWrongInstrumentUpdate(SequenceNumber { 101 }, Quantity { 500'000 }));
+        bookUpdateQueue.push(createBidUpdate(SequenceNumber { 101 }, Quantity { 200'000 }));
+        bookUpdateQueue.push(createBidUpdate(SequenceNumber { 103 }, Quantity { 300'000 }));
+        bookUpdateQueue.push(createBidUpdate(SequenceNumber { 102 }, Quantity { 250'000 }));
+        bookUpdateQueue.push(createBidUpdate(SequenceNumber { 103 }, Quantity { 350'000 }));
 
         stopModule(bookUpdateQueue);
         module.run();
@@ -680,31 +685,75 @@ namespace
         MarketEvent secondEvent;
         MarketEvent thirdEvent;
 
-        Assert(strategyEventQueue.waitPop(firstEvent),"valid sequence 101 update must produce event");
-        Assert(strategyEventQueue.waitPop(secondEvent),"valid sequence 102 update must produce event");
-        Assert(strategyEventQueue.waitPop(thirdEvent),"valid sequence 103 update must produce event");
-        Assert(firstEvent.sequence == SequenceNumber { 101 },"first valid event must have sequence 101");
-        Assert(secondEvent.sequence == SequenceNumber { 102 },"second valid event must have sequence 102");
-        Assert(thirdEvent.sequence == SequenceNumber { 103 },"third valid event must have sequence 103");
-        Assert(thirdEvent.bestBidQuantity == Quantity { 350'000'000 },"final valid update must determine final bid quantity");
+        AssertTrue(strategyEventQueue.waitPop(firstEvent), "valid sequence 101 update must produce event");
+        AssertTrue(strategyEventQueue.waitPop(secondEvent), "valid sequence 102 update must produce event");
+        AssertTrue(strategyEventQueue.waitPop(thirdEvent), "valid sequence 103 update must produce event");
+        AssertEqual(firstEvent.sequence, SequenceNumber { 101 }, "first valid event must have sequence 101");
+        AssertEqual(secondEvent.sequence, SequenceNumber { 102 }, "second valid event must have sequence 102");
+        AssertEqual(thirdEvent.sequence, SequenceNumber { 103 }, "third valid event must have sequence 103");
+        AssertEqual(thirdEvent.bestBidQuantity, Quantity { 350'000 }, "final valid update must determine final bid quantity");
 
-        Assert(strategyEventQueue.empty(),"strategy event queue must be empty");
+        AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
     }
 
     void testReceiveTimestampIsGenerated()
     {
         Config config = createConfig();
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> strategyEventQueue;
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
         }};
-        BookBuilderModule module { config, bookUpdateQueue,strategyEventQueue,recordingQueue, exchangeFactory};
+        BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory };
 
-        bookUpdateQueue.push(BookUpdates {
-            createBidUpdate(SequenceNumber { 101 },Quantity { 200'000'000 })
+        bookUpdateQueue.push(createBidUpdate(SequenceNumber { 101 }, Quantity { 200'000 }));
+
+        stopModule(bookUpdateQueue);
+        module.run();
+
+        MarketEvent marketEvent;
+
+        AssertTrue(strategyEventQueue.waitPop(marketEvent), "valid update must produce market event");
+        AssertNotEqual(marketEvent.receiveTimestamp, Timestamp {}, "market event must contain receive timestamp");
+        AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
+    }
+
+    void testSingleBookUpdateWithMultipleLevelUpdatesProducesOneEvent()
+    {
+        Config config = createConfig();
+
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
+        ConditionVariableQueue<MarketEvent> strategyEventQueue;
+        ConditionVariableQueue<RecordingEvent> recordingQueue;
+
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
+        }};
+        BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory };
+
+        bookUpdateQueue.push(BookUpdate {
+            .instrument = INSTRUMENT,
+            .sequenceRange = { .first = 101, .last = 103 },
+            .exchangeTimestamp = Timestamp { 103 },
+            .updates = {
+                PriceLevelUpdate {
+                    .side = Side::Buy,
+                    .price = INITIAL_BID,
+                    .quantity = Quantity { 200'000'000 }
+                },
+                PriceLevelUpdate {
+                    .side = Side::Buy,
+                    .price = SECOND_BID,
+                    .quantity = SECOND_BID_QUANTITY
+                },
+                PriceLevelUpdate {
+                    .side = Side::Sell,
+                    .price = INITIAL_ASK,
+                    .quantity = Quantity { 150'000'000 }
+                }
+            }
         });
 
         stopModule(bookUpdateQueue);
@@ -712,11 +761,124 @@ namespace
 
         MarketEvent marketEvent;
 
-        Assert(strategyEventQueue.waitPop(marketEvent),"valid update must produce market event");
-        Assert(marketEvent.receiveTimestamp != Timestamp {},"market event must contain receive timestamp");
-        Assert(strategyEventQueue.empty(),"strategy event queue must be empty");
+        AssertTrue(strategyEventQueue.waitPop(marketEvent),"one BookUpdate must produce one strategy event");
+        AssertEqual(marketEvent.sequence, SequenceNumber { 103 },"event sequence must equal BookUpdate last sequence");
+        AssertEqual(marketEvent.bestBid, INITIAL_BID,"initial bid must remain best bid");
+        AssertEqual(marketEvent.bestBidQuantity, Quantity { 200'000'000 },"best bid quantity must be updated");
+        AssertEqual(marketEvent.bestAsk, INITIAL_ASK,"initial ask must remain best ask");
+        AssertEqual(marketEvent.bestAskQuantity, Quantity { 150'000'000 },"best ask quantity must be updated");
+        AssertEmpty(strategyEventQueue,"one BookUpdate must produce exactly one strategy event");
+
+        RecordingEvent recordingEvent;
+
+        AssertTrue(recordingQueue.waitPop(recordingEvent),"one BookUpdate must produce one recording event");
+        Assert(std::holds_alternative<MarketEvent>(recordingEvent),"recording event must contain MarketEvent");
+        AssertEmpty(recordingQueue,"one BookUpdate must produce exactly one recording event");
+    }
+
+    /**
+        snapshot 100
+        [101,105] -> sequence becomes 105
+        [106,106] -> accepted
+    **/
+    void testSequenceRangeAdvancesToLastSequence()
+    {
+        Config config = createConfig();
+
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
+        ConditionVariableQueue<MarketEvent> strategyEventQueue;
+        ConditionVariableQueue<RecordingEvent> recordingQueue;
+
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
+        }};
+        BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory };
+
+        bookUpdateQueue.push(BookUpdate {
+            .instrument = INSTRUMENT,
+            .sequenceRange = { .first = 101, .last = 105 },
+            .exchangeTimestamp = Timestamp { 105 },
+            .updates = {
+                PriceLevelUpdate {
+                    .side = Side::Buy,
+                    .price = INITIAL_BID,
+                    .quantity = Quantity { 200'000'000 }
+                },
+                PriceLevelUpdate {
+                    .side = Side::Sell,
+                    .price = INITIAL_ASK,
+                    .quantity = Quantity { 150'000'000 }
+                }
+            }
+        });
+
+        bookUpdateQueue.push(createBidUpdate(SequenceNumber { 106 }, Quantity { 250'000'000 }));
+
+        stopModule(bookUpdateQueue);
+        module.run();
+
+        MarketEvent firstEvent;
+        MarketEvent secondEvent;
+
+        AssertTrue(strategyEventQueue.waitPop(firstEvent),"range update must produce event");
+        AssertTrue(strategyEventQueue.waitPop(secondEvent),"next sequential update must produce event");
+        AssertEqual(firstEvent.sequence, SequenceNumber { 105 },"first event must use sequenceRange.last");
+        AssertEqual(secondEvent.sequence,SequenceNumber { 106 },"next update must start after sequenceRange.last");
+        AssertEqual(secondEvent.bestBidQuantity, Quantity { 250'000'000 },"next update must observe previous BookUpdate");
+        AssertEmpty(strategyEventQueue,"strategy event queue must be empty");
+    }
+
+    void testOverlappingSequenceRangeDoesNotProduceEvent()
+    {
+        Config config = createConfig();
+
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
+        ConditionVariableQueue<MarketEvent> strategyEventQueue;
+        ConditionVariableQueue<RecordingEvent> recordingQueue;
+
+        TestExchangeFactory exchangeFactory { TestMocks {
+            .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
+        }};
+        BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory };
+
+        bookUpdateQueue.push(BookUpdate {
+            .instrument = INSTRUMENT,
+            .sequenceRange = { .first = 101, .last = 102 },
+            .exchangeTimestamp = Timestamp { 102 },
+            .updates = {
+                PriceLevelUpdate {
+                    .side = Side::Buy,
+                    .price = INITIAL_BID,
+                    .quantity = Quantity { 200'000'000 }
+                }
+            }
+        });
+
+        bookUpdateQueue.push(BookUpdate {
+            .instrument = INSTRUMENT,
+            .sequenceRange = { .first = 102, .last = 103 },
+            .exchangeTimestamp = Timestamp { 103 },
+            .updates = {
+                PriceLevelUpdate {
+                    .side = Side::Buy,
+                    .price = INITIAL_BID,
+                    .quantity = Quantity { 300'000'000 }
+                }
+            }
+        });
+
+        stopModule(bookUpdateQueue);
+        module.run();
+
+        MarketEvent marketEvent;
+
+        AssertTrue(strategyEventQueue.waitPop(marketEvent),"first range update must produce event");
+        AssertEqual(marketEvent.sequence,SequenceNumber { 102 },"first event must use range last sequence");
+        AssertEqual(marketEvent.bestBidQuantity, Quantity { 200'000'000 },"first range update must be applied");
+        AssertEmpty(strategyEventQueue,"overlapping range must not produce second event");
     }
 }
+
 
 void book_builder_module_test()
 {
@@ -738,6 +900,9 @@ void book_builder_module_test()
     testEmptyBookUpdatesBatchDoesNotProduceEvent();
     testMixedValidAndInvalidUpdates();
     testReceiveTimestampIsGenerated();
+    testSingleBookUpdateWithMultipleLevelUpdatesProducesOneEvent();
+    testSequenceRangeAdvancesToLastSequence();
+    testOverlappingSequenceRangeDoesNotProduceEvent();
 
     std::cout << "All BookBuilderModule tests: OK\n";
 }

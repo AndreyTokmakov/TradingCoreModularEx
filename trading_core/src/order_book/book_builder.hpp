@@ -120,6 +120,7 @@ Description : Order book builder.
 namespace trading::order_book
 {
     using market_data::Snapshot;
+    using market_data::BookUpdate;
     using market_data::MarketEvent;
     using market_data::MarketEventDispatcher;
 
@@ -136,6 +137,12 @@ namespace trading::order_book
         void onBookUpdate(const BookUpdate& update) const;
 
     private:
+        [[nodiscard]]
+        bool isSequenceValid(const BookUpdate& update) const noexcept;
+
+        [[nodiscard]]
+        bool applyBookUpdate(const BookUpdate& update) const noexcept;
+
         void publishMarketEvent(SequenceNumber sequence,
                                 Timestamp exchangeTimestamp) const;
 

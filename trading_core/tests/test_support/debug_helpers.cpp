@@ -223,12 +223,18 @@ namespace trading::testing
 
         stream << "BookUpdate {"
                << "\n\t instrument       : " << update.instrument
-               << "\n\t sequence         : " << update.sequence
+               << "\n\t sequence         : [" << update.sequenceRange.first
+               << ", " << update.sequenceRange.last << "]"
                << "\n\t exchangeTimestamp: " << update.exchangeTimestamp.nanoseconds()
-               << "\n\t side             : " << update.side
-               << "\n\t price            : " << update.price.raw()
-               << "\n\t quantity         : " << update.quantity.raw()
-               << "\n}";
+               << "\n\t updates          : " << update.updates.size();
+
+        for (const auto& levelUpdate : update.updates) {
+            stream << "\n\t\t side     : " << levelUpdate.side
+                   << "\n\t\t price    : " << levelUpdate.price.raw()
+                   << "\n\t\t quantity : " << levelUpdate.quantity.raw();
+        }
+
+        stream << "\n}";
 
         return stream.str();
     }
@@ -277,7 +283,25 @@ namespace trading::testing
     }
 
     [[nodiscard]]
-    std::string toString(const market_data::OrderBookLevels& levels)
+    std::string toString(const market_data::PriceLevelUpdate& levelUpdate)
+    {
+        std::ostringstream stream;
+        stream << "BookLevel {"
+               << "\n\t side    : " << levelUpdate.side
+               << "\n\t price   : " << levelUpdate.price.raw()
+               << "\n\t quantity: " << levelUpdate.quantity.raw()
+               << "\n}";
+        return stream.str();
+    }
+
+    std::ostream& operator<<(std::ostream& stream, const market_data::PriceLevelUpdate& levelUpdate)
+    {
+        return stream << toString(levelUpdate);
+    }
+
+
+    [[nodiscard]]
+    std::string toString(const market_data::Snapshot::OrderBookLevels& levels)
     {
         std::ostringstream stream;
         stream << "{";
@@ -288,7 +312,7 @@ namespace trading::testing
         return stream.str();
     }
 
-    std::ostream& operator<<(std::ostream& stream, const market_data::OrderBookLevels& levels)
+    std::ostream& operator<<(std::ostream& stream, const market_data::Snapshot::OrderBookLevels& levels)
     {
         return stream << toString(levels);
     }

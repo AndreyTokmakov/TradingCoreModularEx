@@ -157,7 +157,7 @@ Description : Order book snapshot.
 #ifndef FINANCETECHNOLOGYPROJECTS_SNAPSHOT_HPP
 #define FINANCETECHNOLOGYPROJECTS_SNAPSHOT_HPP
 
-#include "order_book_levels.hpp"
+#include "book_level.hpp"
 #include "core/timestamp.hpp"
 #include "core/types.hpp"
 
@@ -165,6 +165,8 @@ namespace trading::market_data
 {
     struct Snapshot
     {
+        using OrderBookLevels = std::vector<BookLevel>;
+
         InstrumentId instrument {};
         SequenceNumber sequence {};
         Timestamp exchangeTimestamp {};

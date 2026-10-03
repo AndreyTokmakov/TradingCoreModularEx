@@ -15,7 +15,6 @@ Description : Testing and Debuging
 #include "market_data/model/market_event.hpp"
 #include "market_data/model/parse_result.hpp"
 #include "market_data/model/book_level.hpp"
-#include "market_data/model/order_book_levels.hpp"
 #include "market_data/model/book_update.hpp"
 #include "market_data/model/snapshot.hpp"
 #include "strategy/signal.hpp"
@@ -62,7 +61,10 @@ namespace trading::testing
     std::string toString(const market_data::BookLevel& level);
 
     [[nodiscard]]
-    std::string toString(const market_data::OrderBookLevels& levels);
+    std::string toString(const market_data::PriceLevelUpdate& levelUpdate);
+
+    [[nodiscard]]
+    std::string toString(const market_data::Snapshot::OrderBookLevels& levels);
 
     [[nodiscard]]
     std::string toString(const market_data::Snapshot& snapshot);
@@ -80,8 +82,11 @@ namespace trading::testing
     std::ostream& operator<<(std::ostream& stream, const market_data::BookUpdate& update);
     std::ostream& operator<<(std::ostream& stream, const market_data::MarketEvent& event);
     std::ostream& operator<<(std::ostream& stream, const market_data::BookLevel& level);
-    std::ostream& operator<<(std::ostream& stream, const market_data::OrderBookLevels& levels);
+    std::ostream& operator<<(std::ostream& stream, const market_data::PriceLevelUpdate& levelUpdate);
+    std::ostream& operator<<(std::ostream& stream, const market_data::Snapshot::OrderBookLevels& levels);
     std::ostream& operator<<(std::ostream& stream, const market_data::Snapshot& snapshot);
 }
+
+using namespace trading::testing;
 
 #endif //TRADINGCOREMODULAREX_DEBUG_HELPERS_HPP

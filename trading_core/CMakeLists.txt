@@ -86,10 +86,11 @@ add_executable(${PROJECT_NAME}
 
         ${MARKET_DATA}/model/book_level.hpp
         ${MARKET_DATA}/model/book_update.hpp
+        ${MARKET_DATA}/model/book_level_update.hpp
         ${MARKET_DATA}/model/market_event.hpp
         ${MARKET_DATA}/model/parse_result.hpp
-        ${MARKET_DATA}/model/order_book_levels.hpp
         ${MARKET_DATA}/model/snapshot.hpp
+        ${MARKET_DATA}/model/sequence_range.hpp
 
         ${METRICS}/counter.hpp
         ${METRICS}/metrics.hpp
@@ -184,27 +185,28 @@ add_executable(${PROJECT_NAME}
         ${STRATEGY}/strategy_module.hpp
         ${STRATEGY}/strategy_module.cpp
 
-
-        ##[[
         ${TESTS}/core/price_test.cpp
         ${TESTS}/risk/risk_manager_test.cpp
         ${TESTS}/pnl/pnl_calculator_test.cpp
         ${TESTS}/position/position_test.cpp
         ${TESTS}/position/position_manager_test.cpp
         ${TESTS}/recording/trade_recorder_test.cpp
+
         ${TESTS}/config/json_config_loader_test.cpp
+        ${TESTS}/strategy/imbalance_strategy_test.cpp
+
         ${TESTS}/execution/order_manager_test.cpp
         ${TESTS}/order_book/order_book_test.cpp
         ${TESTS}/order_book/book_builder_test.cpp
-        ${TESTS}/strategy/imbalance_strategy_test.cpp
 
         ${TESTS}/modules/book_builder_module_test.cpp
+
         ${TESTS}/modules/book_builder_module_restore_book_test.cpp
         ${TESTS}/modules/market_data_module_test.cpp
         ${TESTS}/modules/strategy_module_test.cpp
         ${TESTS}/modules/execution_module_test.cpp
-
         ${TESTS}/modules/marketdata_bookbuilder_strategy_integrataion.cpp
+
         ${TESTS}/integration_tests/exchange_to_gateway_integration_test.cpp
 
         ${TESTS}/test_support/testing.hpp
@@ -223,7 +225,6 @@ add_executable(${PROJECT_NAME}
 
         # ${TESTS}/strategy/strategy_executor_test.cpp
         # ${TESTS}/market_data/market_event_handler_test.cpp
-        #]]#
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/Utilities")

@@ -14,7 +14,7 @@ namespace trading::order_book
     template<typename Levels>
     [[nodiscard]]
     static bool applyBookUpdate(Levels& levels,
-                                const BookUpdate& update,
+                                const PriceLevelUpdate& update,
                                 const OrderBook::size_type depth) noexcept
     {
         if (update.quantity.isZero())
@@ -24,7 +24,6 @@ namespace trading::order_book
             iterator->second = update.quantity;
             return true;
         }
-
         if (levels.size() < depth) {
             levels.emplace(update.price, update.quantity);
             return true;
@@ -85,25 +84,26 @@ namespace trading::order_book
                              const Levels& snapBids,
                              const Levels& snapAsks)
     {
-        bids = BidLevels{snapBids.cbegin(), snapBids.cend()};
-        asks = AskLevels{snapAsks.cbegin(), snapAsks.cend()};
+        bids.clear();
+        for (const auto& [price, quantity] : snapBids) {
+            bids.emplace(price, quantity);
+        }
+        asks.clear();
+        for (const auto& [price, quantity] : snapAsks) {
+            asks.emplace(price, quantity);
+        }
         sequenceNumber = sequence;
     }
 
-    bool OrderBook::applyUpdate(const BookUpdate& update) noexcept
+    bool OrderBook::applyUpdate(const PriceLevelUpdate& levelUpdate) noexcept
     {
-        if (update.sequence != sequenceNumber + 1){
-            return false;
-        }
-        const bool result = Side::Buy == update.side?
-            applyBookUpdate(bids, update, depthValue) :
-            applyBookUpdate(asks, update, depthValue);
-        if (!result) {
-            return false;
+        return Side::Buy == levelUpdate.side ?
+            applyBookUpdate(bids, levelUpdate, depthValue) :
+            applyBookUpdate(asks, levelUpdate, depthValue);
         }
 
-        sequenceNumber = update.sequence;
-        return true;
+    void OrderBook::setSequence(const SequenceNumber sequence) noexcept {
+        sequenceNumber = sequence;
     }
 
     std::optional<BookLevel> OrderBook::bestBid() const {
