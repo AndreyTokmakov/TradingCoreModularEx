@@ -76,13 +76,13 @@ namespace
     {
         const config::Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> marketEventQueue;
         ConditionVariableQueue<ExecutionWorkItem> executionQueue;
         ConditionVariableQueue<recording::RecordingEvent> recordingQueue;
 
         auto marketDataSource = createMarketDataSource({
-            "1,101,10000001,Buy,6500000000000,1000000000"
+            "1,101,101,10000001,Buy,6500000000000,1000000000"
         });
 
         const Snapshot snapshot = createSnapshot( InstrumentId { 1 }, SequenceNumber { 100 } );
@@ -129,13 +129,13 @@ namespace
     {
         const config::Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> marketEventQueue;
         ConditionVariableQueue<ExecutionWorkItem> executionQueue;
         ConditionVariableQueue<recording::RecordingEvent> recordingQueue;
 
         auto marketDataSource = createMarketDataSource({
-            "1,101,10000001,Sell,6500000000000,1000000000"
+            "1,101,101,10000001,Sell,6500000000000,1000000000"
         });
 
         const Snapshot snapshot = createSnapshot(InstrumentId { 1 }, SequenceNumber { 100 });
@@ -182,13 +182,13 @@ namespace
     {
         const config::Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> marketEventQueue;
         ConditionVariableQueue<ExecutionWorkItem> executionQueue;
         ConditionVariableQueue<recording::RecordingEvent> recordingQueue;
 
         auto marketDataSource = createMarketDataSource({
-            "1,101,10000001,Buy,6500000000000,100"
+            "1,101,101,10000001,Buy,6500000000000,100"
         });
 
         const Snapshot snapshot = createSnapshot(InstrumentId { 1 }, SequenceNumber { 100 } );
@@ -225,13 +225,13 @@ namespace
         config::Config config = createConfig();
         config.strategy.orderQuantity = Quantity { 250'000'000 };
 
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> marketEventQueue;
         ConditionVariableQueue<ExecutionWorkItem> executionQueue;
         ConditionVariableQueue<recording::RecordingEvent> recordingQueue;
 
         auto marketDataSource = createMarketDataSource({
-            "1,101,10000001,Buy,6500000000000,1000000000"
+            "1,101,101,10000001,Buy,6500000000000,1000000000"
         });
 
         const Snapshot snapshot = createSnapshot(InstrumentId { 1 }, SequenceNumber { 100 });
@@ -273,14 +273,14 @@ namespace
     {
         const config::Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> marketEventQueue;
         ConditionVariableQueue<ExecutionWorkItem> executionQueue;
         ConditionVariableQueue<recording::RecordingEvent> recordingQueue;
 
         auto marketDataSource = createMarketDataSource({
-            "1,101,10000001,Buy,6500000000000,1000000000",
-            "1,102,10000002,Sell,6501000000000,10000000"
+            "1,101,101,10000001,Buy,6500000000000,1000000000",
+            "1,102,102,10000002,Sell,6501000000000,10000000"
         });
 
         const Snapshot snapshot = createSnapshot(
@@ -328,14 +328,14 @@ namespace
     {
         const config::Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> marketEventQueue;
         ConditionVariableQueue<ExecutionWorkItem> executionQueue;
         ConditionVariableQueue<recording::RecordingEvent> recordingQueue;
 
         auto marketDataSource = createMarketDataSource({
-            "1,101,10000001,Sell,6500000000000,1000000000",
-            "1,102,10000002,Buy,6499000000000,10000000"
+            "1,101,101,10000001,Sell,6500000000000,1000000000",
+            "1,102,102,10000002,Buy,6499000000000,10000000"
         });
 
         const Snapshot snapshot = createSnapshot(
@@ -381,13 +381,13 @@ namespace
     {
         const config::Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> marketEventQueue;
         ConditionVariableQueue<ExecutionWorkItem> executionQueue;
         ConditionVariableQueue<recording::RecordingEvent> recordingQueue;
 
         auto marketDataSource = createMarketDataSource({
-            "1,101,10000001,Buy,6500000000000,1000000000"
+            "1,101,101,10000001,Buy,6500000000000,1000000000"
         });
 
         const Snapshot snapshot = createSnapshot(
@@ -435,14 +435,14 @@ namespace
     {
         const config::Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdates> bookUpdateQueue;
+        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         ConditionVariableQueue<MarketEvent> marketEventQueue;
         ConditionVariableQueue<ExecutionWorkItem> executionQueue;
         ConditionVariableQueue<recording::RecordingEvent> recordingQueue;
 
         auto marketDataSource = createMarketDataSource({
-            "1,101,10000001,Buy,6500000000000,1000000000",
-            "1,102,10000002,Sell,6501000000000,10000000"
+            "1,101,101,10000001,Buy,6500000000000,1000000000",
+            "1,102,102,10000002,Sell,6501000000000,10000000"
         });
 
         const Snapshot snapshot = createSnapshot(

@@ -231,7 +231,7 @@ namespace
 
     void testInvalidMessageIsNotPushed()
     {
-        Config config = createConfig(InstrumentId { 1 });
+        const Config config = createConfig(InstrumentId { 1 });
         ConditionVariableQueue<BookUpdate> bookUpdateQueue;
         std::unique_ptr<TestMarketDataSource> marketDataSource = std::make_unique<TestMarketDataSource>();
 
