@@ -91,6 +91,7 @@ add_executable(${PROJECT_NAME}
         ${MARKET_DATA}/model/parse_result.hpp
         ${MARKET_DATA}/model/snapshot.hpp
         ${MARKET_DATA}/model/sequence_range.hpp
+        ${MARKET_DATA}/model/trade.hpp
 
         ${METRICS}/counter.hpp
         ${METRICS}/metrics.hpp
