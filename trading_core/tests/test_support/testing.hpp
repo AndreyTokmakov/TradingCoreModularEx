@@ -437,9 +437,9 @@ namespace testing
             {
                 std::println(std::cerr, "{}", message);
             }
+            printLocation(location);
+            performAction(action);
         }
-        printLocation(location);
-        performAction(action);
     }
 
     template<HasEmpty Ty>

@@ -196,7 +196,6 @@ namespace
         // strategy_executor_test();
 
         price_test();
-
         json_config_loader_test();
         trade_recorder_test();
         pnl_calculator_test();
@@ -207,8 +206,7 @@ namespace
         order_manager_test();
         book_builder_test();
         imbalance_strategy_test();
-
-        // market_data_module_test(); // FIXME
+        market_data_module_test();
         book_builder_module_test();
         strategy_module_test();
         execution_module_test();
@@ -220,7 +218,8 @@ namespace
         const auto nullLogger = std::make_shared<trading::testing::TestLogger>(true);
         LoggerFactory::createLogger(nullLogger);
 
-        exchange_to_gateway_integration_test();
+        book_builder_test();
+        // book_builder_module_test();
     }
 }
 
@@ -230,8 +229,8 @@ int main([[maybe_unused]] const int argc,
     const std::vector<std::string_view> parameters(argv + 1, argv + argc);
 
     // runApp(parameters);
-    // runTests(parameters);
-    runSingleTest(parameters);
+    runTests(parameters);
+    // runSingleTest(parameters);
 
     return EXIT_SUCCESS;
 }

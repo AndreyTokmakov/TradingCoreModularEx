@@ -171,6 +171,9 @@ namespace
         AssertEqual(bestAsk->price, AskPrice, "invalid best ask price");
         AssertEqual(bestAsk->quantity, AskQuantity, "invalid best ask quantity");
 
+        Assert(strategyQueue.empty(), "strategy queue must be empty");
+        Assert(recordingQueue.empty(), "recording queue must be empty");
+
         AssertEmpty(strategyQueue, "strategy queue must be empty");
         AssertEmpty(recordingQueue, "recording queue must be empty");
     }
