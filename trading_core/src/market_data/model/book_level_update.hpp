@@ -10,8 +10,9 @@ Description : book_level_update.hpp
 #ifndef TRADINGCOREMODULAREX_BOOK_LEVEL_UPDATE_HPP
 #define TRADINGCOREMODULAREX_BOOK_LEVEL_UPDATE_HPP
 
-#include "book_level.hpp"
 #include "core/types.hpp"
+#include "core/price.hpp"
+#include "core/quantity.hpp"
 
 namespace trading::market_data
 {

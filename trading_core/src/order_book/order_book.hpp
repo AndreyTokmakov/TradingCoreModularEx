@@ -14,7 +14,6 @@ Description : Order book state.
 
 #include "market_data/model/book_level.hpp"
 #include "market_data/model/book_update.hpp"
-#include "market_data/model/order_book_levels.hpp"
 #include "core/price.hpp"
 #include "core/quantity.hpp"
 

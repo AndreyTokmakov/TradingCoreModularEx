@@ -27,7 +27,6 @@ namespace trading::order_book
 {
     using market_data::BookUpdate;
     using market_data::MarketEvent;
-    using market_data::OrderBookLevels;
     using market_data::ISnapshotProvider;
     using market_data::MarketEventDispatcher;
 

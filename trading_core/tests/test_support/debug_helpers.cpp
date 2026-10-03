@@ -301,7 +301,7 @@ namespace trading::testing
 
 
     [[nodiscard]]
-    std::string toString(const market_data::OrderBookLevels& levels)
+    std::string toString(const market_data::Snapshot::OrderBookLevels& levels)
     {
         std::ostringstream stream;
         stream << "{";
@@ -312,7 +312,7 @@ namespace trading::testing
         return stream.str();
     }
 
-    std::ostream& operator<<(std::ostream& stream, const market_data::OrderBookLevels& levels)
+    std::ostream& operator<<(std::ostream& stream, const market_data::Snapshot::OrderBookLevels& levels)
     {
         return stream << toString(levels);
     }
