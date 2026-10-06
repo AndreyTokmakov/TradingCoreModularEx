@@ -38,9 +38,11 @@ Description : market_data_message_handler.cpp
 namespace trading::market_data
 {
     MarketDataMessageHandler::MarketDataMessageHandler(IMarketDataParser& parser,
-                                                       concurrency::Queue<BookUpdate>& bookUpdateQueue) noexcept:
+                                                       concurrency::Queue<BookUpdate>& bookUpdateQueue,
+                                                       concurrency::Queue<Trade>& tradeQueue) noexcept:
         parser { parser },
         bookUpdateQueue { bookUpdateQueue },
+        tradeQueue { tradeQueue },
         logger { logging::LoggerFactory::getLogger() }
     {
     }
@@ -48,6 +50,7 @@ namespace trading::market_data
     void MarketDataMessageHandler::onMessage(const std::string_view message)
     {
         bookUpdates.clear();
+        // trades.clear();
 
         if (parser.parse(message, bookUpdates) != ParseResult::Success) {
             logger->error("Failed to parse book updates from message");
@@ -58,5 +61,10 @@ namespace trading::market_data
         metrics.increment<metrics::MetricType::MarketDataUpdates>();
         if (!bookUpdates.empty())
             bookUpdateQueue.push(std::move(bookUpdates));
+
+        /*
+        for (const Trade& trade : trades)
+            tradeQueue.push(trade);
+        */
     }
 }

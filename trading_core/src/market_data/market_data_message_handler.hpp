@@ -88,14 +88,18 @@ namespace trading::market_data
     {
     public:
         MarketDataMessageHandler(IMarketDataParser& parser,
-                                 concurrency::Queue<BookUpdate>& bookUpdateQueue) noexcept;
+                                 concurrency::Queue<BookUpdate>& bookUpdateQueue,
+                                 concurrency::Queue<Trade>& tradeQueue) noexcept;
 
         void onMessage(std::string_view message) override;
 
     private:
         BookUpdate bookUpdates;
+        Trades trades;
+
         IMarketDataParser& parser;
         concurrency::Queue<BookUpdate>& bookUpdateQueue;
+        concurrency::Queue<Trade>& tradeQueue;
 
         std::shared_ptr<logging::ILogger> logger;
         static inline thread_local metrics::Metrics& metrics  = metrics::MetricsCollector::getCollector().getThreadLocalMetrics();

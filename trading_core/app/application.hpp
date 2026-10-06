@@ -36,6 +36,7 @@ Description : application.hpp
 #include "market_data/market_data_module.hpp"
 #include "recording/recording_module.hpp"
 #include "strategy/strategy_module.hpp"
+#include "trade/trade_module.hpp"
 
 
 namespace trading::app
@@ -60,6 +61,7 @@ namespace trading::app
         config::Config config;
 
         concurrency::ConditionVariableQueue<market_data::BookUpdate> bookUpdateQueue;
+        concurrency::ConditionVariableQueue<market_data::Trade> tradeQueue;
         concurrency::ConditionVariableQueue<market_data::MarketEvent> strategyEventQueue;
         concurrency::ConditionVariableQueue<recording::RecordingEvent> recordingEventQueue;
         concurrency::ConditionVariableQueue<execution::ExecutionWorkItem> executionQueue;
@@ -72,6 +74,7 @@ namespace trading::app
         execution::ExecutionModule executionModule;
         recording::RecordingModule recordingModule;
         execution::ExecutionReportModule  executionReportModule;
+        trade::TradeModule tradeModule;
 
         bool running { false };
     };

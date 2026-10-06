@@ -54,12 +54,12 @@ set(PNL         ${SOURCES}/pnl)
 set(RECORDING   ${SOURCES}/recording)
 set(RISK        ${SOURCES}/risk)
 set(STRATEGY    ${SOURCES}/strategy)
+set(TRADE       ${SOURCES}/trade)
 
 set(BINANCE     ${EXCHANGES}/binance)
 
 include_directories(${SOURCES})
 include_directories(${TESTS})
-
 
 # include all components
 add_executable(${PROJECT_NAME}
@@ -141,7 +141,6 @@ add_executable(${PROJECT_NAME}
         ${EXCHANGES}/exchange_factory_registry.hpp
         ${EXCHANGES}/exchange_factory_registry.cpp
 
-
         ${BINANCE}/binance_market_data_source.hpp
         ${BINANCE}/binance_market_data_source.cpp
         ${BINANCE}/binance_market_data_parser.cpp
@@ -154,7 +153,6 @@ add_executable(${PROJECT_NAME}
         ${BINANCE}/binance_snapshot_provider.cpp
         ${BINANCE}/binance_exchange_factory.hpp
         ${BINANCE}/binance_exchange_factory.cpp
-
 
         ${POSITION}/position.hpp
         ${POSITION}/position.cpp
@@ -186,12 +184,18 @@ add_executable(${PROJECT_NAME}
         ${STRATEGY}/strategy_module.hpp
         ${STRATEGY}/strategy_module.cpp
 
+        ${TRADE}/trade_processor.hpp
+        ${TRADE}/trade_processor.cpp
+        ${TRADE}/trade_module.hpp
+        ${TRADE}/trade_module.cpp
+
         ${TESTS}/core/price_test.cpp
         ${TESTS}/risk/risk_manager_test.cpp
         ${TESTS}/pnl/pnl_calculator_test.cpp
         ${TESTS}/position/position_test.cpp
         ${TESTS}/position/position_manager_test.cpp
         ${TESTS}/recording/trade_recorder_test.cpp
+        ${TESTS}/trade/trade_processor_test.cpp
 
         ${TESTS}/config/json_config_loader_test.cpp
         ${TESTS}/strategy/imbalance_strategy_test.cpp
@@ -206,6 +210,7 @@ add_executable(${PROJECT_NAME}
         ${TESTS}/modules/market_data_module_test.cpp
         ${TESTS}/modules/strategy_module_test.cpp
         ${TESTS}/modules/execution_module_test.cpp
+        ${TESTS}/modules/trade_module_test.cpp
         ${TESTS}/modules/marketdata_bookbuilder_strategy_integrataion.cpp
 
         ${TESTS}/integration_tests/exchange_to_gateway_integration_test.cpp

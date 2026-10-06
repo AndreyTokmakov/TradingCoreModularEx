@@ -13,6 +13,7 @@ namespace trading::market_data
 {
     MarketDataModule::MarketDataModule(const config::Config& config,
                                        concurrency::Queue<BookUpdate>& bookUpdateQueue,
+                                       concurrency::Queue<Trade>& tradeQueue,
                                        const exchanges::IExchangeFactory& exchangeFactory) noexcept:
         marketDataParser {
             exchangeFactory.createMarketDataParser(config)
@@ -20,17 +21,17 @@ namespace trading::market_data
         marketDataSource {
             exchangeFactory.createMarketDataSource(config)
         },
-        messageHandler { *marketDataParser, bookUpdateQueue }
+        messageHandler { *marketDataParser, bookUpdateQueue, tradeQueue }
     {
         marketDataSource->setMessageHandler(messageHandler);
     }
 
-    void MarketDataModule::start()
+    void MarketDataModule::start() const
     {
         marketDataSource->start();
     }
 
-    void MarketDataModule::stop()
+    void MarketDataModule::stop() const
     {
         marketDataSource->stop();
     }

@@ -67,9 +67,11 @@ Description : market_data_parser.hpp
 
 #include "market_data/model/book_update.hpp"
 #include "market_data/model/parse_result.hpp"
+#include "market_data/model/trade.hpp"
 
 namespace trading::market_data
 {
+    using Trades = std::vector<Trade>;
 
     struct IMarketDataParser
     {

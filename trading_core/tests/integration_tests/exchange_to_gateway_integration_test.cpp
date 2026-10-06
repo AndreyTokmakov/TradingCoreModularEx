@@ -145,6 +145,7 @@ namespace
         const config::Config config = createConfig();
 
         ConditionVariableQueue<BookUpdate> bookUpdateQueue;
+        ConditionVariableQueue<Trade> tradeQueue;
         ConditionVariableQueue<MarketEvent> marketEventQueue;
         ConditionVariableQueue<ExecutionWorkItem> executionQueue;
         ConditionVariableQueue<recording::RecordingEvent> recordingQueue;
@@ -165,7 +166,7 @@ namespace
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(snapshot)
         }};
 
-        MarketDataModule marketDataModule { config, bookUpdateQueue, exchangeFactory };
+        MarketDataModule marketDataModule { config, bookUpdateQueue, tradeQueue, exchangeFactory };
         BookBuilderModule bookBuilderModule { config,bookUpdateQueue, marketEventQueue, recordingQueue,exchangeFactory };
         StrategyModule strategyModule { config.strategy,marketEventQueue, executionQueue};
         ExecutionModule executionModule { createConfig(), executionQueue, recordingQueue, exchangeFactory };
