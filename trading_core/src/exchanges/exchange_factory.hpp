@@ -32,8 +32,7 @@ namespace trading::exchanges
 
         [[nodiscard]]
         virtual std::unique_ptr<execution::IExecutionReportSource>
-        createExecutionReportSource(const config::Config& config,
-                                    concurrency::Queue<execution::ExecutionWorkItem>& executionQueue) const noexcept = 0;
+        createExecutionReportSource(const config::Config& config) const noexcept = 0;
 
         [[nodiscard]]
         virtual std::unique_ptr<market_data::IMarketDataParser>

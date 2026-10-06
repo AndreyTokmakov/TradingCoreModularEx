@@ -11,11 +11,13 @@ Description : Binance execution report source implementation.
 
 namespace trading::exchanges::binance
 {
-    BinanceExecutionReportSource::BinanceExecutionReportSource(std::string endpoint,
-                                                               concurrency::Queue<execution::ExecutionWorkItem>& executionQueue) noexcept :
-        endpoint { std::move(endpoint) },
-        executionQueue { executionQueue }
+    BinanceExecutionReportSource::BinanceExecutionReportSource(std::string endpoint) noexcept :
+        endpoint { std::move(endpoint) }
     {
+    }
+
+    void BinanceExecutionReportSource::setReportHandler(execution::IExecutionReportHandler& handler) {
+        reportHandler = &handler;
     }
 
     void BinanceExecutionReportSource::start()
@@ -23,23 +25,22 @@ namespace trading::exchanges::binance
         if (running)
             return;
         running = true;
+
         /*
-            Establish Binance execution WebSocket connection here.
-            Incoming Binance messages must be parsed and converted into trading::execution::ExecutionReport.
-            After successful normalization:
-                reportHandler->onExecutionReport(report);
+          Establish Binance execution WebSocket connection here.
+          Incoming Binance messages must be parsed and converted into trading::execution::ExecutionReport.
+          After successful normalization:
+              reportHandler->onExecutionReport(report);
         */
+
+        std::string_view execReportData = "report";
+        while (false /** running **/) {
+            reportHandler->onExecutionReport(execReportData);
+        }
     }
 
     void BinanceExecutionReportSource::stop()
     {
         running = false;
-    }
-
-    void BinanceExecutionReportSource::emit(const execution::ExecutionReport& report) const
-    {
-        if (!running)
-            return;
-        executionQueue.push(report);
     }
 }

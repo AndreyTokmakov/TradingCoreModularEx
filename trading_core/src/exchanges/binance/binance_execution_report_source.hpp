@@ -10,11 +10,7 @@ Description : Binance execution report source.
 /*
     BinanceExecutionReportSource represents the inbound execution event
     boundary for Binance.
-
     The current implementation is intentionally transport-independent.
-
-    It provides an emit() method that can be used by a future Binance
-    transport implementation to deliver normalized ExecutionReport objects.
 
     Current flow:
 
@@ -35,19 +31,14 @@ Description : Binance execution report source.
 #define FINANCETECHNOLOGYPROJECTS_BINANCE_EXECUTION_REPORT_SOURCE_HPP
 
 #include <string>
-
 #include "execution/interfaces/execution_report_source.hpp"
-#include "execution/model/execution_work_item.hpp"
-#include "common/queue.hpp"
-
 
 namespace trading::exchanges::binance
 {
     class BinanceExecutionReportSource final: public execution::IExecutionReportSource
     {
     public:
-        BinanceExecutionReportSource(std::string endpoint,
-                                     concurrency::Queue<execution::ExecutionWorkItem>& executionQueue) noexcept;
+        explicit BinanceExecutionReportSource(std::string endpoint) noexcept;
 
         BinanceExecutionReportSource(const BinanceExecutionReportSource&) = delete;
         BinanceExecutionReportSource& operator=(const BinanceExecutionReportSource&) = delete;
@@ -58,11 +49,11 @@ namespace trading::exchanges::binance
         void start() override;
         void stop() override;
 
-        void emit(const execution::ExecutionReport& report) const;
+        void setReportHandler(execution::IExecutionReportHandler& handler) override;
 
     private:
         std::string endpoint;
-        concurrency::Queue<execution::ExecutionWorkItem>& executionQueue;
+        execution::IExecutionReportHandler* reportHandler { nullptr };
         bool running { false };
     };
 }

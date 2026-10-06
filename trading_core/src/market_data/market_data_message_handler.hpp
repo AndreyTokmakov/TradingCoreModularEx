@@ -72,18 +72,13 @@ Description : market_data_message_handler.hpp
 #include <string_view>
 
 #include "interfaces/market_data_parser.hpp"
+#include "interfaces/market_data_handler.hpp"
 #include "common/queue.hpp"
 #include "metrics/metrics_collector.hpp"
 #include "logging/logger.hpp"
 
 namespace trading::market_data
 {
-    struct IMarketDataMessageHandler
-    {
-        virtual ~IMarketDataMessageHandler() = default;
-        virtual void onMessage(std::string_view message) = 0;
-    };
-
     class MarketDataMessageHandler final : public IMarketDataMessageHandler
     {
     public:

@@ -100,6 +100,7 @@ add_executable(${PROJECT_NAME}
         ${METRICS}/metrics_collector.cpp
         # ${METRICS}/hugh_resolution_timer.hpp
 
+        ${MARKET_DATA}/interfaces/market_data_handler.hpp
         ${MARKET_DATA}/interfaces/market_data_parser.hpp
         ${MARKET_DATA}/interfaces/market_data_source.hpp
         ${MARKET_DATA}/interfaces/snapshot_provider.hpp
@@ -129,12 +130,15 @@ add_executable(${PROJECT_NAME}
         ${EXECUTION}/model/execution_report.hpp
         ${EXECUTION}/interfaces/execution_gateway.hpp
         ${EXECUTION}/interfaces/execution_report_source.hpp
+        ${EXECUTION}/interfaces/execution_report_handler.hpp
         ${EXECUTION}/order_manager.hpp
         ${EXECUTION}/order_manager.cpp
         ${EXECUTION}/execution_module.cpp
         ${EXECUTION}/execution_module.hpp
         ${EXECUTION}/execution_report_module.hpp
         ${EXECUTION}/execution_report_module.cpp
+        ${EXECUTION}/execution_report_data_handler.hpp
+        ${EXECUTION}/execution_report_data_handler.cpp
 
         ${EXCHANGES}/exchange_type.hpp
         ${EXCHANGES}/exchange_factory.hpp
