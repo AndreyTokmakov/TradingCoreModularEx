@@ -50,7 +50,6 @@ Description : binance_market_data_parser.hpp
 
 #include "market_data/interfaces/market_data_parser.hpp"
 #include "market_data/model/parse_result.hpp"
-#include "market_data/model/book_update.hpp"
 
 namespace trading::exchanges::binance
 {
@@ -59,7 +58,7 @@ namespace trading::exchanges::binance
     public:
         [[nodiscard]]
         market_data::ParseResult parse(std::string_view message,
-                                       market_data::BookUpdate& bookUpdate) const override;
+                                       market_data::MarketDataItem& marketDataItem) const override;
     };
 }
 

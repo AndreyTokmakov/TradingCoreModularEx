@@ -65,21 +65,18 @@ Description : market_data_parser.hpp
 
 #include <string_view>
 
-#include "market_data/model/book_update.hpp"
+#include "market_data/model/market_data_item.hpp"
 #include "market_data/model/parse_result.hpp"
-#include "market_data/model/trade.hpp"
 
 namespace trading::market_data
 {
-    using Trades = std::vector<Trade>;
-
     struct IMarketDataParser
     {
         virtual ~IMarketDataParser() = default;
 
         [[nodiscard]]
         virtual ParseResult parse(std::string_view message,
-                                  BookUpdate& bookUpdates) const = 0;
+                                  MarketDataItem& marketDataItem) const = 0;
     };
 }
 

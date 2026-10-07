@@ -22,12 +22,13 @@ namespace trading::execution
     void ExecutionReportDataHandler::onExecutionReport(std::string_view)
     {
         // TODO:
-        //   1. Parse here??
-        //   2. emit(ExecutionReport{});
+        //  - parse message
+        //  - create ExecutionReport
+        //  - publish ExecutionReport
     }
 
     // TODO: Check if we need it
-    void ExecutionReportDataHandler::emit(const ExecutionReport& report) const
+    void ExecutionReportDataHandler::publish(const ExecutionReport& report) const
     {
         executionQueue.push(report);
     }

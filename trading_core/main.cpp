@@ -133,39 +133,16 @@ bool PositionManager::applyExecution(const execution::ExecutionReport& report)
     order_queue_depth = 37
     active_orders = 12
 
-Расширить тип метрик:
+------------ Расширить тип метрик:
 
     metrics.increment<MetricType::MarketDataReceived>();
     metrics.set<GaugeType::QueueDepth>(queue.size());
     metrics.observe<MetricType::StrategyLatency>(latency);
-**/
 
-/**        ----------- ORDER BOOK ----------------
+----------- ORDER BOOK ----------------
+
     using Levels    = std::map<Price, Quantity>;
     using Levels    = std::vector<std::pair<Price, Quantity>>;
-**/
-
-
-
-
-
-
-
-/**  Поправить фабрику
-    Кажется она ничего про concurrency::Queue знать не должна
-    и поправить остальные модулт
-
-    [[nodiscard]]
-        virtual std::unique_ptr<execution::IExecutionReportSource>
-        createExecutionReportSource(const config::Config& config,
-                                    concurrency::Queue<execution::ExecutionWorkItem>& executionQueue) const noexcept = 0;
-**/
-
-
-/**
- * Добавить парсинг Trade-s
- *  - Market Data Parser ---> std::variant<BookUpdates, Trade> ???
- *
 **/
 
 namespace
@@ -229,7 +206,7 @@ namespace
         const auto nullLogger = std::make_shared<trading::testing::TestLogger>(true);
         LoggerFactory::createLogger(nullLogger);
 
-        trade_module_test();
+        market_data_module_test();
     }
 }
 
@@ -237,8 +214,10 @@ int main([[maybe_unused]] const int argc,
          [[maybe_unused]] char** argv)
 {
     const std::vector<std::string_view> parameters(argv + 1, argv + argc);
+
     // runApp(parameters);
     runTests(parameters);
     // runSingleTest(parameters);
+
     return EXIT_SUCCESS;
 }

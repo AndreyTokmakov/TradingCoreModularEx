@@ -49,22 +49,23 @@ namespace trading::market_data
 
     void MarketDataMessageHandler::onMessage(const std::string_view message)
     {
-        bookUpdates.clear();
-        // trades.clear();
-
-        if (parser.parse(message, bookUpdates) != ParseResult::Success) {
-            logger->error("Failed to parse book updates from message");
+        marketDataItem.emplace<std::monostate>();
+        if (parser.parse(message, marketDataItem) != ParseResult::Success) {
+            logger->error("Failed to parse market data message");
             metrics.increment<metrics::MetricType::MarketDataParseErrors>();
             return;
         }
 
         metrics.increment<metrics::MetricType::MarketDataUpdates>();
-        if (!bookUpdates.empty())
-            bookUpdateQueue.push(std::move(bookUpdates));
-
-        /*
-        for (const Trade& trade : trades)
-            tradeQueue.push(trade);
-        */
+        if (BookUpdate* bookUpdate = std::get_if<BookUpdate>(&marketDataItem))
+        {
+            if (!bookUpdate->empty())
+                bookUpdateQueue.push(std::move(*bookUpdate));
+        }
+        else if (const Trades* trades = std::get_if<Trades>(&marketDataItem))
+        {
+            for (const Trade& trade : *trades)
+                tradeQueue.push(trade);
+        }
     }
 }

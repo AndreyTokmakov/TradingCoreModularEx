@@ -89,8 +89,7 @@ namespace trading::market_data
         void onMessage(std::string_view message) override;
 
     private:
-        BookUpdate bookUpdates;
-        Trades trades;
+        MarketDataItem marketDataItem;
 
         IMarketDataParser& parser;
         concurrency::Queue<BookUpdate>& bookUpdateQueue;

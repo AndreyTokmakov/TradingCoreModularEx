@@ -12,8 +12,6 @@ Description : test_market_data_parser.hpp
 
 #include "market_data/interfaces/market_data_parser.hpp"
 
-#include <vector>
-
 namespace trading::testing
 {
     class TestMarketDataParser final : public market_data::IMarketDataParser
@@ -21,8 +19,10 @@ namespace trading::testing
     public:
         [[nodiscard]]
         market_data::ParseResult parse(std::string_view message,
-                                       market_data::BookUpdate& bookUpdate) const override;
+                                       market_data::MarketDataItem& marketDataItem) const override;
     private:
+        mutable market_data::BookUpdate bookUpdatesCached;
+
         static market_data::ParseResult parseBookUpdate(std::string_view data,
                                                         market_data::BookUpdate& bookUpdate);
     };

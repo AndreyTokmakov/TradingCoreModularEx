@@ -86,6 +86,7 @@ add_executable(${PROJECT_NAME}
 
         ${MARKET_DATA}/model/book_level.hpp
         ${MARKET_DATA}/model/book_update.hpp
+        ${MARKET_DATA}/model/market_data_item.hpp
         ${MARKET_DATA}/model/book_level_update.hpp
         ${MARKET_DATA}/model/market_event.hpp
         ${MARKET_DATA}/model/parse_result.hpp

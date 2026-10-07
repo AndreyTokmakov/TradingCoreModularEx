@@ -27,8 +27,7 @@ namespace trading::execution
 
     private:
 
-        // TODO: Remove ? Rename
-        void emit(const ExecutionReport& report) const;
+        void publish(const ExecutionReport& report) const;
 
     private:
         concurrency::Queue<ExecutionWorkItem>& executionQueue;
