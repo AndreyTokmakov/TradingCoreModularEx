@@ -28,6 +28,7 @@ void book_builder_module_test();
 void marketdata_bookbuilder_strategy_integrataion();
 void strategy_module_test();
 void execution_module_test();
+void trade_module_test();
 void exchange_to_gateway_integration_test();
 
 void market_event_handler_test();
@@ -39,6 +40,7 @@ void position_manager_test();
 void imbalance_strategy_test();
 void strategy_executor_test();
 void json_config_loader_test();
+void trade_processor_test();
 
 void trading_integration_test();
 void trading_inbound_integration_test();
@@ -52,11 +54,7 @@ void trading_inbound_integration_test();
 //  - Grafana / Prometheus ?
 
 // TODO:
-//  - vector of MarketDataModule, BookBuilderModule, ExecutionReportModule ... per Exchange ??
-
-// TODO:
 //  ---- > where to use PnLCalculator ??
-
 
 /**  Сейчас есть в PositionManager есть applyExecution и applyTrade
  *   разобраться какое нужен и какой оставить
@@ -93,13 +91,6 @@ bool PositionManager::applyExecution(const execution::ExecutionReport& report)
 **/
 
 /**
-Replace         namespace trading::market_data
-                {
-                    using OrderBookLevels = std::map<Price, Quantity>;    --->  with Array Of Prices [min - max] / Tick
-                }
-**/
-
-/**
 | Module              | Metric                          | Когда increment                    |
 | ------------------- | ------------------------------- | ---------------------------------- |
 | `MarketDataSource`  | `MarketDataReceived`            | raw message успешно получен        |
@@ -130,10 +121,8 @@ Replace         namespace trading::market_data
 | `Gateway`           | `GatewayErrors`                 | gateway error                      |
 | `Gateway`           | `GatewayMessagesSent`           | message sent                       |
 | `Gateway`           | `GatewayMessagesReceived`       | message received                   |
-**/
 
-
-/** Добавить метрики
+------------  Добавить метрики -----------------------
 
     QueueDepth
     ActiveOrders
@@ -144,21 +133,17 @@ Replace         namespace trading::market_data
     order_queue_depth = 37
     active_orders = 12
 
-Расширить тип метрик:
+------------ Расширить тип метрик:
 
     metrics.increment<MetricType::MarketDataReceived>();
     metrics.set<GaugeType::QueueDepth>(queue.size());
     metrics.observe<MetricType::StrategyLatency>(latency);
 
+----------- ORDER BOOK ----------------
+
+    using Levels    = std::map<Price, Quantity>;
+    using Levels    = std::vector<std::pair<Price, Quantity>>;
 **/
-
-
-/**        ----------- ORDER BOOK ----------------
-
-using Levels    = std::map<Price, Quantity>;
-using Levels    = std::vector<std::pair<Price, Quantity>>;
-**/
-
 
 namespace
 {
@@ -206,10 +191,13 @@ namespace
         order_manager_test();
         book_builder_test();
         imbalance_strategy_test();
+        trade_processor_test();
+
         market_data_module_test();
         book_builder_module_test();
         strategy_module_test();
         execution_module_test();
+        trade_module_test();
     }
 
     [[maybe_unused]]
@@ -218,8 +206,7 @@ namespace
         const auto nullLogger = std::make_shared<trading::testing::TestLogger>(true);
         LoggerFactory::createLogger(nullLogger);
 
-        book_builder_test();
-        // book_builder_module_test();
+        market_data_module_test();
     }
 }
 

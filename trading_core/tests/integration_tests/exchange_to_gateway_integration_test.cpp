@@ -41,69 +41,10 @@ namespace
     using namespace trading::strategy;
     using namespace trading::testing;
 
-    /*
-    struct TestExchangeFactoryWithSnapshot final : public exchanges::IExchangeFactory
-    {
-    public:
-        TestExchangeFactoryWithSnapshot(std::unique_ptr<TestMarketDataSource> dataSource,
-                                        std::unique_ptr<TestExecutionGateway> gateway,
-                                        Snapshot snapshot) noexcept :
-            executionGateway { std::move(gateway) },
-            marketDataSource { std::move(dataSource) },
-            executionGatewayPtr { executionGateway.get() },
-            marketDataSourcePtr { marketDataSource.get() },
-            snapshot { std::move(snapshot) }
-        {
-        }
-
-        [[nodiscard]]
-        std::unique_ptr<IExecutionGateway>
-        createExecutionGateway(const config::Config&) const noexcept override{
-            return std::move(executionGateway);
-        }
-
-        [[nodiscard]]
-        std::unique_ptr<IExecutionReportSource>
-        createExecutionReportSource(const config::Config&,
-                                    Queue<ExecutionWorkItem>&) const noexcept override
-        {
-            return nullptr;
-        }
-
-        [[nodiscard]]
-        std::unique_ptr<IMarketDataParser>
-        createMarketDataParser(const config::Config&) const noexcept override
-        {
-            return std::make_unique<TestMarketDataParser>();
-        }
-
-        [[nodiscard]]
-        std::unique_ptr<IMarketDataSource>
-        createMarketDataSource(const config::Config&) const noexcept override
-        {
-            return std::move(marketDataSource);
-        }
-
-        [[nodiscard]]
-        std::unique_ptr<ISnapshotProvider>
-        createSnapshotProvider(const config::Config&) const noexcept override
-        {
-            return std::make_unique<TestSnapshotProvider>(snapshot);
-        }
-
-        mutable std::unique_ptr<TestExecutionGateway> executionGateway;
-        mutable std::unique_ptr<TestMarketDataSource> marketDataSource;
-        TestExecutionGateway* executionGatewayPtr { nullptr };
-        TestMarketDataSource* marketDataSourcePtr { nullptr };
-
-        Snapshot snapshot;
-    };*/
-
     constexpr Price BidPrice { 6'500'000'000'000 };
     constexpr Price AskPrice { 6'500'001'000'000 };
     constexpr Quantity BidQuantity { 120'000'000 };
     constexpr Quantity AskQuantity { 90'000'000 };
-
 
     [[nodiscard]]
     config::Config createConfig()
@@ -145,6 +86,7 @@ namespace
         const config::Config config = createConfig();
 
         ConditionVariableQueue<BookUpdate> bookUpdateQueue;
+        ConditionVariableQueue<Trade> tradeQueue;
         ConditionVariableQueue<MarketEvent> marketEventQueue;
         ConditionVariableQueue<ExecutionWorkItem> executionQueue;
         ConditionVariableQueue<recording::RecordingEvent> recordingQueue;
@@ -165,7 +107,7 @@ namespace
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(snapshot)
         }};
 
-        MarketDataModule marketDataModule { config, bookUpdateQueue, exchangeFactory };
+        MarketDataModule marketDataModule { config, bookUpdateQueue, tradeQueue, exchangeFactory };
         BookBuilderModule bookBuilderModule { config,bookUpdateQueue, marketEventQueue, recordingQueue,exchangeFactory };
         StrategyModule strategyModule { config.strategy,marketEventQueue, executionQueue};
         ExecutionModule executionModule { createConfig(), executionQueue, recordingQueue, exchangeFactory };

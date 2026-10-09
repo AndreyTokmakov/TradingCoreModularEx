@@ -54,12 +54,12 @@ set(PNL         ${SOURCES}/pnl)
 set(RECORDING   ${SOURCES}/recording)
 set(RISK        ${SOURCES}/risk)
 set(STRATEGY    ${SOURCES}/strategy)
+set(TRADE       ${SOURCES}/trade)
 
 set(BINANCE     ${EXCHANGES}/binance)
 
 include_directories(${SOURCES})
 include_directories(${TESTS})
-
 
 # include all components
 add_executable(${PROJECT_NAME}
@@ -86,11 +86,13 @@ add_executable(${PROJECT_NAME}
 
         ${MARKET_DATA}/model/book_level.hpp
         ${MARKET_DATA}/model/book_update.hpp
+        ${MARKET_DATA}/model/market_data_item.hpp
         ${MARKET_DATA}/model/book_level_update.hpp
         ${MARKET_DATA}/model/market_event.hpp
         ${MARKET_DATA}/model/parse_result.hpp
         ${MARKET_DATA}/model/snapshot.hpp
         ${MARKET_DATA}/model/sequence_range.hpp
+        ${MARKET_DATA}/model/trade.hpp
 
         ${METRICS}/counter.hpp
         ${METRICS}/metrics.hpp
@@ -99,6 +101,7 @@ add_executable(${PROJECT_NAME}
         ${METRICS}/metrics_collector.cpp
         # ${METRICS}/hugh_resolution_timer.hpp
 
+        ${MARKET_DATA}/interfaces/market_data_handler.hpp
         ${MARKET_DATA}/interfaces/market_data_parser.hpp
         ${MARKET_DATA}/interfaces/market_data_source.hpp
         ${MARKET_DATA}/interfaces/snapshot_provider.hpp
@@ -128,18 +131,20 @@ add_executable(${PROJECT_NAME}
         ${EXECUTION}/model/execution_report.hpp
         ${EXECUTION}/interfaces/execution_gateway.hpp
         ${EXECUTION}/interfaces/execution_report_source.hpp
+        ${EXECUTION}/interfaces/execution_report_handler.hpp
         ${EXECUTION}/order_manager.hpp
         ${EXECUTION}/order_manager.cpp
         ${EXECUTION}/execution_module.cpp
         ${EXECUTION}/execution_module.hpp
         ${EXECUTION}/execution_report_module.hpp
         ${EXECUTION}/execution_report_module.cpp
+        ${EXECUTION}/execution_report_data_handler.hpp
+        ${EXECUTION}/execution_report_data_handler.cpp
 
         ${EXCHANGES}/exchange_type.hpp
         ${EXCHANGES}/exchange_factory.hpp
         ${EXCHANGES}/exchange_factory_registry.hpp
         ${EXCHANGES}/exchange_factory_registry.cpp
-
 
         ${BINANCE}/binance_market_data_source.hpp
         ${BINANCE}/binance_market_data_source.cpp
@@ -153,7 +158,6 @@ add_executable(${PROJECT_NAME}
         ${BINANCE}/binance_snapshot_provider.cpp
         ${BINANCE}/binance_exchange_factory.hpp
         ${BINANCE}/binance_exchange_factory.cpp
-
 
         ${POSITION}/position.hpp
         ${POSITION}/position.cpp
@@ -185,12 +189,18 @@ add_executable(${PROJECT_NAME}
         ${STRATEGY}/strategy_module.hpp
         ${STRATEGY}/strategy_module.cpp
 
+        ${TRADE}/trade_processor.hpp
+        ${TRADE}/trade_processor.cpp
+        ${TRADE}/trade_module.hpp
+        ${TRADE}/trade_module.cpp
+
         ${TESTS}/core/price_test.cpp
         ${TESTS}/risk/risk_manager_test.cpp
         ${TESTS}/pnl/pnl_calculator_test.cpp
         ${TESTS}/position/position_test.cpp
         ${TESTS}/position/position_manager_test.cpp
         ${TESTS}/recording/trade_recorder_test.cpp
+        ${TESTS}/trade/trade_processor_test.cpp
 
         ${TESTS}/config/json_config_loader_test.cpp
         ${TESTS}/strategy/imbalance_strategy_test.cpp
@@ -205,6 +215,7 @@ add_executable(${PROJECT_NAME}
         ${TESTS}/modules/market_data_module_test.cpp
         ${TESTS}/modules/strategy_module_test.cpp
         ${TESTS}/modules/execution_module_test.cpp
+        ${TESTS}/modules/trade_module_test.cpp
         ${TESTS}/modules/marketdata_bookbuilder_strategy_integrataion.cpp
 
         ${TESTS}/integration_tests/exchange_to_gateway_integration_test.cpp

@@ -32,6 +32,7 @@ namespace
     using trading::concurrency::ConditionVariableQueue;
     using trading::config::Config;
     using trading::market_data::BookUpdate;
+    using trading::market_data::Trade;
     using trading::market_data::MarketDataModule;
     using trading::testing::TestMocks;
     using trading::testing::TestMarketDataParser;
@@ -49,6 +50,7 @@ namespace
     {
         const Config config = createConfig(InstrumentId { 1 });
         ConditionVariableQueue<BookUpdate> bookUpdateQueue;
+        ConditionVariableQueue<Trade> tradeQueue;
         std::unique_ptr<TestMarketDataSource> marketDataSource = std::make_unique<TestMarketDataSource>();
 
         marketDataSource->addTestMarketData({
@@ -60,7 +62,7 @@ namespace
             .marketDataSource = std::move(marketDataSource),
         }};
 
-        MarketDataModule module { config, bookUpdateQueue, exchangeFactory };
+        MarketDataModule module { config, bookUpdateQueue, tradeQueue, exchangeFactory };
 
         module.start();
 
@@ -86,6 +88,7 @@ namespace
     {
         const Config config = createConfig(InstrumentId { 1 });
         ConditionVariableQueue<BookUpdate> bookUpdateQueue;
+        ConditionVariableQueue<Trade> tradeQueue;
         std::unique_ptr<TestMarketDataSource> marketDataSource = std::make_unique<TestMarketDataSource>();
 
         marketDataSource->addTestMarketData({
@@ -99,7 +102,7 @@ namespace
             .marketDataSource = std::move(marketDataSource),
         }};
 
-        MarketDataModule module { config, bookUpdateQueue, exchangeFactory };
+        MarketDataModule module { config, bookUpdateQueue, tradeQueue, exchangeFactory };
 
         module.start();
 
@@ -141,6 +144,7 @@ namespace
     {
         const Config config = createConfig(InstrumentId { 1 });
         ConditionVariableQueue<BookUpdate> bookUpdateQueue;
+        ConditionVariableQueue<Trade> tradeQueue;
         std::unique_ptr<TestMarketDataSource> marketDataSource = std::make_unique<TestMarketDataSource>();
 
         marketDataSource->addTestMarketData({
@@ -154,7 +158,7 @@ namespace
             .marketDataSource = std::move(marketDataSource),
         }};
 
-        MarketDataModule module { config, bookUpdateQueue, exchangeFactory };
+        MarketDataModule module { config, bookUpdateQueue, tradeQueue, exchangeFactory };
 
         module.start();
 
@@ -182,6 +186,7 @@ namespace
     {
         const Config config = createConfig(InstrumentId { 1 });
         ConditionVariableQueue<BookUpdate> bookUpdateQueue;
+        ConditionVariableQueue<Trade> tradeQueue;
         std::unique_ptr<TestMarketDataSource> marketDataSource = std::make_unique<TestMarketDataSource>();
 
         marketDataSource->addTestMarketData({
@@ -195,7 +200,7 @@ namespace
             .marketDataSource = std::move(marketDataSource),
         }};
 
-        MarketDataModule module { config, bookUpdateQueue, exchangeFactory };
+        MarketDataModule module { config, bookUpdateQueue, tradeQueue, exchangeFactory };
 
         module.start();
 
@@ -233,6 +238,7 @@ namespace
     {
         const Config config = createConfig(InstrumentId { 1 });
         ConditionVariableQueue<BookUpdate> bookUpdateQueue;
+        ConditionVariableQueue<Trade> tradeQueue;
         std::unique_ptr<TestMarketDataSource> marketDataSource = std::make_unique<TestMarketDataSource>();
 
         marketDataSource->addTestMarketData({"invalid message"});
@@ -242,7 +248,7 @@ namespace
             .marketDataSource = std::move(marketDataSource),
         }};
 
-        MarketDataModule module { config, bookUpdateQueue, exchangeFactory };
+        MarketDataModule module { config, bookUpdateQueue, tradeQueue, exchangeFactory };
 
         module.start();
 
@@ -258,6 +264,7 @@ namespace
     {
         const Config config = createConfig(InstrumentId { 1 });
         ConditionVariableQueue<BookUpdate> bookUpdateQueue;
+        ConditionVariableQueue<Trade> tradeQueue;
         std::unique_ptr<TestMarketDataSource> marketDataSource = std::make_unique<TestMarketDataSource>();
 
         marketDataSource->addTestMarketData({
@@ -270,7 +277,7 @@ namespace
             .marketDataSource = std::move(marketDataSource),
         }};
 
-        MarketDataModule module { config, bookUpdateQueue, exchangeFactory };
+        MarketDataModule module { config, bookUpdateQueue, tradeQueue, exchangeFactory };
         module.start();
 
         BookUpdate update;
@@ -296,6 +303,7 @@ namespace
     {
         const Config config = createConfig(InstrumentId { 1 });
         ConditionVariableQueue<BookUpdate> bookUpdateQueue;
+        ConditionVariableQueue<Trade> tradeQueue;
         std::unique_ptr<TestMarketDataSource> marketDataSource = std::make_unique<TestMarketDataSource>();
 
         marketDataSource->addTestMarketData({
@@ -309,7 +317,7 @@ namespace
             .marketDataSource = std::move(marketDataSource),
         }};
 
-        MarketDataModule module { config, bookUpdateQueue, exchangeFactory };
+        MarketDataModule module { config, bookUpdateQueue, tradeQueue, exchangeFactory };
 
         module.start();
 

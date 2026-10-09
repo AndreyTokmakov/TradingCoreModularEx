@@ -15,13 +15,13 @@ namespace trading::execution
     ExecutionReportModule::ExecutionReportModule(const config::Config& config,
                               concurrency::Queue<ExecutionWorkItem>& executionQueue,
                               const exchanges::IExchangeFactory& exchangeFactory) noexcept:
-    executionQueue {
+    executionReportDataHandler {
         executionQueue
     },
     executionReportSource {
-        exchangeFactory.createExecutionReportSource(config, executionQueue)
+        exchangeFactory.createExecutionReportSource(config)
     } {
-        /** **/
+        executionReportSource->setReportHandler(executionReportDataHandler);
     }
 
     void ExecutionReportModule::run() const

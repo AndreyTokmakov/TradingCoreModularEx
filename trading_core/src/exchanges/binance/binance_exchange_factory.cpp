@@ -30,12 +30,10 @@ namespace trading::exchanges::binance
 
     [[nodiscard]]
     std::unique_ptr<execution::IExecutionReportSource>
-    BinanceExchangeFactory::createExecutionReportSource(const config::Config& config,
-                                                        concurrency::Queue<execution::ExecutionWorkItem>& executionQueue) const noexcept
+    BinanceExchangeFactory::createExecutionReportSource(const config::Config& config) const noexcept
     {
         return std::make_unique<BinanceExecutionReportSource>(
-            findExchange(config, ExchangeName).executionEndpoint,
-            executionQueue
+            findExchange(config, ExchangeName).executionEndpoint
         );
     }
 

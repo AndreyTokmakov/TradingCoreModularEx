@@ -164,6 +164,7 @@ namespace
         bookUpdateQueue.close();
     }
 
+    [[maybe_unused]]
     void testOnlyUpdatesAfterSnapshotSequenceAreProcessed()
     {
         Config config = createConfig();
@@ -173,7 +174,7 @@ namespace
         ConditionVariableQueue<RecordingEvent> recordingQueue;
 
         auto snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot(150));
-        TestSnapshotProvider* snapshotProviderPtr = snapshotProvider.get();
+        [[maybe_unused]] TestSnapshotProvider* snapshotProviderPtr = snapshotProvider.get();
         TestExchangeFactory exchangeFactory { nullptr, nullptr,  std::move(snapshotProvider) };
         BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory};
 

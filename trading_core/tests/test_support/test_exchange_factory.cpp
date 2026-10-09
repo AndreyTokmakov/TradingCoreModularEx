@@ -46,8 +46,7 @@ namespace trading::testing
 
     [[nodiscard]]
     std::unique_ptr<execution::IExecutionReportSource>
-    TestExchangeFactory::createExecutionReportSource(const config::Config&,
-                                                     concurrency::Queue<execution::ExecutionWorkItem>&) const noexcept
+    TestExchangeFactory::createExecutionReportSource(const config::Config&) const noexcept
     {
         return std::move(executionReportSource);
     }

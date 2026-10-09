@@ -8,13 +8,10 @@ Description : test_market_data_parser.сpp
 ============================================================================**/
 
 #include "test_market_data_parser.hpp"
+#include "debug_helpers.hpp"
 
-#include <utility>
-#include <iostream>
 #include <string_view>
 #include <vector>
-#include <cstdint>
-#include <optional>
 #include <charconv>
 
 namespace
@@ -37,13 +34,16 @@ namespace trading::testing
 
     ParseResult
     TestMarketDataParser::parse(const std::string_view message,
-                                BookUpdate& bookUpdate) const
+                                market_data::MarketDataItem& marketDataItem) const
     {
-        const ParseResult result = parseBookUpdate(message,bookUpdate);
-        if (ParseResult::Success != result) {
+        // NOTE: Currently just BookUpdate parsing supported --> need to support Trade's
+        const ParseResult result = parseBookUpdate(message, bookUpdatesCached);
+        if (result != ParseResult::Success) {
+            marketDataItem.emplace<std::monostate>();
             return result;
         }
 
+        marketDataItem.emplace<BookUpdate>(bookUpdatesCached);
         return {};
     }
 
@@ -53,6 +53,8 @@ namespace trading::testing
     {
         if (data.empty())
             return ParseResult::EmptyMessage;
+
+        bookUpdate.clear();
         std::vector<std::string_view> fields;
         for (size_t start = 0, end = 0; end <= data.size(); ++end) {
             if (end == data.size() || data[end] == ',') {
@@ -95,9 +97,10 @@ namespace trading::testing
             price = static_cast<decltype(price)>(value);
 
             if (!parseNumber(fields[idx++], value))
-                return ParseResult::InvalidPrice;
+                return ParseResult::InvalidQuantity;
             quantity = static_cast<decltype(quantity)>(value);
         }
+
         return ParseResult::Success;
     }
 

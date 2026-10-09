@@ -10,6 +10,7 @@ Description : execution_report_module.hpp
 #ifndef TRADINGCOREMODULAREX_EXECUTION_REPORT_MODULE_HPP
 #define TRADINGCOREMODULAREX_EXECUTION_REPORT_MODULE_HPP
 
+#include "execution_report_data_handler.hpp"
 #include "model/execution_work_item.hpp"
 #include "interfaces/execution_report_source.hpp"
 #include "common/queue.hpp"
@@ -28,11 +29,9 @@ namespace trading::execution
         void run() const;
 
     private:
-
-        concurrency::Queue<ExecutionWorkItem>& executionQueue;
+        ExecutionReportDataHandler executionReportDataHandler;
         std::unique_ptr<IExecutionReportSource> executionReportSource;
     };
 }
-
 
 #endif //TRADINGCOREMODULAREX_EXECUTION_REPORT_MODULE_HPP

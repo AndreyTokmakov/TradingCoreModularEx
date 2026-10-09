@@ -23,8 +23,7 @@ namespace trading::exchanges::binance
 
         [[nodiscard]]
         std::unique_ptr<execution::IExecutionReportSource>
-        createExecutionReportSource(const config::Config& config,
-                                    concurrency::Queue<execution::ExecutionWorkItem>& executionQueue) const noexcept override;
+        createExecutionReportSource(const config::Config& config) const noexcept override;
 
         [[nodiscard]]
         std::unique_ptr<market_data::IMarketDataParser>

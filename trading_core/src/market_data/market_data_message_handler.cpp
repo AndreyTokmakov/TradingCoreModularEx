@@ -38,25 +38,34 @@ Description : market_data_message_handler.cpp
 namespace trading::market_data
 {
     MarketDataMessageHandler::MarketDataMessageHandler(IMarketDataParser& parser,
-                                                       concurrency::Queue<BookUpdate>& bookUpdateQueue) noexcept:
+                                                       concurrency::Queue<BookUpdate>& bookUpdateQueue,
+                                                       concurrency::Queue<Trade>& tradeQueue) noexcept:
         parser { parser },
         bookUpdateQueue { bookUpdateQueue },
+        tradeQueue { tradeQueue },
         logger { logging::LoggerFactory::getLogger() }
     {
     }
 
     void MarketDataMessageHandler::onMessage(const std::string_view message)
     {
-        bookUpdates.clear();
-
-        if (parser.parse(message, bookUpdates) != ParseResult::Success) {
-            logger->error("Failed to parse book updates from message");
+        marketDataItem.emplace<std::monostate>();
+        if (parser.parse(message, marketDataItem) != ParseResult::Success) {
+            logger->error("Failed to parse market data message");
             metrics.increment<metrics::MetricType::MarketDataParseErrors>();
             return;
         }
 
         metrics.increment<metrics::MetricType::MarketDataUpdates>();
-        if (!bookUpdates.empty())
-            bookUpdateQueue.push(std::move(bookUpdates));
+        if (BookUpdate* bookUpdate = std::get_if<BookUpdate>(&marketDataItem))
+        {
+            if (!bookUpdate->empty())
+                bookUpdateQueue.push(std::move(*bookUpdate));
+        }
+        else if (const Trades* trades = std::get_if<Trades>(&marketDataItem))
+        {
+            for (const Trade& trade : *trades)
+                tradeQueue.push(trade);
+        }
     }
 }

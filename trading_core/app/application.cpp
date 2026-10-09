@@ -27,6 +27,7 @@ namespace trading::app
     Application::Application(const std::filesystem::path& configPath):
         config { config::loadConfig(configPath) },
         bookUpdateQueue {},
+        tradeQueue {},
         strategyEventQueue {},
         recordingEventQueue {},
         executionQueue {},
@@ -34,7 +35,7 @@ namespace trading::app
             ExchangeFactoryRegistry::createFactory(exchanges::ExchangeType::Binance)
         },
         marketDataModule {
-            config, bookUpdateQueue, *exchangeFactory
+            config, bookUpdateQueue, tradeQueue, *exchangeFactory
         },
         bookBuilderModule {
             config, bookUpdateQueue, strategyEventQueue, recordingEventQueue, *exchangeFactory
@@ -50,6 +51,9 @@ namespace trading::app
         },
         executionReportModule {
             config, executionQueue, *exchangeFactory
+        },
+        tradeModule {
+            config, tradeQueue
         }
     {
         // TODO
@@ -70,6 +74,7 @@ namespace trading::app
         bookBuilderModule.start();
         executionModule.start();
         executionReportModule.start();
+        tradeModule.start();
         recordingModule.start();
 
         marketDataModule.start();
@@ -84,6 +89,7 @@ namespace trading::app
 
         recordingModule.stop();
         bookBuilderModule.stop();
+        tradeModule.stop();
         executionReportModule.stop();
         executionModule.stop();
         strategyModule.stop();

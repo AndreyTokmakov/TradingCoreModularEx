@@ -40,8 +40,7 @@ namespace trading::testing
 
         [[nodiscard]]
         std::unique_ptr<execution::IExecutionReportSource>
-        createExecutionReportSource(const config::Config&,
-                                    concurrency::Queue<execution::ExecutionWorkItem>&) const noexcept override;
+        createExecutionReportSource(const config::Config&) const noexcept override;
 
         [[nodiscard]]
         std::unique_ptr<market_data::IMarketDataParser>
