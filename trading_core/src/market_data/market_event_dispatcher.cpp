@@ -8,7 +8,6 @@ Description : Dispatches MarketEvents to independent pipeline consumers.
 ============================================================================**/
 
 #include "market_event_dispatcher.hpp"
-#include "test_support/debug_helpers.hpp"
 
 namespace trading::market_data
 {
@@ -21,7 +20,6 @@ namespace trading::market_data
 
     void MarketEventDispatcher::onMarketEvent(const MarketEvent& event) const
     {
-        std::cout << "MarketEventDispatcher::onMarketEvent -> " << event << std::endl;
         strategyQueue.push(event);
         recordingEventQueue.push(event);
     }
