@@ -100,7 +100,7 @@ namespace trading::concurrency
             if (seq >= cachedWriteCursor)
             {
                 // Refresh our cached copy of the write cursor
-                cachedWriteCursor =writeCursor.load(std::memory_order_acquire);
+                cachedWriteCursor = writeCursor.load(std::memory_order_acquire);
                 if (seq >= cachedWriteCursor) {
                     return false;
                 }
