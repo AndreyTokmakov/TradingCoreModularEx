@@ -8,7 +8,7 @@ Description : Unit tests for TradeModule.
 ============================================================================**/
 
 #include "trade/trade_module.hpp"
-#include "common/condition_variable_queue.hpp"
+#include "common/common.hpp"
 #include "config/config.hpp"
 #include "market_data/model/trade.hpp"
 #include "test_support/testing.hpp"
@@ -24,7 +24,7 @@ namespace
     using trading::Side;
     using trading::Timestamp;
     using trading::config::Config;
-    using trading::concurrency::ConditionVariableQueue;
+    using trading::common::CVQueue;
     using trading::market_data::Trade;
     using trading::trade::TradeModule;
 
@@ -104,7 +104,7 @@ namespace
 
     void testEmptyClosedQueueStopsModule()
     {
-        ConditionVariableQueue<Trade> tradeQueue;
+        CVQueue<Trade> tradeQueue;
         TradeModule module { createConfig(), tradeQueue };
 
         tradeQueue.close();
@@ -120,7 +120,7 @@ namespace
 
     void testSingleBuyTradeIsProcessed()
     {
-        ConditionVariableQueue<Trade> tradeQueue;
+        CVQueue<Trade> tradeQueue;
         TradeModule module { createConfig(), tradeQueue };
 
         tradeQueue.push(createBuyTrade());
@@ -138,7 +138,7 @@ namespace
 
     void testSingleSellTradeIsProcessed()
     {
-        ConditionVariableQueue<Trade> tradeQueue;
+        CVQueue<Trade> tradeQueue;
         TradeModule module { createConfig(), tradeQueue };
 
         tradeQueue.push(createSellTrade());
@@ -156,7 +156,7 @@ namespace
 
     void testMultipleTradesAreProcessed()
     {
-        ConditionVariableQueue<Trade> tradeQueue;
+        CVQueue<Trade> tradeQueue;
         TradeModule module { createConfig(), tradeQueue };
 
         tradeQueue.push(createBuyTrade());
@@ -176,7 +176,7 @@ namespace
 
     void testTradesAreProcessedInQueueOrder()
     {
-        ConditionVariableQueue<Trade> tradeQueue;
+        CVQueue<Trade> tradeQueue;
         TradeModule module { createConfig(), tradeQueue };
 
         Trade firstTrade = createBuyTrade();
@@ -200,7 +200,7 @@ namespace
 
     void testWrongInstrumentTradeIsIgnored()
     {
-        ConditionVariableQueue<Trade> tradeQueue;
+        CVQueue<Trade> tradeQueue;
         TradeModule module { createConfig(), tradeQueue };
 
         tradeQueue.push(createWrongInstrumentTrade());
@@ -218,7 +218,7 @@ namespace
 
     void testWrongInstrumentTradeDoesNotAffectValidTrades()
     {
-        ConditionVariableQueue<Trade> tradeQueue;
+        CVQueue<Trade> tradeQueue;
         TradeModule module { createConfig(), tradeQueue };
 
         tradeQueue.push(createBuyTrade());
@@ -239,7 +239,7 @@ namespace
 
     void testOnlyQueueTradesAreProcessed()
     {
-        ConditionVariableQueue<Trade> tradeQueue;
+        CVQueue<Trade> tradeQueue;
         TradeModule module { createConfig(), tradeQueue };
 
         tradeQueue.push(createBuyTrade());
@@ -253,7 +253,7 @@ namespace
 
     void testQueueIsDrainedBeforeModuleStops()
     {
-        ConditionVariableQueue<Trade> tradeQueue;
+        CVQueue<Trade> tradeQueue;
         TradeModule module { createConfig(), tradeQueue };
 
         tradeQueue.push(createBuyTrade());
@@ -269,7 +269,7 @@ namespace
 
     void testModuleCanRunUsingWorkerThread()
     {
-        ConditionVariableQueue<Trade> tradeQueue;
+        CVQueue<Trade> tradeQueue;
         TradeModule module { createConfig(), tradeQueue };
 
         module.start();
@@ -290,7 +290,7 @@ namespace
 
     void testModuleThreadProcessesAllTradesBeforeStop()
     {
-        ConditionVariableQueue<Trade> tradeQueue;
+        CVQueue<Trade> tradeQueue;
         TradeModule module { createConfig(), tradeQueue };
 
         module.start();
@@ -319,7 +319,7 @@ namespace
 
     void testModuleDoesNotProcessTradesForOtherInstrument()
     {
-        ConditionVariableQueue<Trade> tradeQueue;
+        CVQueue<Trade> tradeQueue;
         TradeModule module { createConfig(), tradeQueue };
 
         tradeQueue.push(createWrongInstrumentTrade());
@@ -335,7 +335,7 @@ namespace
 
     void testMixedInstrumentTradesAreHandledCorrectly()
     {
-        ConditionVariableQueue<Trade> tradeQueue;
+        CVQueue<Trade> tradeQueue;
         TradeModule module { createConfig(), tradeQueue };
 
         tradeQueue.push(createWrongInstrumentTrade());
@@ -357,7 +357,7 @@ namespace
 
     void testModuleHandlesZeroQuantityTrade()
     {
-        ConditionVariableQueue<Trade> tradeQueue;
+        CVQueue<Trade> tradeQueue;
         TradeModule module { createConfig(), tradeQueue };
 
         Trade trade = createBuyTrade();

@@ -13,7 +13,7 @@ Description : execution_report_module.cpp
 namespace trading::execution
 {
     ExecutionReportModule::ExecutionReportModule(const config::Config& config,
-                              concurrency::Queue<ExecutionWorkItem>& executionQueue,
+                              common::Queue<ExecutionWorkItem>& executionQueue,
                               const exchanges::IExchangeFactory& exchangeFactory) noexcept:
     executionReportDataHandler {
         executionQueue

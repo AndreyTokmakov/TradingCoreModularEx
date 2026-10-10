@@ -10,8 +10,7 @@ Description : Records market events on the recording thread.
 #ifndef FINANCETECHNOLOGYPROJECTS_RECORDING_MODULE_HPP
 #define FINANCETECHNOLOGYPROJECTS_RECORDING_MODULE_HPP
 
-#include "common/queue.hpp"
-#include "common/worker.hpp"
+#include "common/common.hpp"
 #include "recorder.hpp"
 #include "config/config.hpp"
 #include "recording_event.hpp"
@@ -22,7 +21,7 @@ namespace trading::recording
     class RecordingModule final: public common::Worker<RecordingModule> {
     public:
         RecordingModule(const config::RecordingConfig& recorderConfig,
-                        concurrency::Queue<RecordingEvent>& recordingQueue) noexcept;
+                        common::Queue<RecordingEvent>& recordingQueue) noexcept;
 
         void run() const;
 
@@ -35,7 +34,7 @@ namespace trading::recording
     private:
 
         std::unique_ptr<IRecorder> recorder;
-        concurrency::Queue<RecordingEvent>& recordingQueue;
+        common::Queue<RecordingEvent>& recordingQueue;
     };
 }
 

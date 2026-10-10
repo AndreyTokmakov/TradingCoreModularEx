@@ -12,7 +12,7 @@ Description : execution_report_data_handler.hpp
 
 #include "execution/interfaces/execution_report_handler.hpp"
 #include "execution/model/execution_work_item.hpp"
-#include "common/queue.hpp"
+#include "common/common.hpp"
 #include "metrics/metrics_collector.hpp"
 #include "logging/logger.hpp"
 
@@ -21,7 +21,7 @@ namespace trading::execution
     class ExecutionReportDataHandler: public IExecutionReportHandler
     {
     public:
-        explicit ExecutionReportDataHandler(concurrency::Queue<ExecutionWorkItem>& executionQueue);
+        explicit ExecutionReportDataHandler(common::Queue<ExecutionWorkItem>& executionQueue);
 
         void onExecutionReport(std::string_view message) override;
 
@@ -30,7 +30,7 @@ namespace trading::execution
         void publish(const ExecutionReport& report) const;
 
     private:
-        concurrency::Queue<ExecutionWorkItem>& executionQueue;
+        common::Queue<ExecutionWorkItem>& executionQueue;
 
         std::shared_ptr<logging::ILogger> logger;
         static inline thread_local metrics::Metrics& metrics  = metrics::MetricsCollector::getCollector().getThreadLocalMetrics();

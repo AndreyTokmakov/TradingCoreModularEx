@@ -14,9 +14,9 @@ Description : Processes market-data book updates on the BookBuilder thread.
 namespace trading::order_book
 {
     BookBuilderModule::BookBuilderModule(const config::Config& config,
-                                         concurrency::ConditionVariableQueue<BookUpdate>& bookUpdateQueue,
-                                         concurrency::ConditionVariableQueue<MarketEvent>& strategyEventQueue,
-                                         concurrency::ConditionVariableQueue<recording::RecordingEvent>& recordingQueue,
+                                         common::CVQueue<BookUpdate>& bookUpdateQueue,
+                                         common::CVQueue<MarketEvent>& strategyEventQueue,
+                                         common::CVQueue<recording::RecordingEvent>& recordingQueue,
                                          const exchanges::IExchangeFactory& exchangeFactory) noexcept :
         bookUpdateQueue { bookUpdateQueue },
         orderBook { config.orderBook.depthValue },

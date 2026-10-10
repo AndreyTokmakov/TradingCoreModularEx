@@ -12,8 +12,8 @@ Description : Dispatches MarketEvents to independent pipeline consumers.
 
 namespace trading::market_data
 {
-    MarketEventDispatcher::MarketEventDispatcher(concurrency::Queue<MarketEvent>& strategyQueue,
-                                                 concurrency::Queue<recording::RecordingEvent>& recordingEventQueue) noexcept:
+    MarketEventDispatcher::MarketEventDispatcher(common::Queue<MarketEvent>& strategyQueue,
+                                                 common::Queue<recording::RecordingEvent>& recordingEventQueue) noexcept:
         strategyQueue { strategyQueue },
         recordingEventQueue { recordingEventQueue }
     {

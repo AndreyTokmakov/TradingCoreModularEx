@@ -12,8 +12,8 @@ Description : Market-data pipeline module implementation.
 namespace trading::market_data
 {
     MarketDataModule::MarketDataModule(const config::Config& config,
-                                       concurrency::Queue<BookUpdate>& bookUpdateQueue,
-                                       concurrency::Queue<Trade>& tradeQueue,
+                                       common::Queue<BookUpdate>& bookUpdateQueue,
+                                       common::Queue<Trade>& tradeQueue,
                                        const exchanges::IExchangeFactory& exchangeFactory) noexcept:
         marketDataParser {
             exchangeFactory.createMarketDataParser(config)

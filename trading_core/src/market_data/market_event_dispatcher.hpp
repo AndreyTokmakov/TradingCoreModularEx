@@ -11,7 +11,7 @@ Description : Dispatches MarketEvents to independent pipeline consumers.
 #define FINANCETECHNOLOGYPROJECTS_MARKET_EVENT_DISPATCHER_HPP
 
 #include "model/market_event.hpp"
-#include "common/queue.hpp"
+#include "common/common.hpp"
 #include "recording/recording_event.hpp"
 
 namespace trading::market_data
@@ -19,14 +19,14 @@ namespace trading::market_data
     class MarketEventDispatcher final
     {
     public:
-        MarketEventDispatcher(concurrency::Queue<MarketEvent>& strategyQueue,
-                              concurrency::Queue<recording::RecordingEvent>& recordingEventQueue) noexcept;
+        MarketEventDispatcher(common::Queue<MarketEvent>& strategyQueue,
+                              common::Queue<recording::RecordingEvent>& recordingEventQueue) noexcept;
 
         void onMarketEvent(const MarketEvent& event) const;
 
     private:
-        concurrency::Queue<MarketEvent>& strategyQueue;
-        concurrency::Queue<recording::RecordingEvent>& recordingEventQueue;
+        common::Queue<MarketEvent>& strategyQueue;
+        common::Queue<recording::RecordingEvent>& recordingEventQueue;
     };
 }
 

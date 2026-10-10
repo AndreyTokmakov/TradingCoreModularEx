@@ -27,7 +27,7 @@ using trading::Side;
 using trading::Timestamp;
 using trading::config::Config;
 using trading::exchanges::IExchangeFactory;
-using trading::concurrency::ConditionVariableQueue;
+using trading::common::CVQueue;
 using trading::order_book::BookBuilderModule;
 using trading::market_data::BookUpdate;
 using trading::market_data::IMarketDataParser;
@@ -45,7 +45,7 @@ namespace
     using testing::AssertTrue;
 
     template <typename Ty>
-    using Queue = trading::concurrency::Queue<Ty>;
+    using Queue = trading::common::Queue<Ty>;
 
     constexpr InstrumentId INSTRUMENT { 42 };
     constexpr Price INITIAL_BID { 6'500'000'000'000 };
@@ -116,9 +116,9 @@ namespace
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<MarketEvent> strategyEventQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         std::unique_ptr<TestSnapshotProvider> snapshotProvider = std::make_unique<TestSnapshotProvider>(
             createSnapshot(), std::chrono::milliseconds(100)
@@ -169,9 +169,9 @@ namespace
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<MarketEvent> strategyEventQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         auto snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot(150));
         [[maybe_unused]] TestSnapshotProvider* snapshotProviderPtr = snapshotProvider.get();

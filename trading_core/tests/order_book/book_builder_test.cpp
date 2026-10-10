@@ -8,7 +8,7 @@ Description : BookBuilder unit tests.
 ============================================================================**/
 
 #include "order_book/book_builder.hpp"
-#include "common/condition_variable_queue.hpp"
+#include "common/common.hpp"
 #include "market_data/market_event_dispatcher.hpp"
 #include "recording/recording_event.hpp"
 #include "test_support/testing.hpp"
@@ -25,7 +25,7 @@ using trading::SequenceNumber;
 using trading::Side;
 using trading::Timestamp;
 
-using trading::concurrency::ConditionVariableQueue;
+using trading::common::CVQueue;
 
 using trading::market_data::BookLevel;
 using trading::market_data::BookUpdate;
@@ -103,7 +103,7 @@ namespace
     }
 
     [[nodiscard]]
-    MarketEvent popStrategyEvent(ConditionVariableQueue<MarketEvent>& queue)
+    MarketEvent popStrategyEvent(CVQueue<MarketEvent>& queue)
     {
         MarketEvent event;
         AssertTrue(queue.waitPop(event), "strategy queue must contain market event");
@@ -111,7 +111,7 @@ namespace
     }
 
     [[nodiscard]]
-    MarketEvent popRecordingEvent(ConditionVariableQueue<RecordingEvent>& queue)
+    MarketEvent popRecordingEvent(CVQueue<RecordingEvent>& queue)
     {
         RecordingEvent recordingEvent;
         AssertTrue(queue.waitPop(recordingEvent), "recording queue must contain event");
@@ -122,8 +122,8 @@ namespace
     /*
     [[nodiscard]]
     BookBuilder createBuilder(OrderBook& orderBook,
-                              ConditionVariableQueue<MarketEvent>& strategyQueue,
-                              ConditionVariableQueue<RecordingEvent>& recordingQueue)
+                              CVQueue<MarketEvent>& strategyQueue,
+                              CVQueue<RecordingEvent>& recordingQueue)
     {
         MarketEventDispatcher dispatcher { strategyQueue, recordingQueue };
         return BookBuilder { Instrument, orderBook, dispatcher };
@@ -133,8 +133,8 @@ namespace
     void testApplySnapshot()
     {
         OrderBook orderBook;
-        ConditionVariableQueue<MarketEvent> strategyQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<MarketEvent> strategyQueue;
+        CVQueue<RecordingEvent> recordingQueue;
         MarketEventDispatcher dispatcher { strategyQueue, recordingQueue };
         const BookBuilder builder { Instrument, orderBook, dispatcher };
 
@@ -181,8 +181,8 @@ namespace
     void testSnapshotDoesNotPublishMarketEvent()
     {
         OrderBook orderBook;
-        ConditionVariableQueue<MarketEvent> strategyQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<MarketEvent> strategyQueue;
+        CVQueue<RecordingEvent> recordingQueue;
         MarketEventDispatcher dispatcher { strategyQueue, recordingQueue };
         const BookBuilder builder { Instrument, orderBook, dispatcher };
 
@@ -202,8 +202,8 @@ namespace
     void testBookUpdatePublishesMarketEvent()
     {
         OrderBook orderBook;
-        ConditionVariableQueue<MarketEvent> strategyQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<MarketEvent> strategyQueue;
+        CVQueue<RecordingEvent> recordingQueue;
         MarketEventDispatcher dispatcher { strategyQueue, recordingQueue };
         BookBuilder builder { Instrument, orderBook, dispatcher };
 
@@ -249,8 +249,8 @@ namespace
     void testAskUpdate()
     {
         OrderBook orderBook;
-        ConditionVariableQueue<MarketEvent> strategyQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<MarketEvent> strategyQueue;
+        CVQueue<RecordingEvent> recordingQueue;
         MarketEventDispatcher dispatcher { strategyQueue, recordingQueue };
         BookBuilder builder { Instrument, orderBook, dispatcher };
 
@@ -285,8 +285,8 @@ namespace
     void testMultiLevelBookUpdate()
     {
         OrderBook orderBook;
-        ConditionVariableQueue<MarketEvent> strategyQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<MarketEvent> strategyQueue;
+        CVQueue<RecordingEvent> recordingQueue;
         MarketEventDispatcher dispatcher { strategyQueue, recordingQueue };
         BookBuilder builder { Instrument, orderBook, dispatcher };
 
@@ -329,8 +329,8 @@ namespace
     void testSequenceRangeAdvancesToLastSequence()
     {
         OrderBook orderBook;
-        ConditionVariableQueue<MarketEvent> strategyQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<MarketEvent> strategyQueue;
+        CVQueue<RecordingEvent> recordingQueue;
         MarketEventDispatcher dispatcher { strategyQueue, recordingQueue };
         BookBuilder builder { Instrument, orderBook, dispatcher };
 
@@ -361,8 +361,8 @@ namespace
     void testSequenceGapDoesNotModifyBook()
     {
         OrderBook orderBook;
-        ConditionVariableQueue<MarketEvent> strategyQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<MarketEvent> strategyQueue;
+        CVQueue<RecordingEvent> recordingQueue;
         MarketEventDispatcher dispatcher { strategyQueue, recordingQueue };
         BookBuilder builder { Instrument, orderBook, dispatcher };
 
@@ -390,8 +390,8 @@ namespace
     void testSequenceGapWithRangeDoesNotModifyBook()
     {
         OrderBook orderBook;
-        ConditionVariableQueue<MarketEvent> strategyQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<MarketEvent> strategyQueue;
+        CVQueue<RecordingEvent> recordingQueue;
         MarketEventDispatcher dispatcher { strategyQueue, recordingQueue };
         BookBuilder builder { Instrument, orderBook, dispatcher };
 
@@ -423,8 +423,8 @@ namespace
     void testStaleUpdateDoesNotModifyBook()
     {
         OrderBook orderBook;
-        ConditionVariableQueue<MarketEvent> strategyQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<MarketEvent> strategyQueue;
+        CVQueue<RecordingEvent> recordingQueue;
         MarketEventDispatcher dispatcher { strategyQueue, recordingQueue };
         BookBuilder builder { Instrument, orderBook, dispatcher };
 
@@ -452,8 +452,8 @@ namespace
     void testOverlappingSequenceRangeIsRejected()
     {
         OrderBook orderBook;
-        ConditionVariableQueue<MarketEvent> strategyQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<MarketEvent> strategyQueue;
+        CVQueue<RecordingEvent> recordingQueue;
         MarketEventDispatcher dispatcher { strategyQueue, recordingQueue };
         BookBuilder builder { Instrument, orderBook, dispatcher };
 
@@ -481,8 +481,8 @@ namespace
     void testValidUpdateAfterGapRecoverySnapshot()
     {
         OrderBook orderBook;
-        ConditionVariableQueue<MarketEvent> strategyQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<MarketEvent> strategyQueue;
+        CVQueue<RecordingEvent> recordingQueue;
         MarketEventDispatcher dispatcher { strategyQueue, recordingQueue };
         BookBuilder builder { Instrument, orderBook, dispatcher };
 
@@ -533,8 +533,8 @@ namespace
     void testUpdateAfterSnapshot()
     {
         OrderBook orderBook;
-        ConditionVariableQueue<MarketEvent> strategyQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<MarketEvent> strategyQueue;
+        CVQueue<RecordingEvent> recordingQueue;
         MarketEventDispatcher dispatcher { strategyQueue, recordingQueue };
         BookBuilder builder { Instrument, orderBook, dispatcher };
 
@@ -566,8 +566,8 @@ namespace
     void testEmptySnapshot()
     {
         OrderBook orderBook;
-        ConditionVariableQueue<MarketEvent> strategyQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<MarketEvent> strategyQueue;
+        CVQueue<RecordingEvent> recordingQueue;
         MarketEventDispatcher dispatcher { strategyQueue, recordingQueue };
         const BookBuilder builder { Instrument, orderBook, dispatcher };
 
@@ -592,8 +592,8 @@ namespace
     void testSnapshotWithWrongInstrumentIsRejected()
     {
         OrderBook orderBook;
-        ConditionVariableQueue<MarketEvent> strategyQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<MarketEvent> strategyQueue;
+        CVQueue<RecordingEvent> recordingQueue;
         MarketEventDispatcher dispatcher { strategyQueue, recordingQueue };
         const BookBuilder builder { Instrument, orderBook, dispatcher };
 
@@ -616,8 +616,8 @@ namespace
     void testBookUpdateWithWrongInstrumentIsIgnored()
     {
         OrderBook orderBook;
-        ConditionVariableQueue<MarketEvent> strategyQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<MarketEvent> strategyQueue;
+        CVQueue<RecordingEvent> recordingQueue;
         MarketEventDispatcher dispatcher { strategyQueue, recordingQueue };
         const BookBuilder builder { Instrument, orderBook, dispatcher };
 

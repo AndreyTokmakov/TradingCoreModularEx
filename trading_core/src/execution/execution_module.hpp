@@ -11,10 +11,8 @@ Description :  Processes order requests and execution reports on the execution t
 #define FINANCETECHNOLOGYPROJECTS_EXECUTION_MODULE_HPP
 
 #include "model/execution_work_item.hpp"
-#include "interfaces/execution_report_source.hpp"
 #include "order_manager.hpp"
-#include "common/queue.hpp"
-#include "common/worker.hpp"
+#include "common/common.hpp"
 #include "recording/recording_event.hpp"
 #include "config/config.hpp"
 #include "exchanges/exchange_factory.hpp"
@@ -28,8 +26,8 @@ namespace trading::execution
     {
     public:
         ExecutionModule(const config::Config& config,
-                        concurrency::Queue<ExecutionWorkItem>& executionQueue,
-                        concurrency::Queue<recording::RecordingEvent>& recordingQueue,
+                        common::Queue<ExecutionWorkItem>& executionQueue,
+                        common::Queue<recording::RecordingEvent>& recordingQueue,
                         const exchanges::IExchangeFactory& exchangeFactory) noexcept;
 
         void run();
@@ -44,8 +42,8 @@ namespace trading::execution
         position::PositionManager positionManager;
         risk::RiskManager riskManager;
 
-        concurrency::Queue<ExecutionWorkItem>& executionQueue;
-        concurrency::Queue<recording::RecordingEvent>& recordingQueue;
+        common::Queue<ExecutionWorkItem>& executionQueue;
+        common::Queue<recording::RecordingEvent>& recordingQueue;
 
         std::unique_ptr<IExecutionGateway> executionGateway;
         OrderManager orderManager;

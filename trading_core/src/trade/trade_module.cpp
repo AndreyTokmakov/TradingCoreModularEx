@@ -12,7 +12,7 @@ Description : trade_module.cpp
 namespace trading::trade
 {
     TradeModule::TradeModule(const config::Config& config,
-                             concurrency::Queue<Trade>& tradeQueue) noexcept :
+                             common::Queue<Trade>& tradeQueue) noexcept :
         tradeQueue { tradeQueue },
         tradeProcessor { config.instrument }
     {

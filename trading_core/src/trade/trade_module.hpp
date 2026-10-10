@@ -12,8 +12,7 @@ Description : trade_module.hpp
 
 #include "trade_processor.hpp"
 
-#include "common/queue.hpp"
-#include "common/worker.hpp"
+#include "common/common.hpp"
 #include "config/config.hpp"
 #include "market_data/model/trade.hpp"
 
@@ -25,7 +24,7 @@ namespace trading::trade
     {
     public:
         TradeModule(const config::Config& config,
-                    concurrency::Queue<Trade>& tradeQueue) noexcept;
+                    common::Queue<Trade>& tradeQueue) noexcept;
 
         void run();
 
@@ -33,7 +32,7 @@ namespace trading::trade
         const TradeProcessor& processor() const noexcept;
 
     private:
-        concurrency::Queue<Trade>& tradeQueue;
+        common::Queue<Trade>& tradeQueue;
         TradeProcessor tradeProcessor;
     };
 }

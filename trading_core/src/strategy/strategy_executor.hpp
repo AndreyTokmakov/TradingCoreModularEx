@@ -83,20 +83,20 @@ Description : Strategy signal execution component.
 #include "core/quantity.hpp"
 #include "execution/order_manager.hpp"
 #include "market_data/model/market_event.hpp"
-#include "common/queue.hpp"
+#include "common/common.hpp"
 
 namespace trading::strategy
 {
     class StrategyExecutor final
     {
     public:
-        StrategyExecutor(concurrency::Queue<execution::ExecutionWorkItem>& executionQueue,
+        StrategyExecutor(common::Queue<execution::ExecutionWorkItem>& executionQueue,
                          Quantity orderQuantity) noexcept;
 
         void execute(Signal signal, const market_data::MarketEvent& event) const;
 
     private:
-        concurrency::Queue<execution::ExecutionWorkItem>& executionQueue;
+        common::Queue<execution::ExecutionWorkItem>& executionQueue;
         Quantity orderQuantity;
     };
 }

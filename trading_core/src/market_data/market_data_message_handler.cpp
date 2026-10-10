@@ -38,8 +38,8 @@ Description : market_data_message_handler.cpp
 namespace trading::market_data
 {
     MarketDataMessageHandler::MarketDataMessageHandler(IMarketDataParser& parser,
-                                                       concurrency::Queue<BookUpdate>& bookUpdateQueue,
-                                                       concurrency::Queue<Trade>& tradeQueue) noexcept:
+                                                       common::Queue<BookUpdate>& bookUpdateQueue,
+                                                       common::Queue<Trade>& tradeQueue) noexcept:
         parser { parser },
         bookUpdateQueue { bookUpdateQueue },
         tradeQueue { tradeQueue },
