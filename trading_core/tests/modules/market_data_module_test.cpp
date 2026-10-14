@@ -8,18 +8,19 @@ Description : market_data_module_test.cpp
 ============================================================================**/
 
 #include "market_data/market_data_module.hpp"
-
 #include "common/common.hpp"
+
+#include "test_support/test_market_data_parser.hpp"
 #include "test_support/test_exchange_factory.hpp"
 #include "test_support/test_market_data_source.hpp"
 #include "test_support/testing.hpp"
+#include "test_support/debug_helpers.hpp"
 
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include "test_support/test_market_data_parser.hpp"
 
 namespace
 {
@@ -355,5 +356,5 @@ void market_data_module_test()
     testInvalidMessageDoesNotPreventNextMessage();
     testMixedValidAndInvalidMessages();
 
-    std::cout << "All MarketDataModule tests: OK\n";
+    printMessage("All MarketDataModule tests: OK");
 }

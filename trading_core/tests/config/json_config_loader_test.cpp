@@ -8,7 +8,9 @@ Description : Unit tests for JSON configuration loader.
 ============================================================================**/
 
 #include "config/json_config_loader.hpp"
+
 #include "test_support/testing.hpp"
+#include "test_support/debug_helpers.hpp"
 
 #include <filesystem>
 #include <fstream>
@@ -328,7 +330,5 @@ void json_config_loader_test()
     testLoadMultipleExchanges();
     testLoadRecordingConfiguration();
 
-    std::cout << "All JsonConfigLoader tests: OK\n";
-
-
+    printMessage("All JsonConfigLoader tests: OK");
 }

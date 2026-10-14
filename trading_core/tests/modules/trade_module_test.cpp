@@ -11,9 +11,9 @@ Description : Unit tests for TradeModule.
 #include "common/common.hpp"
 #include "config/config.hpp"
 #include "market_data/model/trade.hpp"
-#include "test_support/testing.hpp"
 
-#include <iostream>
+#include "test_support/testing.hpp"
+#include "test_support/debug_helpers.hpp"
 
 namespace
 {
@@ -394,5 +394,5 @@ void trade_module_test()
     testMixedInstrumentTradesAreHandledCorrectly();
     testModuleHandlesZeroQuantityTrade();
 
-    std::cout << "All TradeModule tests: OK" << std::endl;
+    printMessage("All TradeModule tests: OK");
 }

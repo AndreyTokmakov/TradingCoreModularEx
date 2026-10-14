@@ -7,13 +7,13 @@ Copyright   : Your copyright notice
 Description : execution_module_test.cpp
 ============================================================================**/
 
-
 #include "execution/execution_module.hpp"
 #include "common/common.hpp"
-#include "test_support/testing.hpp"
 #include "test_support/test_exchange_factory.hpp"
 #include "test_support/test_execution_gateway.hpp"
-#include "test_support/test_exchange_factory.hpp"
+
+#include "test_support/testing.hpp"
+#include "test_support/debug_helpers.hpp"
 
 #include <iostream>
 #include <variant>
@@ -413,5 +413,5 @@ void execution_module_test()
     testUnknownOrderExecutionDoesNotCreateOrder();
     testMultipleWorkItemsAreProcessedInOrder();
 
-    std::cout << "All ExecutionModule tests: OK\n";
+    printMessage("All ExecutionModule tests: OK");
 }

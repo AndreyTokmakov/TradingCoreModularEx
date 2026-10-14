@@ -8,7 +8,9 @@ Description : position_manager_test.cpp
 ============================================================================**/
 
 #include "position/position_manager.hpp"
+
 #include "test_support/testing.hpp"
+#include "test_support/debug_helpers.hpp"
 
 #include <iostream>
 
@@ -395,5 +397,5 @@ void position_manager_test()
 
     testFindUnknownInstrument();
 
-    std::cout << "All PositionManager tests: OK\n";
+    printMessage("All PositionManager tests: OK");
 }

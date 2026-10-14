@@ -9,7 +9,9 @@ Description : strategy_module_test.cpp
 
 #include "strategy/strategy_module.hpp"
 #include "common/common.hpp"
+
 #include "test_support/testing.hpp"
+#include "test_support/debug_helpers.hpp"
 
 #include <iostream>
 #include <variant>
@@ -375,5 +377,5 @@ void strategy_module_test()
     testSellUsesBestBid();
     testMultipleMarketEventsProduceMultipleOrders();
 
-    std::cout << "All StrategyModule tests: OK\n";
+    printMessage("All StrategyModule tests: OK");
 }

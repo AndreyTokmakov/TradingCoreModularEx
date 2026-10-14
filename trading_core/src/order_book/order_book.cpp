@@ -29,7 +29,8 @@ namespace trading::order_book
             return true;
         }
 
-        const auto itWorst = std::prev(levels.end());
+        auto itWorst = levels.end();
+        --itWorst;
         if (!levels.key_comp()(update.price, itWorst->first))
             return false;
 

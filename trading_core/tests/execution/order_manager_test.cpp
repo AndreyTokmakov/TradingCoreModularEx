@@ -1,6 +1,8 @@
 #include "execution/order_manager.hpp"
 #include "risk/risk_manager.hpp"
+
 #include "test_support/testing.hpp"
+#include "test_support/debug_helpers.hpp"
 
 #include <iostream>
 
@@ -715,5 +717,5 @@ void order_manager_test()
     testExecutionUpdatesOrderFromPartiallyFilledToFilled();
     testSellExecutionUpdatesPosition();
 
-    std::cout << "All OrderManager tests: OK\n";
+    printMessage("All OrderManager tests: OK");
 }

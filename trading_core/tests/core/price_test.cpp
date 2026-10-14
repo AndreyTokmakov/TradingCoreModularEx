@@ -1,5 +1,7 @@
 #include "core/price.hpp"
+
 #include "test_support/testing.hpp"
+#include "test_support/debug_helpers.hpp"
 
 #include <cstdint>
 #include <iostream>
@@ -448,5 +450,5 @@ void price_test()
     testPriceOrderingForOrderBook();
     testNegativePriceDifference();
 
-    std::cout << "All Price tests: OK\n";
+    printMessage("All Price tests: OK");
 }

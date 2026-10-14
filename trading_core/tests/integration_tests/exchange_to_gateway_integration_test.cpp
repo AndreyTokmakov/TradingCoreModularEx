@@ -21,7 +21,6 @@ Description : exchange_to_gateway_integration_test.cpp
 #include "test_support/test_snapshot_provider.hpp"
 #include "test_support/test_exchange_factory.hpp"
 
-
 #include <memory>
 #include <variant>
 
@@ -164,5 +163,5 @@ void exchange_to_gateway_integration_test()
 {
     Test_1();
 
-    std::cout << "All tests: OK\n";
+    printMessage("All tests: OK");
 }

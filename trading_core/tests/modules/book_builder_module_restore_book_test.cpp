@@ -8,11 +8,12 @@ Description : book_builder_module.cpp
 ============================================================================**/
 
 #include "order_book/book_builder_module.hpp"
-#include "test_support/testing.hpp"
 #include "test_support/test_snapshot_provider.hpp"
 #include "test_support/test_exchange_factory.hpp"
 
-#include <condition_variable>
+#include "test_support/testing.hpp"
+#include "test_support/debug_helpers.hpp"
+
 #include <iostream>
 #include <memory>
 #include <mutex>
@@ -203,5 +204,5 @@ void book_builder_module_restore_book_test()
     testUpdatesArriveWhileSnapshotIsBeingFetched();
     // testOnlyUpdatesAfterSnapshotSequenceAreProcessed();
 
-    std::cout << "All BookBuilderModule RestoreBook tests: OK\n";
+    printMessage("All BookBuilderModule RestoreBook tests: OK");
 }

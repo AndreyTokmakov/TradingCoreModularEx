@@ -38,7 +38,9 @@ Description : pnl_calculator_test.cpp
 */
 
 #include "pnl/pnl_calculator.hpp"
+
 #include "test_support/testing.hpp"
+#include "test_support/debug_helpers.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -334,5 +336,5 @@ void pnl_calculator_test()
     testLongUsesBidForMarking();
     testShortUsesAskForMarking();
 
-    std::cout << "All PnLCalculator tests: OK\n";
+    printMessage("All PnLCalculator tests: OK");
 }

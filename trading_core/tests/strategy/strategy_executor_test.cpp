@@ -8,7 +8,9 @@ Description : StrategyExecutor unit tests.
 ============================================================================**/
 
 #include "strategy_executor.hpp"
+
 #include "test_support/testing.hpp"
+#include "test_support/debug_helpers.hpp"
 
 #include "order_manager.hpp"
 #include "model/order.hpp"
@@ -341,5 +343,5 @@ void strategy_executor_test()
 
     testBuyAndSellUseDifferentMarketPrices();
 
-    std::cout << "All StrategyExecutor tests: OK\n";
+    printMessage("All StrategyExecutor tests: OK");
 }

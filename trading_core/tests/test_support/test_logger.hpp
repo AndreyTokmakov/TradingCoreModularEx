@@ -11,6 +11,7 @@ Description : test_logger.hpp
 #define TRADINGCOREMODULAREX_TEST_SUPPORT_TEST_LOGGER_HPP
 
 #include "logging/logger.hpp"
+#include "debug_helpers.hpp"
 
 #include <algorithm>
 #include <print>
@@ -116,17 +117,6 @@ namespace trading::testing
 
 
     private:
-
-        enum class Color: uint8_t
-        {
-            Gray,
-            Cyan,
-            Green,
-            Yellow,
-            Red,
-            Magenta
-        };
-
         [[nodiscard]]
         static constexpr std::string_view levelName(const Level level) noexcept
         {
@@ -147,7 +137,6 @@ namespace trading::testing
             return "UNKNOWN ";
         }
 
-
         [[nodiscard]]
         static constexpr Color levelColor(const Level level) noexcept
         {
@@ -167,30 +156,6 @@ namespace trading::testing
             }
             return Color::Gray;
         }
-
-
-        [[nodiscard]]
-        static constexpr std::string_view colorCode(const Color color) noexcept
-        {
-            switch (color) {
-                case Color::Gray:
-                    return "\033[90m";
-                case Color::Cyan:
-                    return "\033[36m";
-                case Color::Green:
-                    return "\033[32m";
-                case Color::Yellow:
-                    return "\033[33m";
-                case Color::Red:
-                    return "\033[31m";
-                case Color::Magenta:
-                    return "\033[35m";
-            }
-
-            return "\033[0m";
-        }
-
-        static constexpr std::string_view ResetColor { "\033[0m" };
 
         void addRecord(const Level level, std::string message)
         {

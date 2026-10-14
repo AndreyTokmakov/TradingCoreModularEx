@@ -11,9 +11,10 @@ Description : BookBuilder unit tests.
 #include "common/common.hpp"
 #include "market_data/market_event_dispatcher.hpp"
 #include "recording/recording_event.hpp"
-#include "test_support/testing.hpp"
 
-#include <iostream>
+#include "test_support/testing.hpp"
+#include "test_support/debug_helpers.hpp"
+
 #include <optional>
 #include <variant>
 #include <vector>
@@ -672,5 +673,5 @@ void book_builder_test()
     testSnapshotWithWrongInstrumentIsRejected();
     testBookUpdateWithWrongInstrumentIsIgnored();
 
-    std::cout << "All BookBuilder tests: OK\n";
+    printMessage("All BookBuilder tests: OK");
 }

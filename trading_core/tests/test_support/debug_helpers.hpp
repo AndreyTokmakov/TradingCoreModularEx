@@ -20,7 +20,48 @@ Description : Testing and Debuging
 #include "strategy/signal.hpp"
 
 #include <iostream>
+#include <print>
 
+namespace trading::testing
+{
+    enum class Color: uint8_t
+    {
+        Gray,
+        Cyan,
+        Green,
+        Yellow,
+        Red,
+        Magenta
+    };
+
+    [[nodiscard]]
+    static constexpr std::string_view colorCode(const Color color) noexcept
+    {
+        switch (color) {
+            case Color::Gray:
+                return "\033[90m";
+            case Color::Cyan:
+                return "\033[36m";
+            case Color::Green:
+                return "\033[32m";
+            case Color::Yellow:
+                return "\033[33m";
+            case Color::Red:
+                return "\033[31m";
+            case Color::Magenta:
+                return "\033[35m";
+        }
+        return "\033[0m";
+    }
+
+    static constexpr std::string_view ResetColor { "\033[0m" };
+
+    [[maybe_unused]]
+    static void printMessage(const std::string_view text, const Color color = Color::Green)
+    {
+        std::println("{}{}{}",colorCode(color), text, ResetColor);
+    }
+}
 
 namespace trading::testing
 {

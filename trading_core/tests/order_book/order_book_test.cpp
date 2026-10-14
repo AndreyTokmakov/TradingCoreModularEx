@@ -9,8 +9,7 @@ Description : OrderBook tests.
 
 #include "order_book/order_book.hpp"
 #include "test_support/testing.hpp"
-
-#include <iostream>
+#include "test_support/test_execution_gateway.hpp"
 
 namespace
 {
@@ -748,5 +747,5 @@ void order_book_test()
     testClearAfterUpdates();
     testDepthIsPreservedAfterClear();
 
-    std::cout << "All OrderBook tests: OK\n";
+    printMessage("All OrderBook tests: OK");
 }

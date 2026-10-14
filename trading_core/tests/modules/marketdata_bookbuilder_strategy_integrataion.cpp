@@ -18,6 +18,7 @@ Description : marketdata_bookbuilder_strategy_integrataion.cpp
 #include "test_support/test_snapshot_provider.hpp"
 #include "test_support/test_exchange_factory.hpp"
 #include "test_support/testing.hpp"
+#include "test_support/debug_helpers.hpp"
 
 #include <memory>
 #include <variant>
@@ -512,5 +513,5 @@ void marketdata_bookbuilder_strategy_integrataion()
     // testMarketDataSequenceReachesStrategy();
     // testMultipleMarketDataEvents();
 
-    std::cout << "All StrategyModule tests: OK\n";
+    printMessage("All StrategyModule tests: OK");
 }
