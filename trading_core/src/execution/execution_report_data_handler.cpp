@@ -12,7 +12,7 @@ Description : execution_report_data_handler.cpp
 
 namespace trading::execution
 {
-    ExecutionReportDataHandler::ExecutionReportDataHandler(concurrency::Queue<ExecutionWorkItem>& executionQueue):
+    ExecutionReportDataHandler::ExecutionReportDataHandler(common::Queue<ExecutionWorkItem>& executionQueue):
         executionQueue { executionQueue },
         logger { logging::LoggerFactory::getLogger() }
     {

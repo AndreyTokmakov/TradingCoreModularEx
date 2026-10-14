@@ -8,7 +8,7 @@ Description : marketdata_bookbuilder_strategy_integrataion.cpp
 ============================================================================**/
 
 #include "order_book/book_builder_module.hpp"
-#include "common/condition_variable_queue.hpp"
+#include "common/common.hpp"
 #include "market_data/market_data_module.hpp"
 #include "strategy/strategy_module.hpp"
 
@@ -18,6 +18,7 @@ Description : marketdata_bookbuilder_strategy_integrataion.cpp
 #include "test_support/test_snapshot_provider.hpp"
 #include "test_support/test_exchange_factory.hpp"
 #include "test_support/testing.hpp"
+#include "test_support/debug_helpers.hpp"
 
 #include <memory>
 #include <variant>
@@ -30,8 +31,8 @@ namespace
     using trading::Quantity;
     using trading::Side;
     using trading::order_book::BookBuilderModule;
+    using trading::common::CVQueue;
     using namespace trading;
-    using namespace trading::concurrency;
     using namespace trading::execution;
     using namespace trading::market_data;
     using namespace trading::strategy;
@@ -76,11 +77,11 @@ namespace
     {
         const config::Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<Trade> tradeQueue;
-        ConditionVariableQueue<MarketEvent> marketEventQueue;
-        ConditionVariableQueue<ExecutionWorkItem> executionQueue;
-        ConditionVariableQueue<recording::RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<Trade> tradeQueue;
+        CVQueue<MarketEvent> marketEventQueue;
+        CVQueue<ExecutionWorkItem> executionQueue;
+        CVQueue<recording::RecordingEvent> recordingQueue;
 
         auto marketDataSource = createMarketDataSource({
             "1,101,101,10000001,Buy,6500000000000,1000000000"
@@ -130,11 +131,11 @@ namespace
     {
         const config::Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<Trade> tradeQueue;
-        ConditionVariableQueue<MarketEvent> marketEventQueue;
-        ConditionVariableQueue<ExecutionWorkItem> executionQueue;
-        ConditionVariableQueue<recording::RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<Trade> tradeQueue;
+        CVQueue<MarketEvent> marketEventQueue;
+        CVQueue<ExecutionWorkItem> executionQueue;
+        CVQueue<recording::RecordingEvent> recordingQueue;
 
         auto marketDataSource = createMarketDataSource({
             "1,101,101,10000001,Sell,6500000000000,1000000000"
@@ -184,11 +185,11 @@ namespace
     {
         const config::Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<Trade> tradeQueue;
-        ConditionVariableQueue<MarketEvent> marketEventQueue;
-        ConditionVariableQueue<ExecutionWorkItem> executionQueue;
-        ConditionVariableQueue<recording::RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<Trade> tradeQueue;
+        CVQueue<MarketEvent> marketEventQueue;
+        CVQueue<ExecutionWorkItem> executionQueue;
+        CVQueue<recording::RecordingEvent> recordingQueue;
 
         auto marketDataSource = createMarketDataSource({
             "1,101,101,10000001,Buy,6500000000000,100"
@@ -228,11 +229,11 @@ namespace
         config::Config config = createConfig();
         config.strategy.orderQuantity = Quantity { 250'000'000 };
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<Trade> tradeQueue;
-        ConditionVariableQueue<MarketEvent> marketEventQueue;
-        ConditionVariableQueue<ExecutionWorkItem> executionQueue;
-        ConditionVariableQueue<recording::RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<Trade> tradeQueue;
+        CVQueue<MarketEvent> marketEventQueue;
+        CVQueue<ExecutionWorkItem> executionQueue;
+        CVQueue<recording::RecordingEvent> recordingQueue;
 
         auto marketDataSource = createMarketDataSource({
             "1,101,101,10000001,Buy,6500000000000,1000000000"
@@ -277,11 +278,11 @@ namespace
     {
         const config::Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<Trade> tradeQueue;
-        ConditionVariableQueue<MarketEvent> marketEventQueue;
-        ConditionVariableQueue<ExecutionWorkItem> executionQueue;
-        ConditionVariableQueue<recording::RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<Trade> tradeQueue;
+        CVQueue<MarketEvent> marketEventQueue;
+        CVQueue<ExecutionWorkItem> executionQueue;
+        CVQueue<recording::RecordingEvent> recordingQueue;
 
         auto marketDataSource = createMarketDataSource({
             "1,101,101,10000001,Buy,6500000000000,1000000000",
@@ -333,11 +334,11 @@ namespace
     {
         const config::Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<Trade> tradeQueue;
-        ConditionVariableQueue<MarketEvent> marketEventQueue;
-        ConditionVariableQueue<ExecutionWorkItem> executionQueue;
-        ConditionVariableQueue<recording::RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<Trade> tradeQueue;
+        CVQueue<MarketEvent> marketEventQueue;
+        CVQueue<ExecutionWorkItem> executionQueue;
+        CVQueue<recording::RecordingEvent> recordingQueue;
 
         auto marketDataSource = createMarketDataSource({
             "1,101,101,10000001,Sell,6500000000000,1000000000",
@@ -387,11 +388,11 @@ namespace
     {
         const config::Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<Trade> tradeQueue;
-        ConditionVariableQueue<MarketEvent> marketEventQueue;
-        ConditionVariableQueue<ExecutionWorkItem> executionQueue;
-        ConditionVariableQueue<recording::RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<Trade> tradeQueue;
+        CVQueue<MarketEvent> marketEventQueue;
+        CVQueue<ExecutionWorkItem> executionQueue;
+        CVQueue<recording::RecordingEvent> recordingQueue;
 
         auto marketDataSource = createMarketDataSource({
             "1,101,101,10000001,Buy,6500000000000,1000000000"
@@ -442,11 +443,11 @@ namespace
     {
         const config::Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<Trade> tradeQueue;
-        ConditionVariableQueue<MarketEvent> marketEventQueue;
-        ConditionVariableQueue<ExecutionWorkItem> executionQueue;
-        ConditionVariableQueue<recording::RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<Trade> tradeQueue;
+        CVQueue<MarketEvent> marketEventQueue;
+        CVQueue<ExecutionWorkItem> executionQueue;
+        CVQueue<recording::RecordingEvent> recordingQueue;
 
         auto marketDataSource = createMarketDataSource({
             "1,101,101,10000001,Buy,6500000000000,1000000000",
@@ -512,5 +513,5 @@ void marketdata_bookbuilder_strategy_integrataion()
     // testMarketDataSequenceReachesStrategy();
     // testMultipleMarketDataEvents();
 
-    std::cout << "All StrategyModule tests: OK\n";
+    printMessage("All StrategyModule tests: OK");
 }

@@ -14,7 +14,6 @@ Description : test_snapshot_provider.hpp
 #include "market_data/interfaces/snapshot_provider.hpp"
 
 #include "test_support/debug_helpers.hpp"
-using namespace  trading::testing;
 
 
 namespace trading::testing

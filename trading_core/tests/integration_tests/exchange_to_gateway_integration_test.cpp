@@ -8,7 +8,6 @@ Description : exchange_to_gateway_integration_test.cpp
 ============================================================================**/
 
 #include "order_book/book_builder_module.hpp"
-#include "common/condition_variable_queue.hpp"
 #include "market_data/market_data_module.hpp"
 #include "strategy/strategy_module.hpp"
 #include "execution/execution_module.hpp"
@@ -22,7 +21,6 @@ Description : exchange_to_gateway_integration_test.cpp
 #include "test_support/test_snapshot_provider.hpp"
 #include "test_support/test_exchange_factory.hpp"
 
-
 #include <memory>
 #include <variant>
 
@@ -34,8 +32,8 @@ namespace
     using trading::Quantity;
     using trading::Side;
     using trading::order_book::BookBuilderModule;
+    using trading::common::CVQueue;
     using namespace trading;
-    using namespace trading::concurrency;
     using namespace trading::execution;
     using namespace trading::market_data;
     using namespace trading::strategy;
@@ -85,11 +83,11 @@ namespace
     {
         const config::Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<Trade> tradeQueue;
-        ConditionVariableQueue<MarketEvent> marketEventQueue;
-        ConditionVariableQueue<ExecutionWorkItem> executionQueue;
-        ConditionVariableQueue<recording::RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<Trade> tradeQueue;
+        CVQueue<MarketEvent> marketEventQueue;
+        CVQueue<ExecutionWorkItem> executionQueue;
+        CVQueue<recording::RecordingEvent> recordingQueue;
 
         std::unique_ptr<TestMarketDataSource> marketDataSource = createMarketDataSource({
             "1,101,101,10000001,Buy,6500000000000,1000000000"
@@ -165,5 +163,5 @@ void exchange_to_gateway_integration_test()
 {
     Test_1();
 
-    std::cout << "All tests: OK\n";
+    printMessage("All tests: OK");
 }

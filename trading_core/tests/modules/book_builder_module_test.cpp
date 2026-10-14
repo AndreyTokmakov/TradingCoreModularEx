@@ -8,9 +8,11 @@ Description : book_builder_module_test.cpp
 ============================================================================**/
 
 #include "order_book/book_builder_module.hpp"
-#include "test_support/testing.hpp"
 #include "test_support/test_snapshot_provider.hpp"
 #include "test_support/test_exchange_factory.hpp"
+
+#include "test_support/testing.hpp"
+#include "test_support/debug_helpers.hpp"
 
 #include <iostream>
 #include <memory>
@@ -27,7 +29,7 @@ using trading::Timestamp;
 using trading::config::Config;
 using trading::exchanges::IExchangeFactory;
 
-using trading::concurrency::ConditionVariableQueue;
+using trading::common::CVQueue;
 
 using trading::market_data::BookUpdate;
 using trading::market_data::IMarketDataParser;
@@ -197,7 +199,7 @@ namespace
         };
     }
 
-    void stopModule(ConditionVariableQueue<BookUpdate>& bookUpdateQueue)
+    void stopModule(CVQueue<BookUpdate>& bookUpdateQueue)
     {
         bookUpdateQueue.close();
     }
@@ -206,9 +208,9 @@ namespace
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<MarketEvent> strategyEventQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
@@ -227,9 +229,9 @@ namespace
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<MarketEvent> strategyEventQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         auto snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot());
         auto snapshotProviderPtr = snapshotProvider.get();
@@ -248,9 +250,9 @@ namespace
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<MarketEvent> strategyEventQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
@@ -265,9 +267,9 @@ namespace
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<MarketEvent> strategyEventQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
@@ -305,9 +307,9 @@ namespace
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<MarketEvent> strategyEventQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
@@ -349,9 +351,9 @@ namespace
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<MarketEvent> strategyEventQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
@@ -381,9 +383,9 @@ namespace
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<MarketEvent> strategyEventQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
@@ -409,9 +411,9 @@ namespace
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<MarketEvent> strategyEventQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
@@ -430,9 +432,9 @@ namespace
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<MarketEvent> strategyEventQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
@@ -457,9 +459,9 @@ namespace
     void testOutOfOrderUpdateDoesNotAdvanceSequence()
     {
         Config config = createConfig();
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<MarketEvent> strategyEventQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
@@ -491,9 +493,9 @@ namespace
     void testBidRemovalProducesEmptyBestBid()
     {
         Config config = createConfig();
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<MarketEvent> strategyEventQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
@@ -519,9 +521,9 @@ namespace
     void testAskRemovalProducesEmptyBestAsk()
     {
         Config config = createConfig();
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<MarketEvent> strategyEventQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
@@ -547,9 +549,9 @@ namespace
     void testBothSidesCanBeUpdated()
     {
         Config config = createConfig();
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<MarketEvent> strategyEventQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
@@ -579,9 +581,9 @@ namespace
     void testRecordingReceivesSameNumberOfEvents()
     {
         Config config = createConfig();
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<MarketEvent> strategyEventQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
@@ -621,9 +623,9 @@ namespace
 
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<MarketEvent> strategyEventQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(invalidSnapshot)
@@ -642,9 +644,9 @@ namespace
     void testEmptyBookUpdatesBatchDoesNotProduceEvent()
     {
         Config config = createConfig();
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<MarketEvent> strategyEventQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
@@ -663,9 +665,9 @@ namespace
     void testMixedValidAndInvalidUpdates()
     {
         Config config = createConfig();
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<MarketEvent> strategyEventQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
@@ -699,9 +701,9 @@ namespace
     void testReceiveTimestampIsGenerated()
     {
         Config config = createConfig();
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<MarketEvent> strategyEventQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
@@ -724,9 +726,9 @@ namespace
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<MarketEvent> strategyEventQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
@@ -785,9 +787,9 @@ namespace
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<MarketEvent> strategyEventQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
@@ -832,9 +834,9 @@ namespace
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<MarketEvent> strategyEventQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         TestExchangeFactory exchangeFactory { TestMocks {
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot())
@@ -904,5 +906,5 @@ void book_builder_module_test()
     testSequenceRangeAdvancesToLastSequence();
     testOverlappingSequenceRangeDoesNotProduceEvent();
 
-    std::cout << "All BookBuilderModule tests: OK\n";
+    printMessage("All BookBuilderModule tests: OK");
 }

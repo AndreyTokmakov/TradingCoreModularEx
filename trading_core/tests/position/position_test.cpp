@@ -8,7 +8,9 @@ Description : position_test.cpp
 ============================================================================**/
 
 #include "position/position.hpp"
+
 #include "test_support/testing.hpp"
+#include "test_support/debug_helpers.hpp"
 
 #include <iostream>
 
@@ -701,5 +703,5 @@ void position_test()
 
     testRealizedPnlInitialValue();
 
-    std::cout << "All Position tests: OK\n";
+    printMessage("All Position tests: OK");
 }

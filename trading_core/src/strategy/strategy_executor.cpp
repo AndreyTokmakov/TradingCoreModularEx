@@ -56,7 +56,7 @@ Description : Strategy signal execution component implementation.
 
 namespace trading::strategy
 {
-    StrategyExecutor::StrategyExecutor(concurrency::Queue<execution::ExecutionWorkItem>& executionQueue,
+    StrategyExecutor::StrategyExecutor(common::Queue<execution::ExecutionWorkItem>& executionQueue,
                                        const Quantity orderQuantity) noexcept :
         executionQueue { executionQueue },
         orderQuantity { orderQuantity }

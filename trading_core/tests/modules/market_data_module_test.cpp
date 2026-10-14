@@ -8,18 +8,19 @@ Description : market_data_module_test.cpp
 ============================================================================**/
 
 #include "market_data/market_data_module.hpp"
+#include "common/common.hpp"
 
-#include "common/condition_variable_queue.hpp"
+#include "test_support/test_market_data_parser.hpp"
 #include "test_support/test_exchange_factory.hpp"
 #include "test_support/test_market_data_source.hpp"
 #include "test_support/testing.hpp"
+#include "test_support/debug_helpers.hpp"
 
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include "test_support/test_market_data_parser.hpp"
 
 namespace
 {
@@ -29,7 +30,7 @@ namespace
     using trading::Quantity;
     using trading::Timestamp;
     using trading::Side;
-    using trading::concurrency::ConditionVariableQueue;
+    using trading::common::CVQueue;
     using trading::config::Config;
     using trading::market_data::BookUpdate;
     using trading::market_data::Trade;
@@ -49,8 +50,8 @@ namespace
     void testMarketDataPipeline()
     {
         const Config config = createConfig(InstrumentId { 1 });
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<Trade> tradeQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<Trade> tradeQueue;
         std::unique_ptr<TestMarketDataSource> marketDataSource = std::make_unique<TestMarketDataSource>();
 
         marketDataSource->addTestMarketData({
@@ -87,8 +88,8 @@ namespace
     void testMultipleMessages()
     {
         const Config config = createConfig(InstrumentId { 1 });
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<Trade> tradeQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<Trade> tradeQueue;
         std::unique_ptr<TestMarketDataSource> marketDataSource = std::make_unique<TestMarketDataSource>();
 
         marketDataSource->addTestMarketData({
@@ -143,8 +144,8 @@ namespace
     void testMultipleMessages2()
     {
         const Config config = createConfig(InstrumentId { 1 });
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<Trade> tradeQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<Trade> tradeQueue;
         std::unique_ptr<TestMarketDataSource> marketDataSource = std::make_unique<TestMarketDataSource>();
 
         marketDataSource->addTestMarketData({
@@ -185,8 +186,8 @@ namespace
     void testMultipleUpdatesInSingleMessage()
     {
         const Config config = createConfig(InstrumentId { 1 });
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<Trade> tradeQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<Trade> tradeQueue;
         std::unique_ptr<TestMarketDataSource> marketDataSource = std::make_unique<TestMarketDataSource>();
 
         marketDataSource->addTestMarketData({
@@ -237,8 +238,8 @@ namespace
     void testInvalidMessageIsNotPushed()
     {
         const Config config = createConfig(InstrumentId { 1 });
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<Trade> tradeQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<Trade> tradeQueue;
         std::unique_ptr<TestMarketDataSource> marketDataSource = std::make_unique<TestMarketDataSource>();
 
         marketDataSource->addTestMarketData({"invalid message"});
@@ -263,8 +264,8 @@ namespace
     void testInvalidMessageDoesNotPreventNextMessage()
     {
         const Config config = createConfig(InstrumentId { 1 });
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<Trade> tradeQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<Trade> tradeQueue;
         std::unique_ptr<TestMarketDataSource> marketDataSource = std::make_unique<TestMarketDataSource>();
 
         marketDataSource->addTestMarketData({
@@ -302,8 +303,8 @@ namespace
     void testMixedValidAndInvalidMessages()
     {
         const Config config = createConfig(InstrumentId { 1 });
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<Trade> tradeQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<Trade> tradeQueue;
         std::unique_ptr<TestMarketDataSource> marketDataSource = std::make_unique<TestMarketDataSource>();
 
         marketDataSource->addTestMarketData({
@@ -355,5 +356,5 @@ void market_data_module_test()
     testInvalidMessageDoesNotPreventNextMessage();
     testMixedValidAndInvalidMessages();
 
-    std::cout << "All MarketDataModule tests: OK\n";
+    printMessage("All MarketDataModule tests: OK");
 }

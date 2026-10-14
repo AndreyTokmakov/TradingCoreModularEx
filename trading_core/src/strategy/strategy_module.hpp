@@ -13,9 +13,7 @@ Description : Executes strategy processing on the strategy thread.
 #include "market_data/model/market_event.hpp"
 #include "config/config.hpp"
 #include "imbalance_strategy.hpp"
-#include "common/queue.hpp"
-#include "common/worker.hpp"
-#include "strategy.hpp"
+#include "common/common.hpp"
 #include "strategy_executor.hpp"
 
 
@@ -25,8 +23,8 @@ namespace trading::strategy
     {
     public:
         StrategyModule(const config::StrategyConfig& strategyConfig,
-                       concurrency::Queue<market_data::MarketEvent>& strategyEventQueue,
-                       concurrency::Queue<execution::ExecutionWorkItem>& executionQueue);
+                       common::Queue<market_data::MarketEvent>& strategyEventQueue,
+                       common::Queue<execution::ExecutionWorkItem>& executionQueue);
 
         void run() const;
 
@@ -35,8 +33,8 @@ namespace trading::strategy
         ImbalanceStrategy strategy;
         StrategyExecutor executor;
 
-        concurrency::Queue<market_data::MarketEvent>& marketEventQueue;
-        concurrency::Queue<execution::ExecutionWorkItem>& executionQueue;
+        common::Queue<market_data::MarketEvent>& marketEventQueue;
+        common::Queue<execution::ExecutionWorkItem>& executionQueue;
     };
 }
 

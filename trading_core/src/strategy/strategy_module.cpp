@@ -12,8 +12,8 @@ Description : Executes strategy processing on the strategy thread.
 namespace trading::strategy
 {
     StrategyModule::StrategyModule(const config::StrategyConfig& strategyConfig,
-                                   concurrency::Queue<market_data::MarketEvent>& strategyEventQueue,
-                                   concurrency::Queue<execution::ExecutionWorkItem>& executionQueue):
+                                   common::Queue<market_data::MarketEvent>& strategyEventQueue,
+                                   common::Queue<execution::ExecutionWorkItem>& executionQueue):
         strategy {
             strategyConfig.thresholdNumerator,
             strategyConfig.thresholdDenominator

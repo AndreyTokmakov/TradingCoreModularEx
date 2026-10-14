@@ -14,6 +14,7 @@ Description : Market event handler tests.
 #include "position.hpp"
 #include "risk_manager.hpp"
 #include "test_support/testing.hpp"
+#include "test_support/debug_helpers.hpp"
 
 #include <iostream>
 

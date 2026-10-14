@@ -8,8 +8,10 @@ Description : strategy_module_test.cpp
 ============================================================================**/
 
 #include "strategy/strategy_module.hpp"
-#include "common/condition_variable_queue.hpp"
+#include "common/common.hpp"
+
 #include "test_support/testing.hpp"
+#include "test_support/debug_helpers.hpp"
 
 #include <iostream>
 #include <variant>
@@ -20,7 +22,7 @@ using trading::Price;
 using trading::Quantity;
 using trading::SequenceNumber;
 using trading::Side;
-using trading::concurrency::ConditionVariableQueue;
+using trading::common::CVQueue;
 using trading::execution::ExecutionWorkItem;
 using trading::execution::OrderRequest;
 using trading::market_data::MarketEvent;
@@ -81,8 +83,8 @@ namespace
 
     void testBuySignalProducesBuyOrder()
     {
-        ConditionVariableQueue<MarketEvent> marketEventQueue;
-        ConditionVariableQueue<ExecutionWorkItem> executionQueue;
+        CVQueue<MarketEvent> marketEventQueue;
+        CVQueue<ExecutionWorkItem> executionQueue;
 
         StrategyModule module {
             trading::config::StrategyConfig {
@@ -117,8 +119,8 @@ namespace
 
     void testSellSignalProducesSellOrder()
     {
-        ConditionVariableQueue<MarketEvent> marketEventQueue;
-        ConditionVariableQueue<ExecutionWorkItem> executionQueue;
+        CVQueue<MarketEvent> marketEventQueue;
+        CVQueue<ExecutionWorkItem> executionQueue;
 
         StrategyModule module {
             trading::config::StrategyConfig {
@@ -153,8 +155,8 @@ namespace
 
     void testNoneSignalProducesNoOrder()
     {
-        ConditionVariableQueue<MarketEvent> marketEventQueue;
-        ConditionVariableQueue<ExecutionWorkItem> executionQueue;
+        CVQueue<MarketEvent> marketEventQueue;
+        CVQueue<ExecutionWorkItem> executionQueue;
 
         StrategyModule module {
             trading::config::StrategyConfig {
@@ -179,8 +181,8 @@ namespace
 
     void testInstrumentIsPropagated()
     {
-        ConditionVariableQueue<MarketEvent> marketEventQueue;
-        ConditionVariableQueue<ExecutionWorkItem> executionQueue;
+        CVQueue<MarketEvent> marketEventQueue;
+        CVQueue<ExecutionWorkItem> executionQueue;
 
         StrategyModule module {
             trading::config::StrategyConfig {
@@ -212,8 +214,8 @@ namespace
 
     void testConfiguredOrderQuantityIsUsed()
     {
-        ConditionVariableQueue<MarketEvent> marketEventQueue;
-        ConditionVariableQueue<ExecutionWorkItem> executionQueue;
+        CVQueue<MarketEvent> marketEventQueue;
+        CVQueue<ExecutionWorkItem> executionQueue;
 
         constexpr Quantity ConfiguredQuantity { 250'000'000 };
 
@@ -241,8 +243,8 @@ namespace
 
     void testBuyUsesBestAsk()
     {
-        ConditionVariableQueue<MarketEvent> marketEventQueue;
-        ConditionVariableQueue<ExecutionWorkItem> executionQueue;
+        CVQueue<MarketEvent> marketEventQueue;
+        CVQueue<ExecutionWorkItem> executionQueue;
 
         StrategyModule module {
             trading::config::StrategyConfig {
@@ -277,8 +279,8 @@ namespace
 
     void testSellUsesBestBid()
     {
-        ConditionVariableQueue<MarketEvent> marketEventQueue;
-        ConditionVariableQueue<ExecutionWorkItem> executionQueue;
+        CVQueue<MarketEvent> marketEventQueue;
+        CVQueue<ExecutionWorkItem> executionQueue;
 
         StrategyModule module {
             trading::config::StrategyConfig {
@@ -312,8 +314,8 @@ namespace
 
     void testMultipleMarketEventsProduceMultipleOrders()
     {
-        ConditionVariableQueue<MarketEvent> marketEventQueue;
-        ConditionVariableQueue<ExecutionWorkItem> executionQueue;
+        CVQueue<MarketEvent> marketEventQueue;
+        CVQueue<ExecutionWorkItem> executionQueue;
 
         StrategyModule module {
             trading::config::StrategyConfig {
@@ -375,5 +377,5 @@ void strategy_module_test()
     testSellUsesBestBid();
     testMultipleMarketEventsProduceMultipleOrders();
 
-    std::cout << "All StrategyModule tests: OK\n";
+    printMessage("All StrategyModule tests: OK");
 }

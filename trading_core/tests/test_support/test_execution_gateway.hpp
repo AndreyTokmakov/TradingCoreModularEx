@@ -15,7 +15,6 @@ Description : mock_execution_gateway.сpp
 #include <vector>
 
 #include "test_support/debug_helpers.hpp"
-using namespace  trading::testing;
 
 namespace trading::testing
 {

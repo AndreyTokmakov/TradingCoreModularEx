@@ -7,13 +7,13 @@ Copyright   : Your copyright notice
 Description : execution_module_test.cpp
 ============================================================================**/
 
-
 #include "execution/execution_module.hpp"
-#include "common/condition_variable_queue.hpp"
-#include "test_support/testing.hpp"
+#include "common/common.hpp"
 #include "test_support/test_exchange_factory.hpp"
 #include "test_support/test_execution_gateway.hpp"
-#include "test_support/test_exchange_factory.hpp"
+
+#include "test_support/testing.hpp"
+#include "test_support/debug_helpers.hpp"
 
 #include <iostream>
 #include <variant>
@@ -24,7 +24,7 @@ using trading::OrderType;
 using trading::Price;
 using trading::Quantity;
 using trading::Side;
-using trading::concurrency::ConditionVariableQueue;
+using trading::common::CVQueue;
 using trading::execution::ExecutionModule;
 using trading::execution::ExecutionReport;
 using trading::execution::ExecutionWorkItem;
@@ -90,8 +90,8 @@ namespace
      */
     void testOrderRequestCreatesAndSendsOrder()
     {
-        ConditionVariableQueue<ExecutionWorkItem> executionQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<ExecutionWorkItem> executionQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         auto gateway = std::make_unique<TestExecutionGateway>();
         TestExecutionGateway* gatewayPtr = gateway.get();
@@ -131,8 +131,8 @@ namespace
      */
     void testOrderRequestIsRecorded()
     {
-        ConditionVariableQueue<ExecutionWorkItem> executionQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<ExecutionWorkItem> executionQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         auto gateway = std::make_unique<TestExecutionGateway>();
         TestExchangeFactory exchangeFactory { TestMocks  {
@@ -172,8 +172,8 @@ namespace
      */
     void testRiskRejectedOrderIsNotSent()
     {
-        ConditionVariableQueue<ExecutionWorkItem> executionQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<ExecutionWorkItem> executionQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         auto gateway = std::make_unique<TestExecutionGateway>();
         TestExecutionGateway* gatewayPtr = gateway.get();
@@ -212,8 +212,8 @@ namespace
      */
     void testExecutionReportUpdatesOrder()
     {
-        ConditionVariableQueue<ExecutionWorkItem> executionQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<ExecutionWorkItem> executionQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         auto gateway = std::make_unique<TestExecutionGateway>();
         TestExchangeFactory exchangeFactory { TestMocks  {
@@ -249,8 +249,8 @@ namespace
      */
     void testExecutionReportIsRecorded()
     {
-        ConditionVariableQueue<ExecutionWorkItem> executionQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<ExecutionWorkItem> executionQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         auto gateway = std::make_unique<TestExecutionGateway>();
         TestExchangeFactory exchangeFactory { TestMocks  {
@@ -293,8 +293,8 @@ namespace
      */
     void testTradeUpdatesPosition()
     {
-        ConditionVariableQueue<ExecutionWorkItem> executionQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<ExecutionWorkItem> executionQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         auto gateway = std::make_unique<TestExecutionGateway>();
         TestExchangeFactory exchangeFactory { TestMocks  {
@@ -326,8 +326,8 @@ namespace
      */
     void testUnknownOrderExecutionDoesNotCreateOrder()
     {
-        ConditionVariableQueue<ExecutionWorkItem> executionQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<ExecutionWorkItem> executionQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         auto gateway = std::make_unique<trading::testing::TestExecutionGateway>();
         auto* gatewayPtr = gateway.get();
@@ -365,8 +365,8 @@ namespace
      */
     void testMultipleWorkItemsAreProcessedInOrder()
     {
-        ConditionVariableQueue<ExecutionWorkItem> executionQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<ExecutionWorkItem> executionQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         auto gateway = std::make_unique<TestExecutionGateway>();
         TestExecutionGateway* gatewayPtr = gateway.get();
@@ -413,5 +413,5 @@ void execution_module_test()
     testUnknownOrderExecutionDoesNotCreateOrder();
     testMultipleWorkItemsAreProcessedInOrder();
 
-    std::cout << "All ExecutionModule tests: OK\n";
+    printMessage("All ExecutionModule tests: OK");
 }

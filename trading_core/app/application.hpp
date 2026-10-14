@@ -28,7 +28,7 @@ Description : application.hpp
 #define FINANCETECHNOLOGYPROJECTS_APPLICATION_HPP
 
 #include "config/config.hpp"
-#include "common/condition_variable_queue.hpp"
+#include "common/common.hpp"
 
 #include "execution/execution_module.hpp"
 #include "execution/execution_report_module.hpp"
@@ -60,11 +60,11 @@ namespace trading::app
 
         config::Config config;
 
-        concurrency::ConditionVariableQueue<market_data::BookUpdate> bookUpdateQueue;
-        concurrency::ConditionVariableQueue<market_data::Trade> tradeQueue;
-        concurrency::ConditionVariableQueue<market_data::MarketEvent> strategyEventQueue;
-        concurrency::ConditionVariableQueue<recording::RecordingEvent> recordingEventQueue;
-        concurrency::ConditionVariableQueue<execution::ExecutionWorkItem> executionQueue;
+        common::CVQueue<market_data::BookUpdate> bookUpdateQueue;
+        common::CVQueue<market_data::Trade> tradeQueue;
+        common::CVQueue<market_data::MarketEvent> strategyEventQueue;
+        common::CVQueue<recording::RecordingEvent> recordingEventQueue;
+        common::CVQueue<execution::ExecutionWorkItem> executionQueue;
 
         std::unique_ptr<exchanges::IExchangeFactory> exchangeFactory;
 

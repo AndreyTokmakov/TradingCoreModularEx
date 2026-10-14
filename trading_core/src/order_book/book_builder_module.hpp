@@ -12,8 +12,7 @@ Description : Processes market-data book updates on the BookBuilder thread.
 
 #include "book_builder.hpp"
 #include "config/config.hpp"
-#include "common/condition_variable_queue.hpp"
-#include "common/worker.hpp"
+#include "common/common.hpp"
 #include "market_data/market_event_dispatcher.hpp"
 #include "market_data/interfaces/market_data_parser.hpp"
 #include "market_data/interfaces/snapshot_provider.hpp"
@@ -34,15 +33,15 @@ namespace trading::order_book
     {
     public:
         BookBuilderModule(const config::Config& config,
-                          concurrency::ConditionVariableQueue<BookUpdate>& bookUpdateQueue,
-                          concurrency::ConditionVariableQueue<MarketEvent>& strategyEventQueue,
-                          concurrency::ConditionVariableQueue<recording::RecordingEvent>& recordingQueue,
+                          common::CVQueue<BookUpdate>& bookUpdateQueue,
+                          common::CVQueue<MarketEvent>& strategyEventQueue,
+                          common::CVQueue<recording::RecordingEvent>& recordingQueue,
                           const exchanges::IExchangeFactory& exchangeFactory) noexcept;
 
         void run();
 
     private:
-        concurrency::ConditionVariableQueue<BookUpdate>& bookUpdateQueue;
+        common::CVQueue<BookUpdate>& bookUpdateQueue;
 
         OrderBook orderBook;
         MarketEventDispatcher marketEventDispatcher;

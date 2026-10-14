@@ -36,7 +36,9 @@ Description : risk_manager_test.cpp
 */
 
 #include "risk/risk_manager.hpp"
+
 #include "test_support/testing.hpp"
+#include "test_support/debug_helpers.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -305,5 +307,5 @@ void risk_manager_test()
     testDisabledLimits();
     testReasonIsResetAfterAcceptedOrder();
 
-    std::cout << "All RiskManager tests: OK\n";
+    printMessage("All RiskManager tests: OK");
 }

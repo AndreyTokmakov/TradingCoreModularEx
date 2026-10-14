@@ -8,7 +8,9 @@ Description : imbalance_strategy_test.cpp
 ============================================================================**/
 
 #include "strategy/imbalance_strategy.hpp"
+
 #include "test_support/testing.hpp"
+#include "test_support/debug_helpers.hpp"
 
 #include <iostream>
 
@@ -354,5 +356,5 @@ void imbalance_strategy_test()
     testBuySellSymmetry();
     testLargeQuantities();
 
-    std::cout << "All ImbalanceStrategy tests: OK\n";
+    printMessage("All ImbalanceStrategy tests: OK");
 }

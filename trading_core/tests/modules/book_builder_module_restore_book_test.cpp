@@ -8,11 +8,12 @@ Description : book_builder_module.cpp
 ============================================================================**/
 
 #include "order_book/book_builder_module.hpp"
-#include "test_support/testing.hpp"
 #include "test_support/test_snapshot_provider.hpp"
 #include "test_support/test_exchange_factory.hpp"
 
-#include <condition_variable>
+#include "test_support/testing.hpp"
+#include "test_support/debug_helpers.hpp"
+
 #include <iostream>
 #include <memory>
 #include <mutex>
@@ -27,7 +28,7 @@ using trading::Side;
 using trading::Timestamp;
 using trading::config::Config;
 using trading::exchanges::IExchangeFactory;
-using trading::concurrency::ConditionVariableQueue;
+using trading::common::CVQueue;
 using trading::order_book::BookBuilderModule;
 using trading::market_data::BookUpdate;
 using trading::market_data::IMarketDataParser;
@@ -45,7 +46,7 @@ namespace
     using testing::AssertTrue;
 
     template <typename Ty>
-    using Queue = trading::concurrency::Queue<Ty>;
+    using Queue = trading::common::Queue<Ty>;
 
     constexpr InstrumentId INSTRUMENT { 42 };
     constexpr Price INITIAL_BID { 6'500'000'000'000 };
@@ -116,9 +117,9 @@ namespace
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<MarketEvent> strategyEventQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         std::unique_ptr<TestSnapshotProvider> snapshotProvider = std::make_unique<TestSnapshotProvider>(
             createSnapshot(), std::chrono::milliseconds(100)
@@ -169,9 +170,9 @@ namespace
     {
         Config config = createConfig();
 
-        ConditionVariableQueue<BookUpdate> bookUpdateQueue;
-        ConditionVariableQueue<MarketEvent> strategyEventQueue;
-        ConditionVariableQueue<RecordingEvent> recordingQueue;
+        CVQueue<BookUpdate> bookUpdateQueue;
+        CVQueue<MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingQueue;
 
         auto snapshotProvider = std::make_unique<TestSnapshotProvider>(createSnapshot(150));
         [[maybe_unused]] TestSnapshotProvider* snapshotProviderPtr = snapshotProvider.get();
@@ -203,5 +204,5 @@ void book_builder_module_restore_book_test()
     testUpdatesArriveWhileSnapshotIsBeingFetched();
     // testOnlyUpdatesAfterSnapshotSequenceAreProcessed();
 
-    std::cout << "All BookBuilderModule RestoreBook tests: OK\n";
+    printMessage("All BookBuilderModule RestoreBook tests: OK");
 }

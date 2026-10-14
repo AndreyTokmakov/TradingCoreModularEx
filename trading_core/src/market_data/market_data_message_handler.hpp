@@ -73,7 +73,7 @@ Description : market_data_message_handler.hpp
 
 #include "interfaces/market_data_parser.hpp"
 #include "interfaces/market_data_handler.hpp"
-#include "common/queue.hpp"
+#include "common/common.hpp"
 #include "metrics/metrics_collector.hpp"
 #include "logging/logger.hpp"
 
@@ -83,8 +83,8 @@ namespace trading::market_data
     {
     public:
         MarketDataMessageHandler(IMarketDataParser& parser,
-                                 concurrency::Queue<BookUpdate>& bookUpdateQueue,
-                                 concurrency::Queue<Trade>& tradeQueue) noexcept;
+                                 common::Queue<BookUpdate>& bookUpdateQueue,
+                                 common::Queue<Trade>& tradeQueue) noexcept;
 
         void onMessage(std::string_view message) override;
 
@@ -92,8 +92,8 @@ namespace trading::market_data
         MarketDataItem marketDataItem;
 
         IMarketDataParser& parser;
-        concurrency::Queue<BookUpdate>& bookUpdateQueue;
-        concurrency::Queue<Trade>& tradeQueue;
+        common::Queue<BookUpdate>& bookUpdateQueue;
+        common::Queue<Trade>& tradeQueue;
 
         std::shared_ptr<logging::ILogger> logger;
         static inline thread_local metrics::Metrics& metrics  = metrics::MetricsCollector::getCollector().getThreadLocalMetrics();
