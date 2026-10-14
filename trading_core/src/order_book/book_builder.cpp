@@ -38,7 +38,6 @@ Description : book_builder.cpp
 */
 
 #include "book_builder.hpp"
-#include "test_support/debug_helpers.hpp"
 
 namespace trading::order_book
 {
@@ -53,7 +52,6 @@ namespace trading::order_book
 
     bool BookBuilder::applySnapshot(const Snapshot& snapshot) const
     {
-        std::cout << "BookBuilder::onBookUpdate -> " << snapshot << std::endl;
         if (snapshot.instrument != instrument)
             return false;
         orderBook.setState(snapshot.sequence, snapshot.bids, snapshot.asks);
@@ -63,7 +61,6 @@ namespace trading::order_book
 
     void BookBuilder::onBookUpdate(const BookUpdate& update) const
     {
-        std::cout << "BookBuilder::onBookUpdate -> " << update << std::endl;
         if (update.instrument != instrument)
             return;
         if (!isSequenceValid(update))
