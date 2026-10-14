@@ -33,131 +33,102 @@ Description : binance_market_data_parser.cpp
 
 #include "binance_market_data_parser.hpp"
 
+#include <iostream>
+
+#include <simdjson.h>
 // #include <nlohmann/json.hpp>
+
+
+namespace
+{
+    constexpr std::int64_t DecimalScale = 100'000'000;
+
+    std::int64_t parseDecimal(const std::string_view value)
+    {
+        bool negative = false;
+        std::size_t index = 0;
+
+        if (!value.empty() && value.front() == '-')
+        {
+            negative = true;
+            index = 1;
+        }
+
+        std::int64_t integerPart = 0;
+
+        while (index < value.size() && value[index] != '.')
+        {
+            integerPart =
+                integerPart * 10 +
+                static_cast<std::int64_t>(value[index] - '0');
+
+            ++index;
+        }
+
+        std::int64_t fractionalPart = 0;
+        std::size_t fractionalDigits = 0;
+
+        if (index < value.size() && value[index] == '.')
+        {
+            ++index;
+            while (index < value.size() && fractionalDigits < 8)
+            {
+                fractionalPart = fractionalPart * 10 + static_cast<std::int64_t>(value[index] - '0');
+                ++fractionalDigits;
+                ++index;
+            }
+        }
+
+        while (fractionalDigits < 8)
+        {
+            fractionalPart *= 10;
+            ++fractionalDigits;
+        }
+
+        const std::int64_t result = integerPart * DecimalScale + fractionalPart;
+
+        return negative ? -result : result;
+    }
+}
 
 namespace trading::exchanges::binance
 {
     market_data::ParseResult
-    BinanceMarketDataParser::parse([[maybe_unused]] std::string_view message,
+    BinanceMarketDataParser::parse(std::string_view message,
                                    [[maybe_unused]] market_data::MarketDataItem& marketDataItem) const
     {
-        /*
-            Existing Binance parsing logic goes here.
-            Example:
-                bookUpdates.emplace_back(...);
-            Successful parsing:
-                return market_data::ParseResult::Success;
-            Parsing failure:
-                return market_data::ParseResult::InvalidMessage;
-            The concrete error values should correspond to the actual validation failure.
-        */
+        simdjson::dom::parser parser;
+        const simdjson::dom::element document = parser.parse(message.data(), message.size());
+
+        market_data::BookUpdate bookUpdate;
+
+        bookUpdate.exchangeTimestamp   = static_cast<Timestamp>(document["E"].get_uint64());
+        bookUpdate.sequenceRange.first = static_cast<SequenceNumber>(document["U"].get_uint64());
+        bookUpdate.sequenceRange.last  = static_cast<SequenceNumber>(document["u"].get_uint64());
+
+        const auto& bids = document["b"].get_array();
+        const auto& asks = document["a"].get_array();
+        bookUpdate.updates.reserve(bids.size() + asks.size());
+
+        for (const auto& level : bids)
+        {
+            const simdjson::dom::array values = level.get_array();
+            bookUpdate.updates.emplace_back(
+                Side::Buy,
+                Price { parseDecimal(values.at(0).get_string()) },
+                Quantity { parseDecimal( values.at(1).get_string()) }
+            );
+        }
+        for (const auto& level : asks)
+        {
+            const simdjson::dom::array values = level.get_array();
+            bookUpdate.updates.emplace_back(
+                Side::Sell,
+                Price { parseDecimal(values.at(0).get_string()) },
+                Quantity { parseDecimal( values.at(1).get_string()) }
+            );
+        }
 
         return market_data::ParseResult::Success;
-
-#if 0
-        try
-        {
-            const auto json = nlohmann::json::parse(message);
-
-            if (!json.is_object())
-                return std::unexpected { market_data::ParseError::InvalidMessage };
-            /*
-                Binance depthUpdate example:
-
-                {
-                    "e": "depthUpdate",
-                    "E": 1672515782136,
-                    "s": "BTCUSDT",
-                    "U": 157,
-                    "u": 160,
-                    "b": [
-                        ["0.10000000", "1.00000000"]
-                    ],
-                    "a": [
-                        ["0.20000000", "2.00000000"]
-                    ]
-                }
-
-                The exact conversion to InstrumentId, Price and Quantity
-                should use the existing project-specific conversion logic.
-            */
-
-            if (!json.contains("e"))
-                return std::unexpected { market_data::ParseError::MissingField };
-
-            if (json.at("e") != "depthUpdate")
-                return std::unexpected {
-                    market_data::ParseError::UnsupportedMessage
-                };
-
-            if (!json.contains("E") ||
-                !json.contains("U") ||
-                !json.contains("u") ||
-                !json.contains("b") ||
-                !json.contains("a"))
-            {
-                return std::unexpected {
-                    market_data::ParseError::MissingField
-                };
-            }
-
-            const auto sequence = json.at("u").get<SequenceNumber>();
-            const auto timestamp = json.at("E").get<Timestamp::Value>();
-
-            constexpr InstrumentId instrument {
-                // Use the existing Binance symbol -> InstrumentId mapping.
-                0
-            };
-
-            std::vector<market_data::BookUpdate> updates;
-
-            for (const auto& level : json.at("b"))
-            {
-                if (!level.is_array() || level.size() != 2)
-                    return std::unexpected {
-                        market_data::ParseError::InvalidField
-                    };
-
-                market_data::BookUpdate update;
-                update.instrument = instrument;
-                update.sequence = sequence;
-                update.exchangeTimestamp = Timestamp { timestamp };
-                update.side = Side::Buy;
-
-                // Use the existing Price / Quantity construction logic here.
-                update.price = Price { level.at(0).get<double>() };
-                update.quantity = Quantity { level.at(1).get<double>() };
-
-                updates.push_back(update);
-            }
-
-            for (const auto& level : json.at("a"))
-            {
-                if (!level.is_array() || level.size() != 2)
-                    return std::unexpected {
-                        market_data::ParseError::InvalidField
-                    };
-
-                market_data::BookUpdate update;
-                update.instrument = instrument;
-                update.sequence = sequence;
-                update.exchangeTimestamp = Timestamp { timestamp };
-                update.side = Side::Sell;
-
-                update.price = Price { level.at(0).get<double>() };
-                update.quantity = Quantity { level.at(1).get<double>() };
-
-                updates.push_back(update);
-            }
-
-            return updates;
-        }
-        catch (const nlohmann::json::exception&)
-        {
-            return std::unexpected {
-                market_data::ParseError::InvalidJson
-            };
-        }
-#endif
     }
 }

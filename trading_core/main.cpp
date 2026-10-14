@@ -13,9 +13,18 @@ Description :
 #include <vector>
 #include <string_view>
 
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/connect.hpp>
+#include <boost/asio/ssl.hpp>
+#include <boost/beast/core.hpp>
+#include <boost/beast/ssl.hpp>
+#include <boost/beast/websocket.hpp>
+
 #include "app/application.hpp"
+#include "exchanges/binance/binance_market_data_parser.hpp"
 #include "logging/logger_factory.hpp"
 #include "test_support/test_logger.hpp"
+#include "exchanges/binance/binance_web_socket_client.hpp"
 
 void price_test();
 void order_book_test();
@@ -44,6 +53,7 @@ void trade_processor_test();
 
 void trading_integration_test();
 void trading_inbound_integration_test();
+
 
 
 // TODO: - Improvements
@@ -210,14 +220,60 @@ namespace
     }
 }
 
+namespace binance
+{
+    namespace asio = boost::asio;
+    namespace ssl = asio::ssl;
+    namespace market_data = trading::market_data;
+
+    using namespace trading::exchanges::binance;
+    using market_data::ParseResult;
+
+    void test()
+    {
+        const std::string host { "stream.binance.com" };
+        constexpr uint16_t port { 443 };
+
+        constexpr std::string_view subscriptionDepth {
+            R"({"method": "SUBSCRIBE","params": ["btcusdt@depth"], "id": 1})"
+        };
+
+        asio::io_context ioContext;
+        ssl::context sslContext{ssl::context::tls_client};
+
+        const std::unique_ptr<market_data::IMarketDataParser> parser = std::make_unique<BinanceMarketDataParser>();
+
+        int msgCount = 0;
+        market_data::MarketDataItem marketDataItem;
+        BinanceWebSocketClient webSocket(ioContext,sslContext, [&](const std::string_view message) {
+                ++msgCount;
+                if (msgCount > 1)
+                {
+                    if (parser->parse(message, marketDataItem) != ParseResult::Success) {
+                        return;
+                    }
+                }
+            },
+            [](const beast::error_code &errorCode){
+                std::cerr << "WebSocket error: " << errorCode.message()<< '\n';
+        });
+
+        webSocket.connect(host, std::to_string(port),"/ws");
+        webSocket.send(subscriptionDepth);
+        ioContext.run();
+    }
+}
+
 int main([[maybe_unused]] const int argc,
          [[maybe_unused]] char** argv)
 {
     const std::vector<std::string_view> parameters(argv + 1, argv + argc);
 
     // runApp(parameters);
-    runTests(parameters);
+    // runTests(parameters);
     // runSingleTest(parameters);
+
+    binance::test();
 
     return EXIT_SUCCESS;
 }

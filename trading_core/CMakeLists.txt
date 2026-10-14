@@ -10,13 +10,12 @@ set(CMAKE_CXX_STANDARD 26)
 
 add_compile_options(-c -Wall -Wextra -O3 -std=c++26)
 
-#[[
 message(STATUS "[dependency] fetching Boost")
 set(BOOST_ENABLE_PYTHON OFF)
 set(BOOST_IOSTREAMS_ENABLE_ZLIB ON)
 FetchContent_Declare(boost
         GIT_REPOSITORY https://github.com/boostorg/boost.git
-        GIT_TAG boost-1.85.0
+        GIT_TAG boost-1.88.0
         GIT_SHALLOW ON
         GIT_PROGRESS ON
         GIT_SUBMODULES ${BOOST_REQD_SUBMODULES}
@@ -24,14 +23,18 @@ FetchContent_Declare(boost
         OVERRIDE_FIND_PACKAGE
 )
 FetchContent_MakeAvailable(boost)
-#]]
 
+find_package(OpenSSL REQUIRED)
 
 # Nlohmann JSON
 include_directories(${THIRD_PARTY_DIR}/json/include)
+
+# SIMD Json:
+include_directories(${THIRD_PARTY_DIR}/simdjson/include)
+link_directories(${THIRD_PARTY_DIR}/simdjson/build)
+
 # SPD Log
 include_directories(${THIRD_PARTY_DIR}/spdlog/include)
-
 
 
 set(PROJECT_DIR ${CMAKE_SOURCE_DIR}/${PROJECT_NAME})
@@ -159,6 +162,8 @@ add_executable(${PROJECT_NAME}
         ${BINANCE}/binance_snapshot_provider.cpp
         ${BINANCE}/binance_exchange_factory.hpp
         ${BINANCE}/binance_exchange_factory.cpp
+        ${BINANCE}/binance_web_socket_client.cpp
+        ${BINANCE}/binance_web_socket_client.cpp
 
         ${POSITION}/position.hpp
         ${POSITION}/position.cpp
@@ -245,5 +250,9 @@ target_link_directories(${PROJECT_NAME} PUBLIC "${CMAKE_BINARY_DIR}/Utilities")
 TARGET_LINK_LIBRARIES(${PROJECT_NAME}
         utils
         pthread
+        simdjson
+        Boost::system
+        OpenSSL::SSL
+        OpenSSL::Crypto
         ${EXTRA_LIBS}
 )
