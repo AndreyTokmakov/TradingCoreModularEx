@@ -7,24 +7,20 @@ Copyright   : Your copyright notice
 Description : 
 ============================================================================**/
 
-
 #include <iostream>
 #include <filesystem>
 #include <vector>
 #include <string_view>
 
-#include <boost/asio/io_context.hpp>
-#include <boost/asio/connect.hpp>
-#include <boost/asio/ssl.hpp>
-#include <boost/beast/core.hpp>
-#include <boost/beast/ssl.hpp>
-#include <boost/beast/websocket.hpp>
-
 #include "app/application.hpp"
 #include "exchanges/binance/binance_market_data_parser.hpp"
 #include "logging/logger_factory.hpp"
 #include "test_support/test_logger.hpp"
-#include "exchanges/binance/binance_web_socket_client.hpp"
+
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/ssl.hpp>
+#include <boost/beast/core.hpp>
+#include "network/web_socket_client.hpp"
 
 void price_test();
 void order_book_test();
@@ -235,31 +231,37 @@ namespace binance
         constexpr uint16_t port { 443 };
 
         constexpr std::string_view subscriptionDepth {
-            R"({"method": "SUBSCRIBE","params": ["btcusdt@depth"], "id": 1})"
+            R"({"method": "SUBSCRIBE","params": ["btcusdt@depth", "btcusdt@trade"], "id": 1})"
         };
 
         asio::io_context ioContext;
         ssl::context sslContext{ssl::context::tls_client};
 
+#if 0
+        // Disable certificate verification temporarily for local debugging only.
+        sslContext.set_default_verify_paths();
+        sslContext.set_verify_mode(asio::ssl::verify_peer);
+#endif
+
         const std::unique_ptr<market_data::IMarketDataParser> parser = std::make_unique<BinanceMarketDataParser>();
 
         int msgCount = 0;
         market_data::MarketDataItem marketDataItem;
-        BinanceWebSocketClient webSocket(ioContext,sslContext, [&](const std::string_view message) {
-                ++msgCount;
-                if (msgCount > 1)
-                {
-                    if (parser->parse(message, marketDataItem) != ParseResult::Success) {
-                        return;
-                    }
+        trading::network::WebSocketClient wsClient(ioContext,sslContext,
+        [&](const std::string_view message) {
+            ++msgCount;
+            if (msgCount > 1) {
+                if (parser->parse(message, marketDataItem) != ParseResult::Success) {
+                    return;
                 }
-            },
-            [](const beast::error_code &errorCode){
+            }
+        },
+            [](const boost::beast::error_code &errorCode){
                 std::cerr << "WebSocket error: " << errorCode.message()<< '\n';
         });
 
-        webSocket.connect(host, std::to_string(port),"/ws");
-        webSocket.send(subscriptionDepth);
+        wsClient.connect(host, std::to_string(port),"/ws");
+        wsClient.send(subscriptionDepth);
         ioContext.run();
     }
 }

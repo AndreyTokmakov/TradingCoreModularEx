@@ -50,6 +50,7 @@ set(EXECUTION   ${SOURCES}/execution)
 set(EXCHANGES   ${SOURCES}/exchanges)
 set(LOGGING     ${SOURCES}/logging)
 set(MARKET_DATA ${SOURCES}/market_data)
+set(NETWORK     ${SOURCES}/network)
 set(METRICS     ${SOURCES}/metrics)
 set(ORDER_BOOK  ${SOURCES}/order_book)
 set(POSITION    ${SOURCES}/position)
@@ -104,6 +105,9 @@ add_executable(${PROJECT_NAME}
         ${METRICS}/metrics_collector.hpp
         ${METRICS}/metrics_collector.cpp
         # ${METRICS}/hugh_resolution_timer.hpp
+
+        ${NETWORK}/web_socket_client.cpp
+        ${NETWORK}/web_socket_client.hpp
 
         ${MARKET_DATA}/interfaces/market_data_handler.hpp
         ${MARKET_DATA}/interfaces/market_data_parser.hpp
@@ -162,8 +166,6 @@ add_executable(${PROJECT_NAME}
         ${BINANCE}/binance_snapshot_provider.cpp
         ${BINANCE}/binance_exchange_factory.hpp
         ${BINANCE}/binance_exchange_factory.cpp
-        ${BINANCE}/binance_web_socket_client.cpp
-        ${BINANCE}/binance_web_socket_client.cpp
 
         ${POSITION}/position.hpp
         ${POSITION}/position.cpp
@@ -247,7 +249,7 @@ add_executable(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/Utilities")
 target_link_directories(${PROJECT_NAME} PUBLIC "${CMAKE_BINARY_DIR}/Utilities")
 
-TARGET_LINK_LIBRARIES(${PROJECT_NAME}
+target_link_libraries(${PROJECT_NAME}
         utils
         pthread
         simdjson

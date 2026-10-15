@@ -36,32 +36,25 @@ Description : binance_market_data_parser.cpp
 #include <iostream>
 
 #include <simdjson.h>
-// #include <nlohmann/json.hpp>
-
 
 namespace
 {
     constexpr std::int64_t DecimalScale = 100'000'000;
+    constexpr std::uint64_t NanosecondsPerMillisecond = 1'000'000;
 
     std::int64_t parseDecimal(const std::string_view value)
     {
         bool negative = false;
         std::size_t index = 0;
 
-        if (!value.empty() && value.front() == '-')
-        {
+        if (!value.empty() && value.front() == '-'){
             negative = true;
             index = 1;
         }
 
         std::int64_t integerPart = 0;
-
-        while (index < value.size() && value[index] != '.')
-        {
-            integerPart =
-                integerPart * 10 +
-                static_cast<std::int64_t>(value[index] - '0');
-
+        while (index < value.size() && value[index] != '.') {
+            integerPart = integerPart * 10 + static_cast<std::int64_t>(value[index] - '0');
             ++index;
         }
 
@@ -71,62 +64,90 @@ namespace
         if (index < value.size() && value[index] == '.')
         {
             ++index;
-            while (index < value.size() && fractionalDigits < 8)
-            {
+            while (index < value.size() && fractionalDigits < 8) {
                 fractionalPart = fractionalPart * 10 + static_cast<std::int64_t>(value[index] - '0');
                 ++fractionalDigits;
                 ++index;
             }
         }
 
-        while (fractionalDigits < 8)
-        {
+        while (fractionalDigits < 8) {
             fractionalPart *= 10;
             ++fractionalDigits;
         }
 
         const std::int64_t result = integerPart * DecimalScale + fractionalPart;
-
         return negative ? -result : result;
     }
+
+    static constexpr std::string_view TradeEventType { "trade" };
+    static constexpr std::string_view DepthUpdateEventType { "depthUpdate" };
+
+    // TODO: where to store ??
+    simdjson::dom::parser parser;
+
+    // TODO: create CV sonstants?
+    // "t" "T" "p" "q"
 }
 
 namespace trading::exchanges::binance
 {
     market_data::ParseResult
-    BinanceMarketDataParser::parse(std::string_view message,
+    BinanceMarketDataParser::parse(const std::string_view message,
                                    [[maybe_unused]] market_data::MarketDataItem& marketDataItem) const
     {
-        simdjson::dom::parser parser;
+        std::cout << message << std::endl;
+
         const simdjson::dom::element document = parser.parse(message.data(), message.size());
+        const std::string_view eventType = document["e"].get_string().value();
 
-        market_data::BookUpdate bookUpdate;
-
-        bookUpdate.exchangeTimestamp   = static_cast<Timestamp>(document["E"].get_uint64());
-        bookUpdate.sequenceRange.first = static_cast<SequenceNumber>(document["U"].get_uint64());
-        bookUpdate.sequenceRange.last  = static_cast<SequenceNumber>(document["u"].get_uint64());
-
-        const auto& bids = document["b"].get_array();
-        const auto& asks = document["a"].get_array();
-        bookUpdate.updates.reserve(bids.size() + asks.size());
-
-        for (const auto& level : bids)
+        if (eventType == TradeEventType)
         {
-            const simdjson::dom::array values = level.get_array();
-            bookUpdate.updates.emplace_back(
-                Side::Buy,
-                Price { parseDecimal(values.at(0).get_string()) },
-                Quantity { parseDecimal( values.at(1).get_string()) }
-            );
+            const std::uint64_t tradeId = document["t"].get_uint64().value();
+            const std::uint64_t timestampMilliseconds = document["T"].get_uint64().value();
+            const std::string_view priceString = document["p"].get_string().value();
+            const std::string_view quantityString = document["q"].get_string().value();
+            const bool buyerIsMaker = document["m"].get_bool().value();
+
+            market_data::Trade trade;
+
+            // trade.instrument = instrument;
+            trade.sequence = tradeId;
+            trade.exchangeTimestamp = Timestamp { timestampMilliseconds * NanosecondsPerMillisecond };
+            trade.price = Price { parseDecimal(priceString) };
+            trade.quantity = Quantity { parseDecimal(quantityString) };
+            trade.side = buyerIsMaker ? Side::Sell : Side::Buy;
         }
-        for (const auto& level : asks)
+        else if (eventType == DepthUpdateEventType)
         {
-            const simdjson::dom::array values = level.get_array();
-            bookUpdate.updates.emplace_back(
-                Side::Sell,
-                Price { parseDecimal(values.at(0).get_string()) },
-                Quantity { parseDecimal( values.at(1).get_string()) }
-            );
+            market_data::BookUpdate bookUpdate;
+
+            bookUpdate.exchangeTimestamp   = static_cast<Timestamp>(document["E"].get_uint64());
+            bookUpdate.sequenceRange.first = static_cast<SequenceNumber>(document["U"].get_uint64());
+            bookUpdate.sequenceRange.last  = static_cast<SequenceNumber>(document["u"].get_uint64());
+
+            const auto& bids = document["b"].get_array();
+            const auto& asks = document["a"].get_array();
+            bookUpdate.updates.reserve(bids.size() + asks.size());
+
+            for (const auto& level : bids)
+            {
+                const simdjson::dom::array values = level.get_array();
+                bookUpdate.updates.emplace_back(
+                    Side::Buy,
+                    Price { parseDecimal(values.at(0).get_string()) },
+                    Quantity { parseDecimal( values.at(1).get_string()) }
+                );
+            }
+            for (const auto& level : asks)
+            {
+                const simdjson::dom::array values = level.get_array();
+                bookUpdate.updates.emplace_back(
+                    Side::Sell,
+                    Price { parseDecimal(values.at(0).get_string()) },
+                    Quantity { parseDecimal( values.at(1).get_string()) }
+                );
+            }
         }
 
         return market_data::ParseResult::Success;
