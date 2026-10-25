@@ -14,13 +14,13 @@ Description :
 
 #include "app/application.hpp"
 #include "exchanges/binance/binance_market_data_parser.hpp"
+#include "exchanges/binance/binance_snapshot_provider.hpp"
 #include "logging/logger_factory.hpp"
 #include "test_support/test_logger.hpp"
+#include "test_support/debug_helpers.hpp"
 
-#include <boost/asio/io_context.hpp>
-#include <boost/asio/ssl.hpp>
-#include <boost/beast/core.hpp>
 #include "network/web_socket_client.hpp"
+#include "network/rest_client.hpp"
 
 void price_test();
 void order_book_test();
@@ -216,53 +216,132 @@ namespace
     }
 }
 
-namespace binance
+namespace binance_tests
 {
+    namespace market_data = trading::market_data;
+    namespace binance = trading::exchanges::binance;
     namespace asio = boost::asio;
     namespace ssl = asio::ssl;
-    namespace market_data = trading::market_data;
-
-    using namespace trading::exchanges::binance;
+    namespace network = trading::network;
     using market_data::ParseResult;
+
+    using namespace std::string_view_literals;
+
+    // TODO:
+    //  - WebSocket Client
+    //  - REST Client
+    //  - IBinanceParser  (using SIMD Json)
+    //  - IBinanceSnapshotProvider
+    //  - IBinanceMarketDataSource
+    //  - Test With SourceProvider (CPU-1) + BookBuilder (CPU-2)
+    //  -
+    //  - Support Using Configuration !
+
+
+    constexpr std::string_view HexDigits = "0123456789ABCDEF"sv;
+
+    [[nodiscard]]
+    std::string urlEncode(const std::string_view value)
+    {
+        std::string result;
+        result.reserve(value.size());
+        for (const unsigned char character : value)
+        {
+            if (std::isalnum(character) || character == '-' || character == '_' || character == '.' || character == '~') {
+                result.push_back(static_cast<char>(character));
+            } else {
+                result.push_back('%');
+                result.push_back(HexDigits[character >> 4]);
+                result.push_back(HexDigits[character & 0x0F]);
+            }
+        }
+        return result;
+    }
+
+
+    constexpr std::string binanceApiHost { "api.binance.com" };
+    const std::string wsStreamHost { "stream.binance.com" };
+    constexpr uint16_t port { 443 };
+
+    void wsClient()
+    {
+        asio::io_context ioContext;
+        ssl::context sslContext { ssl::context::tls_client };
+
+        sslContext.set_default_verify_paths();
+        sslContext.set_verify_mode(ssl::verify_peer);
+
+        trading::network::WebSocketClient client {
+            ioContext,
+            sslContext,
+            wsStreamHost,
+            std::to_string(port),
+            "/ws"
+        };
+
+        client.start([](const std::string& message) {
+            std::cout << message << '\n';
+        });
+
+        std::jthread ioThread { [&ioContext] {
+            ioContext.run();
+        }};
+
+        // Wait until the WebSocket connection is established.
+        // The current WebSocketClient API does not expose connection status.
+        std::this_thread::sleep_for(std::chrono::seconds { 1 });
+
+        const std::string subscriptionDepth {
+            R"({"method": "SUBSCRIBE","params": ["btcusdt@depth", "btcusdt@trade"], "id": 1})"
+        };
+        client.send(subscriptionDepth);
+
+        std::cout << "Subscribed to BTCUSDT depth stream. Press Enter to stop.\n";
+        std::cin.get();
+
+        client.stop();
+        ioContext.stop();
+    }
+
+    void testRestClient()
+    {
+        asio::io_context ioContext;
+        ssl::context  sslContext { ssl::context::tls_client };
+
+        const network::RestClient restClient { ioContext, sslContext };
+
+        network::HttpRequest request;
+        request.host = binanceApiHost;
+        request.target = "/api/v3/depth?symbol=" + urlEncode("BTCUSDT") + "&limit=1000";
+        request.method = boost::beast::http::verb::get;
+
+        restClient.asyncRequest(request,[](network::RestClient::Response response) mutable
+        {
+            if (!response) {
+                std::cerr << response.error().message << std::endl;
+                return;
+            }
+            std::cout << response->status << std::endl;
+            std::cout << response->body << std::endl;
+        });
+
+        ioContext.run();
+    }
+
+    void testBinanceClient()
+    {
+        const std::unique_ptr<market_data::ISnapshotProvider> snapshotProvider
+            = std::make_unique<binance::BinanceSnapshotProvider>(binanceApiHost);
+
+        const market_data::Snapshot snapshot = snapshotProvider->getSnapshot("BTCUSDT");
+        std::cout << snapshot << std::endl;
+    }
 
     void test()
     {
-        const std::string host { "stream.binance.com" };
-        constexpr uint16_t port { 443 };
-
-        constexpr std::string_view subscriptionDepth {
-            R"({"method": "SUBSCRIBE","params": ["btcusdt@depth", "btcusdt@trade"], "id": 1})"
-        };
-
-        asio::io_context ioContext;
-        ssl::context sslContext{ssl::context::tls_client};
-
-#if 0
-        // Disable certificate verification temporarily for local debugging only.
-        sslContext.set_default_verify_paths();
-        sslContext.set_verify_mode(asio::ssl::verify_peer);
-#endif
-
-        const std::unique_ptr<market_data::IMarketDataParser> parser = std::make_unique<BinanceMarketDataParser>();
-
-        int msgCount = 0;
-        market_data::MarketDataItem marketDataItem;
-        trading::network::WebSocketClient wsClient(ioContext,sslContext,
-        [&](const std::string_view message) {
-            ++msgCount;
-            if (msgCount > 1) {
-                if (parser->parse(message, marketDataItem) != ParseResult::Success) {
-                    return;
-                }
-            }
-        },
-            [](const boost::beast::error_code &errorCode){
-                std::cerr << "WebSocket error: " << errorCode.message()<< '\n';
-        });
-
-        wsClient.connect(host, std::to_string(port),"/ws");
-        wsClient.send(subscriptionDepth);
-        ioContext.run();
+        // wsClient();
+        // testRestClient();
+        testBinanceClient();
     }
 }
 
@@ -274,8 +353,7 @@ int main([[maybe_unused]] const int argc,
     // runApp(parameters);
     // runTests(parameters);
     // runSingleTest(parameters);
-
-    binance::test();
+    binance_tests::test();
 
     return EXIT_SUCCESS;
 }

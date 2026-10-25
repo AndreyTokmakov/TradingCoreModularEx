@@ -6,25 +6,33 @@ set(PROJECT_VERSION 1.0.0.0)
 project(${PROJECT_NAME} VERSION ${PROJECT_VERSION} LANGUAGES CXX)
 
 include(FetchContent)
-set(CMAKE_CXX_STANDARD 26)
 
-add_compile_options(-c -Wall -Wextra -O3 -std=c++26)
-
-message(STATUS "[dependency] fetching Boost")
+message(STATUS "[dependency] fetching boost")
 set(BOOST_ENABLE_PYTHON OFF)
 set(BOOST_IOSTREAMS_ENABLE_ZLIB ON)
 FetchContent_Declare(boost
         GIT_REPOSITORY https://github.com/boostorg/boost.git
-        GIT_TAG boost-1.88.0
+        GIT_TAG boost-1.86.0
         GIT_SHALLOW ON
         GIT_PROGRESS ON
-        GIT_SUBMODULES ${BOOST_REQD_SUBMODULES}
         CMAKE_ARGS  -DBOOST_IOSTREAMS_ENABLE_ZLIB=ON
-        OVERRIDE_FIND_PACKAGE
 )
 FetchContent_MakeAvailable(boost)
 
-find_package(OpenSSL REQUIRED)
+message(STATUS "[dependency] fetching OpenSSL")
+FetchContent_Declare(OpenSSL
+        GIT_REPOSITORY https://github.com/openssl/openssl.git
+        GIT_TAG        openssl-3.3.2
+        GIT_SHALLOW ON
+        GIT_PROGRESS ON
+        BUILD_COMMAND make
+)
+FetchContent_MakeAvailable(OpenSSL)
+
+set(Boost_NO_SYSTEM_PATHS ON)
+set(CMAKE_CXX_STANDARD 26)
+
+add_compile_options(-c -Wall -Wextra -O3 -std=c++26)
 
 # Nlohmann JSON
 include_directories(${THIRD_PARTY_DIR}/json/include)
@@ -59,6 +67,7 @@ set(RECORDING   ${SOURCES}/recording)
 set(RISK        ${SOURCES}/risk)
 set(STRATEGY    ${SOURCES}/strategy)
 set(TRADE       ${SOURCES}/trade)
+set(UTILITIES   ${SOURCES}/utilities)
 
 set(BINANCE     ${EXCHANGES}/binance)
 
@@ -108,6 +117,8 @@ add_executable(${PROJECT_NAME}
 
         ${NETWORK}/web_socket_client.cpp
         ${NETWORK}/web_socket_client.hpp
+        ${NETWORK}/rest_client.cpp
+        ${NETWORK}/rest_client.hpp
 
         ${MARKET_DATA}/interfaces/market_data_handler.hpp
         ${MARKET_DATA}/interfaces/market_data_parser.hpp
@@ -202,6 +213,9 @@ add_executable(${PROJECT_NAME}
         ${TRADE}/trade_module.hpp
         ${TRADE}/trade_module.cpp
 
+        ${UTILITIES}/utilities.cpp
+        ${UTILITIES}/utilities.hpp
+
         ${TESTS}/core/price_test.cpp
         ${TESTS}/risk/risk_manager_test.cpp
         ${TESTS}/pnl/pnl_calculator_test.cpp
@@ -253,8 +267,10 @@ target_link_libraries(${PROJECT_NAME}
         utils
         pthread
         simdjson
-        Boost::system
-        OpenSSL::SSL
-        OpenSSL::Crypto
+        Boost::asio
+        Boost::beast
+        Boost::json
+        crypto
+        ssl
         ${EXTRA_LIBS}
 )

@@ -28,7 +28,7 @@ namespace trading::testing
     }
 
     [[nodiscard]]
-    market_data::Snapshot TestSnapshotProvider::getSnapshot()
+    market_data::Snapshot TestSnapshotProvider::getSnapshot(std::string_view, uint32_t)
     {
         ++snapshotRequestedCount;
         if (snapshotDelay.count() > 0)

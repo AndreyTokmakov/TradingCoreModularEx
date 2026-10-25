@@ -27,7 +27,7 @@ namespace trading::testing
                                       std::chrono::milliseconds snapshotDelay) noexcept;
 
         [[nodiscard]]
-        market_data::Snapshot getSnapshot() override;
+        market_data::Snapshot getSnapshot(std::string_view symbol, uint32_t depth = 1'000) override;
 
         [[nodiscard]]
         std::size_t getSnapshotRequestedCount() const noexcept;

@@ -37,7 +37,8 @@ namespace trading::order_book
 
     void BookBuilderModule::run()
     {
-        const Snapshot snapshot = snapshotProvider->getSnapshot();
+        // FIXME: Symbol --> member of BookBuilderModule
+        const Snapshot snapshot = snapshotProvider->getSnapshot("BTCUSDT");
         metrics.increment<metrics::MetricType::MarketDataSnapshots>();
 
         if (!bookBuilder.applySnapshot(snapshot)) {

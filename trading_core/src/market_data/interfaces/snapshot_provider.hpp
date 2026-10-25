@@ -57,7 +57,7 @@ namespace trading::market_data
         virtual ~ISnapshotProvider() = default;
 
         [[nodiscard]]
-        virtual Snapshot getSnapshot() = 0;
+        virtual Snapshot getSnapshot(std::string_view symbol, uint32_t depth = 1'000) = 0;
     };
 }
 

@@ -52,8 +52,9 @@ Description : Binance implementation of the market-data snapshot provider.
 
 #include "market_data/model/snapshot.hpp"
 #include "market_data/interfaces/snapshot_provider.hpp"
+#include "binance_market_data_parser.hpp"
 
-#include <functional>
+#include "network/rest_client.hpp"
 #include <string>
 
 namespace trading::exchanges::binance
@@ -61,21 +62,17 @@ namespace trading::exchanges::binance
     class BinanceSnapshotProvider final : public market_data::ISnapshotProvider
     {
     public:
-        using FetchHandler = std::function<market_data::Snapshot()>;
-
         explicit BinanceSnapshotProvider(std::string endpoint) noexcept;
 
-        BinanceSnapshotProvider(std::string endpoint,
-                                 FetchHandler fetchHandler) noexcept;
-
-        void setFetchHandler(FetchHandler fetchHandler) noexcept;
-
         [[nodiscard]]
-        market_data::Snapshot getSnapshot() override;
+        market_data::Snapshot getSnapshot(std::string_view symbol, uint32_t depth = 1'000) override;
 
     private:
         std::string endpoint;
-        FetchHandler fetchHandler;
+
+        boost::asio::io_context ioContext;
+        boost::asio::ssl::context sslContext;
+        network::RestClient restClient;
     };
 }
 
