@@ -30,25 +30,19 @@ namespace trading::config
     std::expected<Config, Error> JsonConfigLoader::load(const std::filesystem::path& configPath)
     {
         std::ifstream file { configPath };
-        if (!file.is_open())
+        if (!file.is_open()) {
             return std::unexpected(Error::FileOpenFailed);
-
+        }
         try
         {
             const nlohmann::json json = nlohmann::json::parse(file);
-
             if (!file.good() && !file.eof())
                 return std::unexpected(Error::FileReadFailed);
 
             Config config {};
-
-            if (json.contains("instrument"))
-            {
-                config.instrument = InstrumentId {
-                    json.at("instrument").get<InstrumentId>()
-                };
+            if (json.contains("instrument")) {
+                config.instrument = InstrumentId { json.at("instrument").get<InstrumentId>() };
             }
-
             if (json.contains("orderBook"))
             {
                 const auto& orderBook = json.at("orderBook");
@@ -63,15 +57,12 @@ namespace trading::config
             if (json.contains("strategy"))
             {
                 const auto& strategy = json.at("strategy");
-
                 if (strategy.contains("orderQuantity")) {
                     config.strategy.orderQuantity = Quantity { strategy.at("orderQuantity").get<Quantity::Value>()};
                 }
-
                 if (strategy.contains("thresholdNumerator")) {
                     config.strategy.thresholdNumerator = strategy.at("thresholdNumerator").get<int64_t>();
                 }
-
                 if (strategy.contains("thresholdDenominator")){
                     config.strategy.thresholdDenominator = strategy.at("thresholdDenominator").get<int64_t>();
                 }
@@ -80,22 +71,22 @@ namespace trading::config
             if (!isValidStrategyConfig(config.strategy))
                 return std::unexpected(Error::InvalidConfiguration);
 
+
             if (json.contains("exchanges"))
             {
                 for (const auto& exchangeJson : json.at("exchanges"))
                 {
                     ExchangeConfig exchange {};
-
-                    if (exchangeJson.contains("name"))
+                    if (exchangeJson.contains("name")) {
                         exchange.name = exchangeJson.at("name").get<std::string>();
-
-                    if (exchangeJson.contains("marketDataEndpoint"))
-                    {
+                    }
+                    if (exchangeJson.contains("marketDataEndpoint")) {
                         exchange.marketDataEndpoint = exchangeJson.at("marketDataEndpoint").get<std::string>();
                     }
-
-                    if (exchangeJson.contains("executionEndpoint"))
-                    {
+                    if (exchangeJson.contains("restApiEndpoint")) {
+                        exchange.restApiEndpoint = exchangeJson.at("restApiEndpoint").get<std::string>();
+                    }
+                    if (exchangeJson.contains("executionEndpoint")) {
                         exchange.executionEndpoint = exchangeJson.at("executionEndpoint").get<std::string>();
                     }
 
@@ -106,12 +97,10 @@ namespace trading::config
             if (json.contains("recording"))
             {
                 const auto& recording = json.at("recording");
-
-                if (recording.contains("enabled"))
+                if (recording.contains("enabled")) {
                     config.recording.enabled = recording.at("enabled").get<bool>();
-
-                if (recording.contains("directory"))
-                {
+                }
+                if (recording.contains("directory")) {
                     config.recording.directory = recording.at("directory").get<std::string>();
                 }
             }
@@ -119,19 +108,13 @@ namespace trading::config
             if (json.contains("risk"))
             {
                 const auto& risk = json.at("risk");
-
-                if (risk.contains("maxOrderQuantity"))
-                {
+                if (risk.contains("maxOrderQuantity")) {
                     config.riskLimits.maxOrderQuantity = Quantity { risk.at("maxOrderQuantity").get<Quantity::Value>()};
                 }
-
-                if (risk.contains("maxPositionQuantity"))
-                {
+                if (risk.contains("maxPositionQuantity")) {
                     config.riskLimits.maxPositionQuantity = Quantity { risk.at("maxPositionQuantity").get<Quantity::Value>() };
                 }
-
-                if (risk.contains("maxNotional"))
-                {
+                if (risk.contains("maxNotional")){
                     config.riskLimits.maxNotional = Price { risk.at("maxNotional").get<Price::Value>()};
                 }
             }

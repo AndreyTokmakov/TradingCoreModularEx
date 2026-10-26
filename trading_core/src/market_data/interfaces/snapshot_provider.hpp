@@ -48,6 +48,8 @@ Description : Market-data snapshot provider interface.
 #ifndef FINANCETECHNOLOGYPROJECTS_SNAPSHOT_PROVIDER_HPP
 #define FINANCETECHNOLOGYPROJECTS_SNAPSHOT_PROVIDER_HPP
 
+#include <expected>
+#include "common/error_code.hpp"
 #include "market_data/model/snapshot.hpp"
 
 namespace trading::market_data
@@ -57,7 +59,8 @@ namespace trading::market_data
         virtual ~ISnapshotProvider() = default;
 
         [[nodiscard]]
-        virtual Snapshot getSnapshot(std::string_view symbol, uint32_t depth = 1'000) = 0;
+        virtual std::expected<Snapshot, common::ErrorCode>
+        getSnapshot(std::string_view symbol, uint32_t depth = 1'000) = 0;
     };
 }
 

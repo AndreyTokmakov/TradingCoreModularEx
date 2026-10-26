@@ -28,7 +28,8 @@ namespace trading::testing
     }
 
     [[nodiscard]]
-    market_data::Snapshot TestSnapshotProvider::getSnapshot(std::string_view, uint32_t)
+    std::expected<market_data::Snapshot, common::ErrorCode>
+    TestSnapshotProvider::getSnapshot(std::string_view, uint32_t)
     {
         ++snapshotRequestedCount;
         if (snapshotDelay.count() > 0)

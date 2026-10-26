@@ -13,9 +13,13 @@ Description :
 #include <string_view>
 
 #include "app/application.hpp"
+#include "exchanges/exchange_factory_registry.hpp"
+#include "exchanges/binance/binance_market_data_source.hpp"
 #include "exchanges/binance/binance_market_data_parser.hpp"
 #include "exchanges/binance/binance_snapshot_provider.hpp"
 #include "logging/logger_factory.hpp"
+#include "common/error_code.hpp"
+#include "config/config_utils.hpp"
 #include "test_support/test_logger.hpp"
 #include "test_support/debug_helpers.hpp"
 
@@ -220,10 +224,21 @@ namespace binance_tests
 {
     namespace market_data = trading::market_data;
     namespace binance = trading::exchanges::binance;
+    namespace network = trading::network;
+    namespace common = trading::common;
+
+    using namespace trading::config;
+    using common::ErrorCode;
+    using common::CVQueue;
+    using trading::recording::RecordingEvent;
+    using market_data::Snapshot;
+    using market_data::ParseResult;
+    using trading::exchanges::IExchangeFactory;
+    using trading::exchanges::ExchangeFactoryRegistry;
+    using trading::exchanges::ExchangeType;
+
     namespace asio = boost::asio;
     namespace ssl = asio::ssl;
-    namespace network = trading::network;
-    using market_data::ParseResult;
 
     using namespace std::string_view_literals;
 
@@ -236,27 +251,6 @@ namespace binance_tests
     //  - Test With SourceProvider (CPU-1) + BookBuilder (CPU-2)
     //  -
     //  - Support Using Configuration !
-
-
-    constexpr std::string_view HexDigits = "0123456789ABCDEF"sv;
-
-    [[nodiscard]]
-    std::string urlEncode(const std::string_view value)
-    {
-        std::string result;
-        result.reserve(value.size());
-        for (const unsigned char character : value)
-        {
-            if (std::isalnum(character) || character == '-' || character == '_' || character == '.' || character == '~') {
-                result.push_back(static_cast<char>(character));
-            } else {
-                result.push_back('%');
-                result.push_back(HexDigits[character >> 4]);
-                result.push_back(HexDigits[character & 0x0F]);
-            }
-        }
-        return result;
-    }
 
 
     constexpr std::string binanceApiHost { "api.binance.com" };
@@ -303,29 +297,12 @@ namespace binance_tests
         ioContext.stop();
     }
 
-    void testRestClient()
+    void testBinanceWsClient()
     {
-        asio::io_context ioContext;
-        ssl::context  sslContext { ssl::context::tls_client };
+        const std::unique_ptr<market_data::IMarketDataSource> marketDataSource
+            = std::make_unique<binance::BinanceMarketDataSource>(binanceApiHost);
 
-        const network::RestClient restClient { ioContext, sslContext };
-
-        network::HttpRequest request;
-        request.host = binanceApiHost;
-        request.target = "/api/v3/depth?symbol=" + urlEncode("BTCUSDT") + "&limit=1000";
-        request.method = boost::beast::http::verb::get;
-
-        restClient.asyncRequest(request,[](network::RestClient::Response response) mutable
-        {
-            if (!response) {
-                std::cerr << response.error().message << std::endl;
-                return;
-            }
-            std::cout << response->status << std::endl;
-            std::cout << response->body << std::endl;
-        });
-
-        ioContext.run();
+        marketDataSource->start();
     }
 
     void testBinanceClient()
@@ -333,15 +310,41 @@ namespace binance_tests
         const std::unique_ptr<market_data::ISnapshotProvider> snapshotProvider
             = std::make_unique<binance::BinanceSnapshotProvider>(binanceApiHost);
 
-        const market_data::Snapshot snapshot = snapshotProvider->getSnapshot("BTCUSDT");
-        std::cout << snapshot << std::endl;
+        const std::expected<Snapshot, ErrorCode> snapshot = snapshotProvider->getSnapshot("BTCUSDT", 40);
+        std::cout << snapshot.value() << std::endl;
     }
 
-    void test()
+    void bookBuilderModuleTests(const std::vector<std::string_view>& parameters)
+    {
+
+        const auto nullLogger = std::make_shared<trading::testing::TestLogger>(true);
+        LoggerFactory::createLogger(nullLogger);
+
+        const std::filesystem::path configPath = parameters.empty() ?  "config.json" : parameters.front();
+        CVQueue<market_data::BookUpdate> bookUpdateQueue;
+        CVQueue<market_data::MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingEventQueue;
+
+        const Config config { loadConfig(configPath) };
+        const std::unique_ptr<IExchangeFactory> exchangeFactory {
+            ExchangeFactoryRegistry::createFactory(ExchangeType::Binance)
+        };
+
+        trading::order_book::BookBuilderModule bookBuilderModule {
+            config, bookUpdateQueue, strategyEventQueue, recordingEventQueue, *exchangeFactory
+        };
+
+        bookBuilderModule.run();
+    }
+
+    void test(const std::vector<std::string_view>& parameters)
     {
         // wsClient();
+        testBinanceWsClient();
+
         // testRestClient();
-        testBinanceClient();
+        // testBinanceClient();
+        // bookBuilderModuleTests(parameters);
     }
 }
 
@@ -353,7 +356,7 @@ int main([[maybe_unused]] const int argc,
     // runApp(parameters);
     // runTests(parameters);
     // runSingleTest(parameters);
-    binance_tests::test();
+    binance_tests::test(parameters);
 
     return EXIT_SUCCESS;
 }

@@ -70,8 +70,8 @@ namespace trading::config
         std::string name;
         std::string marketDataEndpoint;
         std::string executionEndpoint;
+        std::string restApiEndpoint;
     };
-
 
     /**
      * @brief Configuration of application recording.

@@ -18,8 +18,9 @@ namespace trading::order_book
                                          common::CVQueue<MarketEvent>& strategyEventQueue,
                                          common::CVQueue<recording::RecordingEvent>& recordingQueue,
                                          const exchanges::IExchangeFactory& exchangeFactory) noexcept :
+        bookConfig { config.orderBook },
         bookUpdateQueue { bookUpdateQueue },
-        orderBook { config.orderBook.depthValue },
+        orderBook { bookConfig.depthValue },
         marketEventDispatcher {
             strategyEventQueue,recordingQueue
         },
@@ -38,10 +39,16 @@ namespace trading::order_book
     void BookBuilderModule::run()
     {
         // FIXME: Symbol --> member of BookBuilderModule
-        const Snapshot snapshot = snapshotProvider->getSnapshot("BTCUSDT");
+        const std::expected<Snapshot, common::ErrorCode> snapshot = snapshotProvider->getSnapshot("BTCUSDT", bookConfig.depthValue );
+        if (!snapshot.has_value()) {
+            logger->error("Failed to get snapshot");
+            metrics.increment<metrics::MetricType::MarketDataSnapshotsFetchFailed>();
+            return;
+        }
+        
         metrics.increment<metrics::MetricType::MarketDataSnapshots>();
 
-        if (!bookBuilder.applySnapshot(snapshot)) {
+        if (!bookBuilder.applySnapshot(snapshot.value())) {
             logger->error("Failed to apply book builder snapshot");
             metrics.increment<metrics::MetricType::MarketDataSnapshotApplyFailed>();
             return;

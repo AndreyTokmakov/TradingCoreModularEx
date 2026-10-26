@@ -58,7 +58,7 @@ namespace trading::exchanges::binance
     BinanceExchangeFactory::createSnapshotProvider(const config::Config& config) const noexcept
     {
         return std::make_unique<BinanceSnapshotProvider>(
-            config::findExchange(config, ExchangeName).marketDataEndpoint
+            config::findExchange(config, ExchangeName).restApiEndpoint
         );
     }
 }

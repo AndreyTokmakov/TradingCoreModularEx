@@ -67,7 +67,8 @@ namespace trading::exchanges::binance
     {
     }
 
-    market_data::Snapshot BinanceSnapshotProvider::getSnapshot(const std::string_view symbol, uint32_t depth)
+    std::expected<market_data::Snapshot, common::ErrorCode>
+    BinanceSnapshotProvider::getSnapshot(const std::string_view symbol, uint32_t depth)
     {
         if (ioContext.stopped()) {
             ioContext.restart();
@@ -82,10 +83,12 @@ namespace trading::exchanges::binance
         restClient.asyncRequest(request,[&snapshot](network::RestClient::Response response) mutable
         {
             if (!response) {
+                // FIXME: Use Logger
                 std::cerr << response.error().message << std::endl;
                 return;
             }
             if (!parseDepthSnapshot(response->body, snapshot)) {
+                // FIXME: Use Logger
                 std::cerr << "Parse depth snapshot failed" << std::endl;
             }
         });

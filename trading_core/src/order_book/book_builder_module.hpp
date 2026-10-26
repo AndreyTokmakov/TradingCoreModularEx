@@ -41,6 +41,8 @@ namespace trading::order_book
         void run();
 
     private:
+
+        config::OrderBookConfig bookConfig;
         common::CVQueue<BookUpdate>& bookUpdateQueue;
 
         OrderBook orderBook;
@@ -49,7 +51,7 @@ namespace trading::order_book
         std::unique_ptr<ISnapshotProvider> snapshotProvider;
 
         std::shared_ptr<logging::ILogger> logger;
-        static inline thread_local metrics::Metrics& metrics  = metrics::MetricsCollector::getCollector().getThreadLocalMetrics();
+        static inline thread_local metrics::Metrics& metrics = metrics::MetricsCollector::getCollector().getThreadLocalMetrics();
     };
 }
 

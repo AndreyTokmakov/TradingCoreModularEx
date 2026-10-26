@@ -65,7 +65,8 @@ namespace trading::exchanges::binance
         explicit BinanceSnapshotProvider(std::string endpoint) noexcept;
 
         [[nodiscard]]
-        market_data::Snapshot getSnapshot(std::string_view symbol, uint32_t depth = 1'000) override;
+        std::expected<market_data::Snapshot, common::ErrorCode>
+        getSnapshot(std::string_view symbol, uint32_t depth = 1'000) override;
 
     private:
         std::string endpoint;

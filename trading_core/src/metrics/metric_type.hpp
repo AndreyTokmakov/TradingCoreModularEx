@@ -360,6 +360,7 @@ namespace trading::metrics
         MarketDataParseErrors,
         MarketDataSequenceErrors,
         MarketDataSnapshots,
+        MarketDataSnapshotsFetchFailed,
         MarketDataSnapshotApplyFailed,
         MarketDataUpdates,
 

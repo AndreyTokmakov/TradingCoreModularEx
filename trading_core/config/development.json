@@ -1,5 +1,5 @@
 {
-    "instrument": 42,
+    "instrument": 0,
     "strategy": {
         "orderQuantity": 100000000,
         "thresholdNumerator": 7,
@@ -17,11 +17,13 @@
         {
             "name": "binance",
             "marketDataEndpoint": "wss://market-data.example",
+            "restApiEndpoint": "api.binance.com",
             "executionEndpoint": "https://execution.example"
         },
         {
             "name": "test-exchange",
             "marketDataEndpoint": "wss://test-market.example",
+            "restApiEndpoint": "api.binance.com",
             "executionEndpoint": "https://test-execution.example"
         }
     ],
