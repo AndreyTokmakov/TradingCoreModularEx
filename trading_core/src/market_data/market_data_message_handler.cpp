@@ -35,6 +35,8 @@ Description : market_data_message_handler.cpp
 #include "market_data_message_handler.hpp"
 #include "logging/logger_factory.hpp"
 
+#include <iostream>
+
 namespace trading::market_data
 {
     MarketDataMessageHandler::MarketDataMessageHandler(IMarketDataParser& parser,
@@ -49,6 +51,9 @@ namespace trading::market_data
 
     void MarketDataMessageHandler::onMessage(const std::string_view message)
     {
+        std::cout << message << '\n';
+        //return;
+
         marketDataItem.emplace<std::monostate>();
         if (parser.parse(message, marketDataItem) != ParseResult::Success) {
             logger->error("Failed to parse market data message");

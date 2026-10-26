@@ -252,50 +252,7 @@ namespace binance_tests
     //  -
     //  - Support Using Configuration !
 
-
     constexpr std::string binanceApiHost { "api.binance.com" };
-    const std::string wsStreamHost { "stream.binance.com" };
-    constexpr uint16_t port { 443 };
-
-    void wsClient()
-    {
-        asio::io_context ioContext;
-        ssl::context sslContext { ssl::context::tls_client };
-
-        sslContext.set_default_verify_paths();
-        sslContext.set_verify_mode(ssl::verify_peer);
-
-        trading::network::WebSocketClient client {
-            ioContext,
-            sslContext,
-            wsStreamHost,
-            std::to_string(port),
-            "/ws"
-        };
-
-        client.start([](const std::string& message) {
-            std::cout << message << '\n';
-        });
-
-        std::jthread ioThread { [&ioContext] {
-            ioContext.run();
-        }};
-
-        // Wait until the WebSocket connection is established.
-        // The current WebSocketClient API does not expose connection status.
-        std::this_thread::sleep_for(std::chrono::seconds { 1 });
-
-        const std::string subscriptionDepth {
-            R"({"method": "SUBSCRIBE","params": ["btcusdt@depth", "btcusdt@trade"], "id": 1})"
-        };
-        client.send(subscriptionDepth);
-
-        std::cout << "Subscribed to BTCUSDT depth stream. Press Enter to stop.\n";
-        std::cin.get();
-
-        client.stop();
-        ioContext.stop();
-    }
 
     void testBinanceWsClient()
     {
@@ -314,9 +271,29 @@ namespace binance_tests
         std::cout << snapshot.value() << std::endl;
     }
 
+    void marketDataModuleTest(const std::vector<std::string_view>& parameters)
+    {
+        const auto nullLogger = std::make_shared<trading::testing::TestLogger>(true);
+        LoggerFactory::createLogger(nullLogger);
+
+        const std::filesystem::path configPath = parameters.empty() ?  "config.json" : parameters.front();
+        const Config config { loadConfig(configPath) };
+        const std::unique_ptr<IExchangeFactory> exchangeFactory {
+            ExchangeFactoryRegistry::createFactory(ExchangeType::Binance)
+        };
+
+        CVQueue<market_data::BookUpdate> bookUpdateQueue;
+        CVQueue<market_data::Trade> tradeQueue;
+
+        market_data::MarketDataModule marketDataModule {
+            config, bookUpdateQueue, tradeQueue, *exchangeFactory
+        };
+
+        marketDataModule.start();
+    }
+
     void bookBuilderModuleTests(const std::vector<std::string_view>& parameters)
     {
-
         const auto nullLogger = std::make_shared<trading::testing::TestLogger>(true);
         LoggerFactory::createLogger(nullLogger);
 
@@ -340,7 +317,8 @@ namespace binance_tests
     void test(const std::vector<std::string_view>& parameters)
     {
         // wsClient();
-        testBinanceWsClient();
+        // testBinanceWsClient();
+        marketDataModuleTest(parameters);
 
         // testRestClient();
         // testBinanceClient();

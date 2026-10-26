@@ -32,10 +32,9 @@ namespace trading::exchanges::binance
 
     void BinanceMarketDataSource::start()
     {
-        wsClient.start([](const std::string& message) {
-            std::cout << message << '\n';
+        wsClient.start([this](const std::string& message) {
+            messageHandler->onMessage(message);
         });
-
         wsClient.send(R"({"method":"SUBSCRIBE","params":["btcusdt@depth", "btcusdt@trade"],"id":1})");
         ioContext.run();
     }
