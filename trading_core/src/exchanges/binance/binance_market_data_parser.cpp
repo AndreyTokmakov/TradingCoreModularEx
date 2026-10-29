@@ -32,9 +32,6 @@ Description : binance_market_data_parser.cpp
 */
 
 #include "binance_market_data_parser.hpp"
-
-#include <iostream>
-
 #include <simdjson.h>
 
 namespace
@@ -80,8 +77,8 @@ namespace
         return negative ? -result : result;
     }
 
-    static constexpr std::string_view TradeEventType { "trade" };
-    static constexpr std::string_view DepthUpdateEventType { "depthUpdate" };
+    constexpr std::string_view TradeEventType { "trade" };
+    constexpr std::string_view DepthUpdateEventType { "depthUpdate" };
 
     // TODO: where to store ??
     simdjson::dom::parser parser;
@@ -94,13 +91,15 @@ namespace trading::exchanges::binance
 {
     market_data::ParseResult
     BinanceMarketDataParser::parse(const std::string_view message,
-                                   [[maybe_unused]] market_data::MarketDataItem& marketDataItem) const
+                                   market_data::MarketDataItem& marketDataItem) const
     {
-        std::cout << message << std::endl;
-
         const simdjson::dom::element document = parser.parse(message.data(), message.size());
-        const std::string_view eventType = document["e"].get_string().value();
+        if (0 == sessionId) {
+            sessionId = document["id"].get_uint64().value();
+            return {};
+        }
 
+        const std::string_view eventType = document["e"].get_string().value();
         if (eventType == TradeEventType)
         {
             const std::uint64_t tradeId = document["t"].get_uint64().value();
@@ -117,6 +116,9 @@ namespace trading::exchanges::binance
             trade.price = Price { parseDecimal(priceString) };
             trade.quantity = Quantity { parseDecimal(quantityString) };
             trade.side = buyerIsMaker ? Side::Sell : Side::Buy;
+
+            // FIXME: Optimize  ???
+            marketDataItem.emplace<market_data::Trades>({trade});
         }
         else if (eventType == DepthUpdateEventType)
         {
@@ -128,6 +130,8 @@ namespace trading::exchanges::binance
 
             const auto& bids = document["b"].get_array();
             const auto& asks = document["a"].get_array();
+
+            // FIXME: Reusable vector pool?
             bookUpdate.updates.reserve(bids.size() + asks.size());
 
             for (const auto& level : bids)
@@ -148,6 +152,9 @@ namespace trading::exchanges::binance
                     Quantity { parseDecimal( values.at(1).get_string()) }
                 );
             }
+
+            // FIXME: Optimize  ???
+            marketDataItem = std::move(bookUpdate);
         }
 
         return market_data::ParseResult::Success;

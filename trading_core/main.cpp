@@ -314,15 +314,51 @@ namespace binance_tests
         bookBuilderModule.run();
     }
 
+    void BookBuilder_and_MarketData_Modules(const std::vector<std::string_view>& parameters)
+    {
+        const auto nullLogger = std::make_shared<trading::testing::TestLogger>(true);
+        LoggerFactory::createLogger(nullLogger);
+
+        const std::filesystem::path configPath = parameters.empty() ?  "config.json" : parameters.front();
+
+        CVQueue<market_data::BookUpdate> bookUpdateQueue;
+        CVQueue<market_data::MarketEvent> strategyEventQueue;
+        CVQueue<RecordingEvent> recordingEventQueue;
+        CVQueue<market_data::Trade> tradeQueue;
+
+        const Config config { loadConfig(configPath) };
+        const std::unique_ptr<IExchangeFactory> exchangeFactory {
+            ExchangeFactoryRegistry::createFactory(ExchangeType::Binance)
+        };
+
+        market_data::MarketDataModule marketDataModule {
+            config, bookUpdateQueue, tradeQueue, *exchangeFactory
+        };
+
+        trading::order_book::BookBuilderModule bookBuilderModule {
+            config, bookUpdateQueue, strategyEventQueue, recordingEventQueue, *exchangeFactory
+        };
+
+        std::jthread marketDataThread {[&] {
+            marketDataModule.start(); // FIXME <---- No block the thread
+        }};
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+        bookBuilderModule.start();
+    }
+
     void test(const std::vector<std::string_view>& parameters)
     {
         // wsClient();
         // testBinanceWsClient();
-        marketDataModuleTest(parameters);
+        // marketDataModuleTest(parameters);
 
         // testRestClient();
         // testBinanceClient();
         // bookBuilderModuleTests(parameters);
+
+        BookBuilder_and_MarketData_Modules(parameters);
     }
 }
 

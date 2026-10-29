@@ -39,6 +39,8 @@ Description : book_builder.cpp
 
 #include "book_builder.hpp"
 
+#include <iostream>
+
 namespace trading::order_book
 {
     BookBuilder::BookBuilder(const InstrumentId instrument,
@@ -54,6 +56,8 @@ namespace trading::order_book
     {
         if (snapshot.instrument != instrument)
             return false;
+
+        std::cout <<  "snapshot.sequence = " << snapshot.sequence << std::endl;
         orderBook.setState(snapshot.sequence, snapshot.bids, snapshot.asks);
 
         return true;
@@ -61,10 +65,13 @@ namespace trading::order_book
 
     void BookBuilder::onBookUpdate(const BookUpdate& update) const
     {
+        std::cout <<  "onBookUpdate (size = " << update.updates.size() << ")"<< std::endl;
         if (update.instrument != instrument)
             return;
-        if (!isSequenceValid(update))
+        if (!isSequenceValid(update)) {
+            std::cout << "ERROR: " << update.sequenceRange.first << " != " << orderBook.sequence() + 1 << std::endl;
             return;
+        }
         if (!applyBookUpdate(update))
             return;
 
@@ -80,6 +87,7 @@ namespace trading::order_book
     bool BookBuilder::applyBookUpdate(const BookUpdate& update) const noexcept
     {
         return std::ranges::all_of(update.updates, [this](const PriceLevelUpdate& levelUpdate) {
+            std::cout <<  "applyBookUpdate "<< std::endl;
             return true == orderBook.applyUpdate(levelUpdate);
         });
     }

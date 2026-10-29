@@ -45,7 +45,7 @@ namespace trading::order_book
             metrics.increment<metrics::MetricType::MarketDataSnapshotsFetchFailed>();
             return;
         }
-        
+
         metrics.increment<metrics::MetricType::MarketDataSnapshots>();
 
         if (!bookBuilder.applySnapshot(snapshot.value())) {

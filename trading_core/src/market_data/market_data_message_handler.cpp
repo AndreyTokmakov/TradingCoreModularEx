@@ -51,9 +51,6 @@ namespace trading::market_data
 
     void MarketDataMessageHandler::onMessage(const std::string_view message)
     {
-        std::cout << message << '\n';
-        //return;
-
         marketDataItem.emplace<std::monostate>();
         if (parser.parse(message, marketDataItem) != ParseResult::Success) {
             logger->error("Failed to parse market data message");

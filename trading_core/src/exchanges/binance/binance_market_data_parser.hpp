@@ -59,6 +59,9 @@ namespace trading::exchanges::binance
         [[nodiscard]]
         market_data::ParseResult parse(std::string_view message,
                                        market_data::MarketDataItem& marketDataItem) const override;
+    private:
+
+        mutable uint64_t sessionId { 0 };
     };
 }
 
