@@ -127,18 +127,28 @@ namespace trading::order_book
     class BookBuilder final
     {
     public:
+
+        enum class UpdateResult: uint8_t
+        {
+            Applied,
+            Ignored,
+            InvalidInstrument,
+            SequenceGap,
+            InvalidSnapshot,
+            Failed
+        };
+
+    public:
         BookBuilder(InstrumentId instrument,
                     OrderBook& orderBook,
                     MarketEventDispatcher& eventDispatcher) noexcept;
 
         [[nodiscard]]
-        bool applySnapshot(const Snapshot& snapshot) const;
+        UpdateResult applySnapshot(const Snapshot& snapshot) const;
 
-        void onBookUpdate(const BookUpdate& update) const;
+        UpdateResult onBookUpdate(const BookUpdate& update) const;
 
     private:
-        [[nodiscard]]
-        bool isSequenceValid(const BookUpdate& update) const noexcept;
 
         [[nodiscard]]
         bool applyBookUpdate(const BookUpdate& update) const noexcept;

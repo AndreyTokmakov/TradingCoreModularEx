@@ -131,6 +131,8 @@ namespace
     }
     */
 
+    using UpdateResult = BookBuilder::UpdateResult;
+
     void testApplySnapshot()
     {
         OrderBook orderBook;
@@ -155,9 +157,10 @@ namespace
             }
         };
 
-        const bool applied = builder.applySnapshot(snapshot);
 
-        AssertTrue(applied, "snapshot must be applied");
+        const UpdateResult result = builder.applySnapshot(snapshot);
+
+        AssertEqual(UpdateResult::Applied , result, "snapshot must be applied");
         AssertEqual(orderBook.sequence(), SequenceNumber { 100 }, "invalid order book sequence");
 
         const std::optional<BookLevel> bestBid = orderBook.bestBid();
@@ -195,7 +198,7 @@ namespace
             .asks = {{ AskPrice, AskQuantity }}
         };
 
-        Assert(builder.applySnapshot(snapshot), "snapshot must be applied");
+        AssertEqual(UpdateResult::Applied , builder.applySnapshot(snapshot), "snapshot must be applied");
         AssertEmpty(strategyQueue, "strategy queue must be empty");
         AssertEmpty(recordingQueue, "recording queue must be empty");
     }
@@ -216,7 +219,7 @@ namespace
             .asks = {{ AskPrice, AskQuantity }}
         };
 
-        AssertTrue(builder.applySnapshot(snapshot), "snapshot must be applied");
+        AssertEqual(UpdateResult::Applied , builder.applySnapshot(snapshot), "snapshot must be applied");
 
         builder.onBookUpdate(createBookUpdate(
             SequenceNumber { 101 },
@@ -263,7 +266,7 @@ namespace
             .asks = {{ AskPrice, AskQuantity }}
         };
 
-        AssertTrue(builder.applySnapshot(snapshot), "snapshot must be applied");
+        AssertEqual(UpdateResult::Applied , builder.applySnapshot(snapshot), "snapshot must be applied");
 
         builder.onBookUpdate(createBookUpdate(
             SequenceNumber { 101 },
@@ -299,7 +302,7 @@ namespace
             .asks = {}
         };
 
-        AssertTrue(builder.applySnapshot(snapshot), "snapshot must be applied");
+        AssertEqual(UpdateResult::Applied , builder.applySnapshot(snapshot), "snapshot must be applied");
 
         builder.onBookUpdate(createBookUpdate(
             SequenceNumber { 101 },
@@ -343,7 +346,7 @@ namespace
             .asks = {}
         };
 
-        AssertTrue(builder.applySnapshot(snapshot), "snapshot must be applied");
+        AssertEqual(UpdateResult::Applied , builder.applySnapshot(snapshot), "snapshot must be applied");
 
         builder.onBookUpdate(createBookUpdate(
             SequenceNumber { 101 },
@@ -375,7 +378,7 @@ namespace
             .asks = {}
         };
 
-        AssertTrue(builder.applySnapshot(snapshot), "snapshot must be applied");
+        AssertEqual(UpdateResult::Applied , builder.applySnapshot(snapshot), "snapshot must be applied");
 
         builder.onBookUpdate(createBookUpdate(
             SequenceNumber { 102 },
@@ -404,7 +407,7 @@ namespace
             .asks = {}
         };
 
-        AssertTrue(builder.applySnapshot(snapshot), "snapshot must be applied");
+        AssertEqual(UpdateResult::Applied , builder.applySnapshot(snapshot), "snapshot must be applied");
 
         builder.onBookUpdate(createBookUpdate(
             SequenceNumber { 102 },
@@ -437,7 +440,7 @@ namespace
             .asks = {}
         };
 
-        AssertTrue(builder.applySnapshot(snapshot), "snapshot must be applied");
+        AssertEqual(UpdateResult::Applied , builder.applySnapshot(snapshot), "snapshot must be applied");
 
         builder.onBookUpdate(createBookUpdate(
             SequenceNumber { 100 },
@@ -466,7 +469,7 @@ namespace
             .asks = {}
         };
 
-        AssertTrue(builder.applySnapshot(snapshot), "snapshot must be applied");
+        AssertEqual(UpdateResult::Applied , builder.applySnapshot(snapshot), "snapshot must be applied");
 
         builder.onBookUpdate(createBookUpdate(
             SequenceNumber { 100 },
@@ -495,7 +498,7 @@ namespace
             .asks = {}
         };
 
-        AssertTrue(builder.applySnapshot(firstSnapshot), "first snapshot must be applied");
+        AssertEqual(UpdateResult::Applied , builder.applySnapshot(firstSnapshot), "first snapshot must be applied");
 
         builder.onBookUpdate(createBookUpdate(
             SequenceNumber { 102 },
@@ -512,7 +515,7 @@ namespace
             .asks = {{ AskPrice, AskQuantity }}
         };
 
-        AssertTrue(builder.applySnapshot(recoverySnapshot), "recovery snapshot must be applied");
+        AssertEqual(UpdateResult::Applied , builder.applySnapshot(recoverySnapshot), "recovery snapshot must be applied");
         AssertEqual(orderBook.sequence(), SequenceNumber { 200 },"recovery snapshot must replace sequence");
         AssertEqual(orderBook.bidVolume(BidPrice), BidQuantity2,"recovery snapshot must replace book state");
 
@@ -547,7 +550,7 @@ namespace
             .asks = {{ AskPrice, AskQuantity }}
         };
 
-        AssertTrue(builder.applySnapshot(snapshot), "snapshot must be applied");
+        AssertEqual(UpdateResult::Applied , builder.applySnapshot(snapshot), "snapshot must be applied");
 
         builder.onBookUpdate(createBookUpdate(
             SequenceNumber { 101 },
@@ -580,9 +583,9 @@ namespace
             .asks = {}
         };
 
-        const bool applied = builder.applySnapshot(snapshot);
+        const UpdateResult result = builder.applySnapshot(snapshot);
 
-        AssertTrue(applied, "empty snapshot must be applied");
+        AssertEqual(UpdateResult::Applied , result, "empty snapshot must be applied");
         AssertEqual(orderBook.sequence(), SequenceNumber { 100 },"invalid order book sequence");
         AssertFalse(orderBook.bestBid().has_value(),"empty book must not have best bid");
         AssertFalse(orderBook.bestAsk().has_value(),"empty book must not have best ask");
@@ -606,7 +609,7 @@ namespace
             .asks = {{ AskPrice, AskQuantity }}
         };
 
-        AssertFalse(builder.applySnapshot(snapshot),"snapshot with wrong instrument must be rejected");
+        AssertEqual(UpdateResult::Applied , builder.applySnapshot(snapshot),"snapshot with wrong instrument must be rejected");
         AssertEqual(orderBook.sequence(), SequenceNumber { 0 },"order book sequence must remain unchanged");
         AssertTrue(orderBook.bidVolume(BidPrice).isZero(),"book must remain empty");
         AssertTrue(orderBook.askVolume(AskPrice).isZero(),"book must remain empty");
@@ -630,7 +633,7 @@ namespace
             .asks = {}
         };
 
-        Assert(builder.applySnapshot(snapshot), "snapshot must be applied");
+        AssertEqual(UpdateResult::Applied , builder.applySnapshot(snapshot), "snapshot must be applied");
 
         builder.onBookUpdate(BookUpdate {
             .instrument = InstrumentId { 2 },

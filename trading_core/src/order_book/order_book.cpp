@@ -17,8 +17,10 @@ namespace trading::order_book
                                 const PriceLevelUpdate& update,
                                 const OrderBook::size_type depth) noexcept
     {
-        if (update.quantity.isZero())
-            return levels.erase(update.price) != 0;
+        if (update.quantity.isZero()) {
+            levels.erase(update.price);
+            return true;
+        }
 
         if (const auto iterator = levels.find(update.price); iterator != levels.end()) {
             iterator->second = update.quantity;
@@ -31,8 +33,9 @@ namespace trading::order_book
 
         auto itWorst = levels.end();
         --itWorst;
-        if (!levels.key_comp()(update.price, itWorst->first))
-            return false;
+        if (!levels.key_comp()(update.price, itWorst->first)) {
+            return true;
+        }
 
         levels.erase(itWorst);
         levels.emplace(update.price, update.quantity);

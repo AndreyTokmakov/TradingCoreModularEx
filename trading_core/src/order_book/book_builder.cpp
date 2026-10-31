@@ -39,8 +39,6 @@ Description : book_builder.cpp
 
 #include "book_builder.hpp"
 
-#include <iostream>
-
 namespace trading::order_book
 {
     BookBuilder::BookBuilder(const InstrumentId instrument,
@@ -52,43 +50,41 @@ namespace trading::order_book
     {
     }
 
-    bool BookBuilder::applySnapshot(const Snapshot& snapshot) const
+    BookBuilder::UpdateResult BookBuilder::applySnapshot(const Snapshot& snapshot) const
     {
-        if (snapshot.instrument != instrument)
-            return false;
+        if (snapshot.instrument != instrument) {
+            return UpdateResult::InvalidInstrument;
+        }
 
-        std::cout <<  "snapshot.sequence = " << snapshot.sequence << std::endl;
         orderBook.setState(snapshot.sequence, snapshot.bids, snapshot.asks);
-
-        return true;
+        return UpdateResult::Applied;
     }
 
-    void BookBuilder::onBookUpdate(const BookUpdate& update) const
+    BookBuilder::UpdateResult BookBuilder::onBookUpdate(const BookUpdate& update) const
     {
-        std::cout <<  "onBookUpdate (size = " << update.updates.size() << ")"<< std::endl;
-        if (update.instrument != instrument)
-            return;
-        if (!isSequenceValid(update)) {
-            std::cout << "ERROR: " << update.sequenceRange.first << " != " << orderBook.sequence() + 1 << std::endl;
-            return;
+        if (update.instrument != instrument) {
+            return UpdateResult::InvalidInstrument;
         }
-        if (!applyBookUpdate(update))
-            return;
+        if (orderBook.sequence() >= update.sequenceRange.last) {
+            return UpdateResult::Ignored;
+        }
+        if (update.sequenceRange.first > orderBook.sequence() + 1) {
+            return UpdateResult::SequenceGap;
+        }
+        if (!applyBookUpdate(update)) {
+            return UpdateResult::Failed;
+        }
 
         orderBook.setSequence(update.sequenceRange.last);
         publishMarketEvent(update.sequenceRange.last, update.exchangeTimestamp);
-    }
 
-    bool BookBuilder::isSequenceValid(const BookUpdate& update) const noexcept
-    {
-        return update.sequenceRange.first == orderBook.sequence() + 1;
+        return UpdateResult::Applied;
     }
 
     bool BookBuilder::applyBookUpdate(const BookUpdate& update) const noexcept
     {
         return std::ranges::all_of(update.updates, [this](const PriceLevelUpdate& levelUpdate) {
-            std::cout <<  "applyBookUpdate "<< std::endl;
-            return true == orderBook.applyUpdate(levelUpdate);
+            return orderBook.applyUpdate(levelUpdate);
         });
     }
 

@@ -343,7 +343,7 @@ namespace binance_tests
             marketDataModule.start(); // FIXME <---- No block the thread
         }};
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1'000));
 
         bookBuilderModule.start();
     }

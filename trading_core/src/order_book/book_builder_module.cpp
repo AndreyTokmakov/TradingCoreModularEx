@@ -48,7 +48,7 @@ namespace trading::order_book
 
         metrics.increment<metrics::MetricType::MarketDataSnapshots>();
 
-        if (!bookBuilder.applySnapshot(snapshot.value())) {
+        if (BookBuilder::UpdateResult::Applied != bookBuilder.applySnapshot(snapshot.value())) {
             logger->error("Failed to apply book builder snapshot");
             metrics.increment<metrics::MetricType::MarketDataSnapshotApplyFailed>();
             return;
@@ -57,7 +57,7 @@ namespace trading::order_book
         BookUpdate bookUpdate;
         while (bookUpdateQueue.waitPop(bookUpdate))
         {
-            bookBuilder.onBookUpdate(bookUpdate);
+            const auto _ = bookBuilder.onBookUpdate(bookUpdate);
             bookUpdate.clear();
         }
     }
