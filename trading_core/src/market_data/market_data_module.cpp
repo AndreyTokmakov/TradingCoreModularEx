@@ -8,6 +8,7 @@ Description : Market-data pipeline module implementation.
 ============================================================================**/
 
 #include "market_data_module.hpp"
+#include <iostream>
 
 namespace trading::market_data
 {
@@ -26,13 +27,15 @@ namespace trading::market_data
         marketDataSource->setMessageHandler(messageHandler);
     }
 
-    void MarketDataModule::start() const
+    void MarketDataModule::run() const
     {
         marketDataSource->start();
     }
 
+#if 0
     void MarketDataModule::stop() const
     {
         marketDataSource->stop();
     }
+#endif
 }

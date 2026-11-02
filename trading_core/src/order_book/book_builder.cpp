@@ -38,6 +38,7 @@ Description : book_builder.cpp
 */
 
 #include "book_builder.hpp"
+#include <iostream>
 
 namespace trading::order_book
 {
@@ -65,15 +66,22 @@ namespace trading::order_book
         if (update.instrument != instrument) {
             return UpdateResult::InvalidInstrument;
         }
-        if (orderBook.sequence() >= update.sequenceRange.last) {
+
+        const SequenceNumber sequence = orderBook.sequence();
+        if (sequence >= update.sequenceRange.last) {
+            std::cout << "Updates Ignored  Range [" << update.sequenceRange.first << ", " << update.sequenceRange.last << "]\n";
             return UpdateResult::Ignored;
         }
-        if (update.sequenceRange.first > orderBook.sequence() + 1) {
+        if (update.sequenceRange.first > sequence + 1) {
             return UpdateResult::SequenceGap;
         }
         if (!applyBookUpdate(update)) {
             return UpdateResult::Failed;
         }
+
+        std::cout << "Updates applied [" << update.updates.size() << "] Range ["
+                  << update.sequenceRange.first << ", " << update.sequenceRange.last << "]"
+                  << " [Seq " << sequence << " ==> " << update.sequenceRange.last << std::endl;
 
         orderBook.setSequence(update.sequenceRange.last);
         publishMarketEvent(update.sequenceRange.last, update.exchangeTimestamp);

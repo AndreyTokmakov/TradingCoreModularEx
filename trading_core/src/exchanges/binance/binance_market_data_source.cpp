@@ -12,18 +12,16 @@ Description : Binance market data source implementation.
 
 namespace
 {
-    const std::string wsStreamHost { "stream.binance.com" };
     constexpr uint16_t port { 443 };
 }
 
 namespace trading::exchanges::binance
 {
     BinanceMarketDataSource::BinanceMarketDataSource(std::string endpoint) noexcept :
-        endpoint { std::move(endpoint) },
         ioContext { 1 },
         sslContext { boost::asio::ssl::context::tls_client },
         wsClient    {
-            ioContext, sslContext,wsStreamHost,std::to_string(port),"/ws"
+            ioContext, sslContext,std::move(endpoint) ,std::to_string(port),"/ws"
         }
     {
         sslContext.set_default_verify_paths();
@@ -33,6 +31,7 @@ namespace trading::exchanges::binance
     void BinanceMarketDataSource::start()
     {
         wsClient.start([this](const std::string& message) {
+            std::cout << message << std::endl;
             messageHandler->onMessage(message);
         });
         wsClient.send(R"({"method":"SUBSCRIBE","params":["btcusdt@depth", "btcusdt@trade"],"id":1})");

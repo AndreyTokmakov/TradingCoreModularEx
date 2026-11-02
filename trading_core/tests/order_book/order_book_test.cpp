@@ -280,7 +280,7 @@ namespace
             },
             {});
 
-        Assert(!book.applyUpdate(createBidLevelUpdate(SecondBidPrice, {})), "remove of unknown bid level must be rejected");
+        Assert(book.applyUpdate(createBidLevelUpdate(SecondBidPrice, {})), "remove of unknown bid level must return TRUE");
         Assert(book.sequence() == 100, "price-level update must not change sequence");
         Assert(book.bidSize() == 1, "existing bid must remain");
         Assert(book.bidVolume(BestBidPrice) == FirstQuantity, "existing bid must not change");
@@ -297,7 +297,7 @@ namespace
                 { BestAskPrice, FirstQuantity }
             });
 
-        Assert(!book.applyUpdate(createAskLevelUpdate(SecondAskPrice, {})),"remove of unknown ask level must be rejected");
+        Assert(book.applyUpdate(createAskLevelUpdate(SecondAskPrice, {})),"remove of unknown ask level must return TRUE");
         Assert(book.sequence() == 100, "price-level update must not change sequence");
         Assert(book.askSize() == 1, "existing ask must remain");
         Assert(book.askVolume(BestAskPrice) == FirstQuantity, "existing ask must not change");
@@ -500,7 +500,7 @@ namespace
             },
             {});
 
-        Assert(!book.applyUpdate(createBidLevelUpdate(WorseBidPrice, ThirdQuantity)),"bid worse than depth must be rejected");
+        Assert(book.applyUpdate(createBidLevelUpdate(WorseBidPrice, ThirdQuantity)),"bid worse than depth shall succeed");
         Assert(book.sequence() == 100, "price-level update must not change sequence");
         Assert(book.bidSize() == Depth, "bid size must remain unchanged");
         Assert(book.bidVolume(BestBidPrice) == FirstQuantity, "best bid must remain unchanged");
@@ -521,7 +521,7 @@ namespace
                 { SecondAskPrice, SecondQuantity }
             });
 
-        Assert(!book.applyUpdate(createAskLevelUpdate(WorseAskPrice, ThirdQuantity)),"ask worse than depth must be rejected");
+        Assert(book.applyUpdate(createAskLevelUpdate(WorseAskPrice, ThirdQuantity)),"ask worse than depth shall succeed");
         Assert(book.sequence() == 100, "price-level update must not change sequence");
         Assert(book.askSize() == Depth, "ask size must remain unchanged");
         Assert(book.askVolume(BestAskPrice) == FirstQuantity, "best ask must remain unchanged");
@@ -683,13 +683,12 @@ namespace
     void testDepthIsPreservedAfterClear()
     {
         constexpr OrderBook::size_type Depth { 2 };
-
         OrderBook book { Depth };
 
         book.setState(100,
             {
-                { BestBidPrice, FirstQuantity },
-                { SecondBidPrice, SecondQuantity }
+                { .price = BestBidPrice, .quantity = FirstQuantity },
+                { .price = SecondBidPrice, .quantity = SecondQuantity }
             },
             {});
 
@@ -700,7 +699,7 @@ namespace
 
         constexpr Price WorseBidPrice { 6'499'998'000'000 };
 
-        Assert(!book.applyUpdate(createBidLevelUpdate(WorseBidPrice, ThirdQuantity)),"depth limit must remain after clear");
+        Assert(book.applyUpdate(createBidLevelUpdate(WorseBidPrice, ThirdQuantity)),"depth limit must remain after clear");
         Assert(book.bidSize() == Depth, "depth must remain unchanged after clear");
     }
 }

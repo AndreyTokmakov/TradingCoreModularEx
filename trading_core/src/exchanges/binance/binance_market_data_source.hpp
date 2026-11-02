@@ -65,7 +65,6 @@ namespace trading::exchanges::binance
         void setMessageHandler(market_data::IMarketDataMessageHandler& handler) override;
 
     private:
-        std::string endpoint;
         market_data::IMarketDataMessageHandler* messageHandler { nullptr };
 
         boost::asio::io_context ioContext;

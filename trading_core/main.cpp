@@ -155,6 +155,34 @@ bool PositionManager::applyExecution(const execution::ExecutionReport& report)
     using Levels    = std::vector<std::pair<Price, Quantity>>;
 **/
 
+/**
+
+namespace execution
+{
+    enum class OrderStatus
+    {
+        PendingNew,
+        New,
+        PartiallyFilled,
+        Filled,
+        Canceled,
+        Rejected,
+        Expired,
+        Unknown
+    };
+
+    struct OrderUpdate
+    {
+        std::string clientOrderId;
+        std::string exchangeOrderId;
+        OrderStatus status { OrderStatus::Unknown };
+        Quantity lastExecutedQuantity {};
+        Quantity cumulativeExecutedQuantity {};
+        Price lastExecutedPrice {};
+    };
+}
+**/
+
 namespace
 {
     using LoggerFactory = trading::logging::LoggerFactory;
@@ -242,16 +270,6 @@ namespace binance_tests
 
     using namespace std::string_view_literals;
 
-    // TODO:
-    //  - WebSocket Client
-    //  - REST Client
-    //  - IBinanceParser  (using SIMD Json)
-    //  - IBinanceSnapshotProvider
-    //  - IBinanceMarketDataSource
-    //  - Test With SourceProvider (CPU-1) + BookBuilder (CPU-2)
-    //  -
-    //  - Support Using Configuration !
-
     constexpr std::string binanceApiHost { "api.binance.com" };
 
     void testBinanceWsClient()
@@ -290,6 +308,10 @@ namespace binance_tests
         };
 
         marketDataModule.start();
+
+        while (true) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(250));
+        }
     }
 
     void bookBuilderModuleTests(const std::vector<std::string_view>& parameters)
@@ -339,26 +361,27 @@ namespace binance_tests
             config, bookUpdateQueue, strategyEventQueue, recordingEventQueue, *exchangeFactory
         };
 
-        std::jthread marketDataThread {[&] {
-            marketDataModule.start(); // FIXME <---- No block the thread
-        }};
 
+        marketDataModule.start();
         std::this_thread::sleep_for(std::chrono::milliseconds(1'000));
-
         bookBuilderModule.start();
+
+        while (true) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(250));
+        }
     }
 
     void test(const std::vector<std::string_view>& parameters)
     {
         // wsClient();
         // testBinanceWsClient();
-        // marketDataModuleTest(parameters);
+        marketDataModuleTest(parameters);
 
         // testRestClient();
         // testBinanceClient();
         // bookBuilderModuleTests(parameters);
 
-        BookBuilder_and_MarketData_Modules(parameters);
+        // BookBuilder_and_MarketData_Modules(parameters);
     }
 }
 

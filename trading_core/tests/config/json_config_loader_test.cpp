@@ -96,12 +96,12 @@ namespace
             "exchanges": [
                 {
                     "name": "binance",
-                    "marketDataEndpoint": "wss://market-data.example",
+                    "wsMarketDataEndpoint": "wss://market-data.example",
                     "executionEndpoint": "https://execution.example"
                 },
                 {
                     "name": "test-exchange",
-                    "marketDataEndpoint": "wss://test-market.example",
+                    "wsMarketDataEndpoint": "wss://test-market.example",
                     "executionEndpoint": "https://test-execution.example"
                 }
             ],
@@ -128,7 +128,7 @@ namespace
         Assert(config.riskLimits.maxNotional == Price { 2500000000000 }, "invalid maximum notional");
         Assert(config.exchanges.size() == 2, "invalid exchange count");
         Assert(config.exchanges[0].name == "binance", "invalid first exchange name");
-        Assert(config.exchanges[0].marketDataEndpoint == "wss://market-data.example", "invalid first market data endpoint");
+        Assert(config.exchanges[0].wsMarketDataEndpoint == "wss://market-data.example", "invalid first market data endpoint");
         Assert(config.exchanges[0].executionEndpoint == "https://execution.example", "invalid first execution endpoint");
         Assert(config.exchanges[1].name == "test-exchange", "invalid second exchange name");
         Assert(!config.recording.enabled, "recording must be disabled");
@@ -263,17 +263,17 @@ namespace
             "exchanges": [
                 {
                     "name": "binance",
-                    "marketDataEndpoint": "market-data-1",
+                    "wsMarketDataEndpoint": "market-data-1",
                     "executionEndpoint": "execution-1"
                 },
                 {
                     "name": "test-exchange",
-                    "marketDataEndpoint": "market-data-2",
+                    "wsMarketDataEndpoint": "market-data-2",
                     "executionEndpoint": "execution-2"
                 },
                 {
                     "name": "third-exchange",
-                    "marketDataEndpoint": "market-data-3",
+                    "wsMarketDataEndpoint": "market-data-3",
                     "executionEndpoint": "execution-3"
                 }
             ]

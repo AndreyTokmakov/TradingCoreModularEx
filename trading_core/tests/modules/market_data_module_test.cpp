@@ -65,7 +65,8 @@ namespace
 
         MarketDataModule module { config, bookUpdateQueue, tradeQueue, exchangeFactory };
 
-        module.start();
+        module.start();  // Start std::jthread + producing events
+        module.stop();   // stop() -> make sure that all events parsed && published --> bookUpdateQueue
 
         BookUpdate update;
 
@@ -76,13 +77,11 @@ namespace
         Assert(update.exchangeTimestamp == trading::Timestamp { 10'000'001 }, "invalid exchange timestamp");
         Assert(update.updates.size() == 1, "book update must contain one price level update");
 
-        const auto& levelUpdate = update.updates.front();
+        const auto&[side, price, quantity] = update.updates.front();
 
-        Assert(levelUpdate.side == Side::Buy, "invalid side");
-        Assert(levelUpdate.price == Price { 6'500'000'000'000 }, "invalid price");
-        Assert(levelUpdate.quantity == Quantity { 120'000'000 }, "invalid quantity");
-
-        module.stop();
+        Assert(side == Side::Buy, "invalid side");
+        Assert(price == Price { 6'500'000'000'000 }, "invalid price");
+        Assert(quantity == Quantity { 120'000'000 }, "invalid quantity");
     }
 
     void testMultipleMessages()
@@ -105,7 +104,8 @@ namespace
 
         MarketDataModule module { config, bookUpdateQueue, tradeQueue, exchangeFactory };
 
-        module.start();
+        module.start();  // Start std::jthread + producing events
+        module.stop();   // stop() -> make sure that all events parsed && published --> bookUpdateQueue
 
         BookUpdate firstUpdate;
         BookUpdate secondUpdate;
@@ -137,8 +137,6 @@ namespace
         Assert(thirdUpdate.updates.front().side == Side::Buy, "invalid third update side");
 
         Assert(bookUpdateQueue.empty(), "queue must contain exactly three book updates");
-
-        module.stop();
     }
 
     void testMultipleMessages2()
@@ -161,7 +159,8 @@ namespace
 
         MarketDataModule module { config, bookUpdateQueue, tradeQueue, exchangeFactory };
 
-        module.start();
+        module.start();  // Start std::jthread + producing events
+        module.stop();   // stop() -> make sure that all events parsed && published --> bookUpdateQueue
 
         for (trading::SequenceNumber expectedSequence { 101 }; expectedSequence <= 103; ++expectedSequence)
         {
@@ -177,10 +176,7 @@ namespace
         }
 
         BookUpdate update;
-
         Assert(!bookUpdateQueue.tryPop(update), "queue must contain no unexpected updates");
-
-        module.stop();
     }
 
     void testMultipleUpdatesInSingleMessage()
@@ -203,7 +199,8 @@ namespace
 
         MarketDataModule module { config, bookUpdateQueue, tradeQueue, exchangeFactory };
 
-        module.start();
+        module.start();  // Start std::jthread + producing events
+        module.stop();   // stop() -> make sure that all events parsed && published --> bookUpdateQueue
 
         BookUpdate update;
 
@@ -231,8 +228,6 @@ namespace
         Assert(thirdUpdate.quantity == Quantity { 250'000'000 }, "invalid third quantity");
 
         Assert(bookUpdateQueue.empty(), "all updates must be contained in one BookUpdate");
-
-        module.stop();
     }
 
     void testInvalidMessageIsNotPushed()
@@ -251,14 +246,13 @@ namespace
 
         MarketDataModule module { config, bookUpdateQueue, tradeQueue, exchangeFactory };
 
-        module.start();
+        module.start();  // Start std::jthread + producing events
+        module.stop();   // stop() -> make sure that all events parsed && published --> bookUpdateQueue
 
         BookUpdate update;
 
         Assert(!bookUpdateQueue.tryPop(update),"invalid message must not produce a BookUpdate");
         Assert(bookUpdateQueue.empty(),"queue must remain empty after invalid message");
-
-        module.stop();
     }
 
     void testInvalidMessageDoesNotPreventNextMessage()
@@ -279,7 +273,9 @@ namespace
         }};
 
         MarketDataModule module { config, bookUpdateQueue, tradeQueue, exchangeFactory };
-        module.start();
+
+        module.start();  // Start std::jthread + producing events
+        module.stop();   // stop() -> make sure that all events parsed && published --> bookUpdateQueue
 
         BookUpdate update;
 
@@ -296,8 +292,6 @@ namespace
         Assert(levelUpdate.quantity == Quantity { 120'000'000 }, "invalid quantity");
 
         Assert(bookUpdateQueue.empty(), "queue must contain only valid message updates");
-
-        module.stop();
     }
 
     void testMixedValidAndInvalidMessages()
@@ -320,7 +314,8 @@ namespace
 
         MarketDataModule module { config, bookUpdateQueue, tradeQueue, exchangeFactory };
 
-        module.start();
+        module.start();  // Start std::jthread + producing events
+        module.stop();   // stop() -> make sure that all events parsed && published --> bookUpdateQueue
 
         BookUpdate update;
 
@@ -339,10 +334,7 @@ namespace
         Assert(update.updates.size() == 1, "second message must contain one price level update");
 
         update.clear();
-
         Assert(!bookUpdateQueue.tryPop(update), "invalid message must not produce a queue item");
-
-        module.stop();
     }
 }
 

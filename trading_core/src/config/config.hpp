@@ -68,7 +68,7 @@ namespace trading::config
     struct ExchangeConfig
     {
         std::string name;
-        std::string marketDataEndpoint;
+        std::string wsMarketDataEndpoint;
         std::string executionEndpoint;
         std::string restApiEndpoint;
     };

@@ -80,8 +80,8 @@ namespace trading::config
                     if (exchangeJson.contains("name")) {
                         exchange.name = exchangeJson.at("name").get<std::string>();
                     }
-                    if (exchangeJson.contains("marketDataEndpoint")) {
-                        exchange.marketDataEndpoint = exchangeJson.at("marketDataEndpoint").get<std::string>();
+                    if (exchangeJson.contains("wsMarketDataEndpoint")) {
+                        exchange.wsMarketDataEndpoint = exchangeJson.at("wsMarketDataEndpoint").get<std::string>();
                     }
                     if (exchangeJson.contains("restApiEndpoint")) {
                         exchange.restApiEndpoint = exchangeJson.at("restApiEndpoint").get<std::string>();

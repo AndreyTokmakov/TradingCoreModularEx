@@ -49,7 +49,7 @@ namespace trading::exchanges::binance
     BinanceExchangeFactory::createMarketDataSource(const config::Config& config) const noexcept
     {
         return std::make_unique<BinanceMarketDataSource>(
-            config::findExchange(config, ExchangeName).marketDataEndpoint
+            config::findExchange(config, ExchangeName).wsMarketDataEndpoint
         );
     }
 

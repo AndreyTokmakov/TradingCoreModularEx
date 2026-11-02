@@ -18,7 +18,7 @@ Description : Market-data pipeline module.
 
 namespace trading::market_data
 {
-    class MarketDataModule final
+    class MarketDataModule final: public common::Worker<MarketDataModule>
     {
     public:
         MarketDataModule(const config::Config& config,
@@ -32,8 +32,9 @@ namespace trading::market_data
         MarketDataModule(MarketDataModule&&) = delete;
         MarketDataModule& operator=(MarketDataModule&&) = delete;
 
-        void start() const;
-        void stop() const;
+    private:
+        friend struct Worker;
+        void run() const;
 
     private:
         std::unique_ptr<IMarketDataParser> marketDataParser;
