@@ -31,51 +31,13 @@ Description : binance_market_data_parser.cpp
     Binance-specific JSON parsing remains entirely inside this class.
 */
 
+#include "utilities/utilities.hpp"
 #include "binance_market_data_parser.hpp"
 #include <simdjson.h>
 
 namespace
 {
-    constexpr std::int64_t DecimalScale = 100'000'000;
     constexpr std::uint64_t NanosecondsPerMillisecond = 1'000'000;
-
-    std::int64_t parseDecimal(const std::string_view value)
-    {
-        bool negative = false;
-        std::size_t index = 0;
-
-        if (!value.empty() && value.front() == '-'){
-            negative = true;
-            index = 1;
-        }
-
-        std::int64_t integerPart = 0;
-        while (index < value.size() && value[index] != '.') {
-            integerPart = integerPart * 10 + static_cast<std::int64_t>(value[index] - '0');
-            ++index;
-        }
-
-        std::int64_t fractionalPart = 0;
-        std::size_t fractionalDigits = 0;
-
-        if (index < value.size() && value[index] == '.')
-        {
-            ++index;
-            while (index < value.size() && fractionalDigits < 8) {
-                fractionalPart = fractionalPart * 10 + static_cast<std::int64_t>(value[index] - '0');
-                ++fractionalDigits;
-                ++index;
-            }
-        }
-
-        while (fractionalDigits < 8) {
-            fractionalPart *= 10;
-            ++fractionalDigits;
-        }
-
-        const std::int64_t result = integerPart * DecimalScale + fractionalPart;
-        return negative ? -result : result;
-    }
 
     constexpr std::string_view TradeEventType { "trade" };
     constexpr std::string_view DepthUpdateEventType { "depthUpdate" };
@@ -113,8 +75,8 @@ namespace trading::exchanges::binance
             // trade.instrument = instrument;
             trade.sequence = tradeId;
             trade.exchangeTimestamp = Timestamp { timestampMilliseconds * NanosecondsPerMillisecond };
-            trade.price = Price { parseDecimal(priceString) };
-            trade.quantity = Quantity { parseDecimal(quantityString) };
+            trade.price = Price { utilities::parseDecimal(priceString) };
+            trade.quantity = Quantity { utilities::parseDecimal(quantityString) };
             trade.side = buyerIsMaker ? Side::Sell : Side::Buy;
 
             // FIXME: Optimize  ???
@@ -139,8 +101,8 @@ namespace trading::exchanges::binance
                 const simdjson::dom::array values = level.get_array();
                 bookUpdate.updates.emplace_back(
                     Side::Buy,
-                    Price { parseDecimal(values.at(0).get_string()) },
-                    Quantity { parseDecimal( values.at(1).get_string()) }
+                    Price { utilities::parseDecimal(values.at(0).get_string()) },
+                    Quantity { utilities::parseDecimal( values.at(1).get_string()) }
                 );
             }
             for (const auto& level : asks)
@@ -148,8 +110,8 @@ namespace trading::exchanges::binance
                 const simdjson::dom::array values = level.get_array();
                 bookUpdate.updates.emplace_back(
                     Side::Sell,
-                    Price { parseDecimal(values.at(0).get_string()) },
-                    Quantity { parseDecimal( values.at(1).get_string()) }
+                    Price { utilities::parseDecimal(values.at(0).get_string()) },
+                    Quantity { utilities::parseDecimal( values.at(1).get_string()) }
                 );
             }
 

@@ -177,6 +177,8 @@ add_executable(${PROJECT_NAME}
         ${BINANCE}/binance_snapshot_provider.cpp
         ${BINANCE}/binance_exchange_factory.hpp
         ${BINANCE}/binance_exchange_factory.cpp
+        ${BINANCE}/utils.cpp
+        ${BINANCE}/utils.hpp
 
         ${POSITION}/position.hpp
         ${POSITION}/position.cpp

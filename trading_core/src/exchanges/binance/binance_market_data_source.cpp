@@ -8,7 +8,6 @@ Description : Binance market data source implementation.
 ============================================================================**/
 
 #include "binance_market_data_source.hpp"
-#include <iostream>
 
 namespace
 {
@@ -32,7 +31,6 @@ namespace trading::exchanges::binance
     void BinanceMarketDataSource::start()
     {
         wsClient.start([this](const std::string& message) {
-            std::cout << message << std::endl;
             messageHandler->onMessage(message);
         });
         wsClient.send(R"({"method":"SUBSCRIBE","params":["btcusdt@depth", "btcusdt@trade"],"id":1})");

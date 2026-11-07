@@ -8,6 +8,7 @@ Description : Binance execution report source implementation.
 ============================================================================**/
 
 #include "binance_execution_report_source.hpp"
+#include "utils.hpp"
 #include "utilities/utilities.hpp"
 
 namespace
@@ -15,28 +16,6 @@ namespace
     constexpr uint16_t Port { 443 };
     constexpr std::string Target = "/ws-api/v3";
     constexpr std::int64_t RecvWindow = 5000;
-
-    std::optional<std::string> createSignature(const std::string_view payload,
-                                               const std::string_view secretKey)
-    {
-        if (secretKey.size() > static_cast<std::size_t>( std::numeric_limits<int>::max())) {
-            return std::nullopt;
-        }
-
-        std::array<unsigned char, EVP_MAX_MD_SIZE> digest {};
-        unsigned int digestLength = 0;
-        const unsigned char* result = HMAC(EVP_sha256(),
-                                           secretKey.data(),
-                                           static_cast<int>(secretKey.size()),
-                                           reinterpret_cast<const unsigned char*>(payload.data()),
-                                           payload.size(),
-                                           digest.data(),
-                                           &digestLength);
-        if (nullptr == result) {
-            return std::nullopt;
-        }
-        return trading::utilities::toHex(std::span { digest.data(), digestLength });
-    }
 }
 
 
@@ -91,7 +70,7 @@ namespace trading::exchanges::binance
 
         // Binance requires parameters to be sorted alphabetically when calculating the signature.
         const std::string payload = std::format("apiKey={}&recvWindow={}&timestamp={}", apiKey , RecvWindow, timestamp);
-        const std::optional<std::string> signature = createSignature(payload, secretKey);
+        const std::optional<std::string> signature = utilities::binance::createSignature(payload, secretKey);
         if (!signature.has_value()) {
             return std::nullopt;
         }
