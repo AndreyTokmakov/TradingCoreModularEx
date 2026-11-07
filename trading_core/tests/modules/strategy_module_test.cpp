@@ -9,11 +9,9 @@ Description : strategy_module_test.cpp
 
 #include "strategy/strategy_module.hpp"
 #include "common/common.hpp"
-
 #include "test_support/testing.hpp"
 #include "test_support/debug_helpers.hpp"
 
-#include <iostream>
 #include <variant>
 
 using trading::InstrumentId;
@@ -99,7 +97,8 @@ namespace
         marketEventQueue.push(createBuySignalEvent());
         marketEventQueue.close();
 
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         ExecutionWorkItem workItem {};
 
@@ -115,6 +114,7 @@ namespace
         Assert(request.quantity == OrderQuantity, "invalid order quantity");
 
         Assert(executionQueue.empty(), "only one execution work item must be produced");
+        module.stop();
     }
 
     void testSellSignalProducesSellOrder()
@@ -135,7 +135,8 @@ namespace
         marketEventQueue.push(createSellSignalEvent());
         marketEventQueue.close();
 
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         ExecutionWorkItem workItem {};
 
@@ -151,6 +152,7 @@ namespace
         Assert(request.quantity == OrderQuantity, "invalid order quantity");
 
         Assert(executionQueue.empty(), "only one execution work item must be produced");
+        module.stop();
     }
 
     void testNoneSignalProducesNoOrder()
@@ -171,12 +173,14 @@ namespace
         marketEventQueue.push(createNoneSignalEvent());
         marketEventQueue.close();
 
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         ExecutionWorkItem workItem {};
 
         Assert(!executionQueue.tryPop(workItem), "None signal must not produce execution work item");
         Assert(executionQueue.empty(), "execution queue must remain empty");
+        module.stop();
     }
 
     void testInstrumentIsPropagated()
@@ -202,7 +206,8 @@ namespace
         marketEventQueue.push(event);
         marketEventQueue.close();
 
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         ExecutionWorkItem workItem {};
         Assert(executionQueue.tryPop(workItem), "buy signal must produce execution work item");
@@ -210,6 +215,7 @@ namespace
         const OrderRequest& request = std::get<OrderRequest>(workItem);
 
         Assert(request.instrument == OtherInstrument,"instrument must be propagated from market event");
+        module.stop();
     }
 
     void testConfiguredOrderQuantityIsUsed()
@@ -232,13 +238,15 @@ namespace
         marketEventQueue.push(createBuySignalEvent());
         marketEventQueue.close();
 
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         ExecutionWorkItem workItem {};
         Assert(executionQueue.tryPop(workItem), "buy signal must produce execution work item");
 
         const OrderRequest& request = std::get<OrderRequest>(workItem);
         Assert(request.quantity == ConfiguredQuantity,"configured order quantity must be used");
+        module.stop();
     }
 
     void testBuyUsesBestAsk()
@@ -266,7 +274,8 @@ namespace
         marketEventQueue.push(event);
         marketEventQueue.close();
 
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         ExecutionWorkItem workItem {};
         Assert(executionQueue.tryPop(workItem), "buy signal must produce execution work item");
@@ -274,8 +283,8 @@ namespace
         const OrderRequest& request = std::get<OrderRequest>(workItem);
 
         Assert(request.price == DifferentAskPrice,"Buy order must use current best ask");
+        module.stop();
     }
-
 
     void testSellUsesBestBid()
     {
@@ -302,7 +311,8 @@ namespace
         marketEventQueue.push(event);
         marketEventQueue.close();
 
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         ExecutionWorkItem workItem {};
         Assert(executionQueue.tryPop(workItem), "sell signal must produce execution work item");
@@ -310,6 +320,7 @@ namespace
         const OrderRequest& request = std::get<OrderRequest>(workItem);
 
         Assert(request.price == DifferentBidPrice,"Sell order must use current best bid");
+        module.stop();
     }
 
     void testMultipleMarketEventsProduceMultipleOrders()
@@ -340,7 +351,8 @@ namespace
         marketEventQueue.push(sellEvent);
         marketEventQueue.close();
 
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         Assert(!executionQueue.empty(), "execution queue must contain generated orders");
 
@@ -362,6 +374,7 @@ namespace
         Assert(secondRequest.side == Side::Sell,"second order must be Sell");
         Assert(secondRequest.price == BidPrice,"second Sell order must use bid price");
         Assert(executionQueue.empty(),"all generated execution work items must be consumed");
+        module.stop();
     }
 }
 

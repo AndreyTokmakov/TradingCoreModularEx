@@ -345,12 +345,7 @@ namespace binance_tests
             config, bookUpdateQueue, strategyEventQueue, recordingEventQueue, *exchangeFactory
         };
 
-        /*
-         private:
-            friend struct Worker;
-            void run() const;
-        */
-        bookBuilderModule.run();
+        bookBuilderModule.start();
     }
 
     void testExecutionReportModule(const std::vector<std::string_view>& parameters)
@@ -378,7 +373,7 @@ namespace binance_tests
 
     void BookBuilder_and_MarketData_Modules(const std::vector<std::string_view>& parameters)
     {
-        const auto nullLogger = std::make_shared<trading::testing::TestLogger>(true);
+        const auto nullLogger = std::make_shared<TestLogger>(true);
         LoggerFactory::createLogger(nullLogger);
 
         const std::filesystem::path configPath = parameters.empty() ?  "config.json" : parameters.front();
@@ -422,7 +417,7 @@ namespace binance_tests
         // bookBuilderModuleTests(parameters);
 
         // testBinanceUserDataStreamWsClient();
-        testExecutionReportModule(parameters);
+        // testExecutionReportModule(parameters);
 
         // BookBuilder_and_MarketData_Modules(parameters);
     }
@@ -434,9 +429,9 @@ int main([[maybe_unused]] const int argc,
     const std::vector<std::string_view> parameters(argv + 1, argv + argc);
 
     // runApp(parameters);
-    // runTests(parameters);
+    runTests(parameters);
     // runSingleTest(parameters);
-    binance_tests::test(parameters);
+    // binance_tests::test(parameters);
 
     return EXIT_SUCCESS;
 }

@@ -8,11 +8,9 @@ Description : trade_recorder_test.cpp
 ============================================================================**/
 
 #include "recording/trade_recorder.hpp"
-
 #include "test_support/testing.hpp"
 #include "test_support/debug_helpers.hpp"
 
-#include <iostream>
 #include <string_view>
 
 using trading::ExchangeOrderId;

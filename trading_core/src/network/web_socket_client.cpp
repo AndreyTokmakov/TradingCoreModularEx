@@ -23,7 +23,6 @@ Description : web_socket_client.cpp
 #include <openssl/ssl.h>
 
 #include <deque>
-#include <iostream>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -132,7 +131,8 @@ namespace trading::network
                 return fail("WebSocket connect failed", errorCode);
             }
             if (SSL_set_tlsext_host_name(stream.next_layer().native_handle(), host.c_str()) != 1) {
-                std::cerr << "Failed to configure TLS SNI for " << host << '\n';
+                // TODO: Logging
+                // std::cerr << "Failed to configure TLS SNI for " << host << '\n';
                 stopNow();
                 return;
             }
@@ -238,7 +238,8 @@ namespace trading::network
         void fail(const std::string_view operation, const beast::error_code& errorCode)
         {
             if (errorCode != net::error::operation_aborted) {
-                std::cerr << operation << ": " << errorCode.message() << '\n';
+                // TODO: Logging
+                // std::cerr << operation << ": " << errorCode.message() << '\n';
             }
             stopNow();
         }

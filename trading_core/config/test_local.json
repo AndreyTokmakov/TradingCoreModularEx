@@ -13,12 +13,15 @@
         "maxPositionQuantity": 1000000000,
         "maxNotional": 2500000000000
     },
-    "exchanges": [
+    "exchanges":
+    [
         {
             "name": "binance",
             "wsMarketDataEndpoint": "wss://market-data.example",
             "restApiEndpoint": "api.binance.com",
-            "executionEndpoint": "https://execution.example"
+            "executionEndpoint": "https://execution.example",
+            "apiKey": "${BINANCE_API_KEY}",
+            "apiSecret": "${BINANCE_SECRET_KEY}"
         },
         {
             "name": "test-exchange",

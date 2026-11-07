@@ -26,6 +26,8 @@ namespace trading::strategy
                        common::Queue<market_data::MarketEvent>& strategyEventQueue,
                        common::Queue<execution::ExecutionWorkItem>& executionQueue);
 
+    private:
+        friend struct Worker;
         void run() const;
 
     private:

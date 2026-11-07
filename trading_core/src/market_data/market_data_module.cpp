@@ -8,7 +8,7 @@ Description : Market-data pipeline module implementation.
 ============================================================================**/
 
 #include "market_data_module.hpp"
-#include <iostream>
+
 
 namespace trading::market_data
 {

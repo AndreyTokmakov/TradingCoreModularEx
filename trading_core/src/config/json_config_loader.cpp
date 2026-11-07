@@ -8,25 +8,55 @@ Description : JSON configuration loader implementation.
 ============================================================================**/
 
 #include "json_config_loader.hpp"
-
 #include <nlohmann/json.hpp>
-
 #include <fstream>
+#include <expected>
+
+
+namespace
+{
+    using namespace trading::config;
+
+    [[nodiscard]]
+    bool isValidStrategyConfig(const StrategyConfig& strategy) noexcept
+    {
+        return strategy.thresholdDenominator > 0 &&
+               strategy.thresholdNumerator >= 0 &&
+               strategy.thresholdNumerator <= strategy.thresholdDenominator;
+    }
+
+    [[nodiscard]]
+    std::expected<std::string, Error>
+    resolveEnvironmentVariable(const std::string_view value)
+    {
+        if (value.empty() || value.front() != '$') {
+            return std::string { value };
+        }
+
+        std::string variable;
+
+        if (value.size() >= 3 && value[1] == '{' && value.back() == '}') {
+            variable = value.substr(2, value.size() - 3);
+        }
+        else {
+            variable = value.substr(1);
+        }
+
+        if (variable.empty()) {
+            return std::unexpected(Error::InvalidConfiguration);
+        }
+
+        if (const char* envValue = std::getenv(variable.c_str())) {
+            return std::string { envValue };
+        }
+
+        return std::unexpected(Error::EnvironmentVariableNotFound);
+    }
+}
+
 
 namespace trading::config
 {
-    namespace
-    {
-        [[nodiscard]]
-        bool isValidStrategyConfig(const StrategyConfig& strategy) noexcept
-        {
-            return strategy.thresholdDenominator > 0 &&
-                   strategy.thresholdNumerator >= 0 &&
-                   strategy.thresholdNumerator <= strategy.thresholdDenominator;
-        }
-    }
-
-
     std::expected<Config, Error> JsonConfigLoader::load(const std::filesystem::path& configPath)
     {
         std::ifstream file { configPath };
@@ -92,6 +122,21 @@ namespace trading::config
                     if (exchangeJson.contains("wsUserDataStreamEndpoint")) {
                         exchange.wsUserDataStreamEndpoint = exchangeJson.at("wsUserDataStreamEndpoint").get<std::string>();
                     }
+                    if (constexpr std::string_view name = "apiKey"; exchangeJson.contains(name))
+                    {
+                        const std::expected<std::string, Error> value = resolveEnvironmentVariable(exchangeJson.at(name).get<std::string>());
+                        if (!value)
+                            return std::unexpected(value.error());
+                        exchange.apiKey = *value;
+                    }
+                    if (constexpr std::string_view name = "apiSecret"; exchangeJson.contains(name))
+                    {
+                        const std::expected<std::string, Error> value = resolveEnvironmentVariable(exchangeJson.at(name).get<std::string>());
+                        if (!value)
+                            return std::unexpected(value.error());
+                        exchange.apiSecret = *value;
+                    }
+
                     config.exchanges.push_back(std::move(exchange));
                 }
             }

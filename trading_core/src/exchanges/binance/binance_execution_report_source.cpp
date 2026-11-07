@@ -16,27 +16,6 @@ namespace
     constexpr std::string Target = "/ws-api/v3";
     constexpr std::int64_t RecvWindow = 5000;
 
-    struct ApiCredentials
-    {
-        std::string apiKey;
-        std::string secretKey;
-    };
-
-    std::optional<std::string> getEnvironmentVariable(const std::string_view variable) {
-        if (const char* env_p = std::getenv(variable.data()))
-            return env_p;
-        return std::nullopt;
-    }
-
-    [[nodiscard]]
-    std::optional<ApiCredentials> loadApiCredentials()
-    {
-        return ApiCredentials {
-            .apiKey = getEnvironmentVariable("BINANCE_API_KEY").value_or(""),
-            .secretKey = getEnvironmentVariable("BINANCE_SECRET_KEY").value_or("")
-        };
-    }
-
     std::optional<std::string> createSignature(const std::string_view payload,
                                                const std::string_view secretKey)
     {
@@ -64,9 +43,18 @@ namespace
 namespace trading::exchanges::binance
 {
     BinanceExecutionReportSource::BinanceExecutionReportSource(std::string endpoint) noexcept :
+        BinanceExecutionReportSource { std::move(endpoint), {}, {} }
+    {
+    }
+
+    BinanceExecutionReportSource::BinanceExecutionReportSource(std::string endpoint,
+                                                               std::string api_key,
+                                                               std::string secret_key) noexcept :
+        apiKey { std::move(api_key) },
+        secretKey { std::move(secret_key) },
         ioContext { 1 },
         sslContext { boost::asio::ssl::context::tls_client },
-        wsClient    {
+        wsClient {
             ioContext, sslContext,std::move(endpoint) ,std::to_string(Port), Target
         }
     {
@@ -80,14 +68,6 @@ namespace trading::exchanges::binance
 
     void BinanceExecutionReportSource::start()
     {
-        // TODO: Remove
-        const std::optional<ApiCredentials> creds = loadApiCredentials();
-        if (!creds.has_value()) {
-            return;
-        }
-        apiKey = creds->apiKey;
-        secretKey = creds->secretKey;
-
         if (apiKey.empty() || secretKey.empty()) {
             return;
         }

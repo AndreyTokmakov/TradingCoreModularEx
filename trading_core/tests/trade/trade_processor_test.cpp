@@ -9,11 +9,9 @@ Description : Unit tests for TradeProcessor.
 
 #include "trade/trade_processor.hpp"
 #include "market_data/model/trade.hpp"
-
 #include "test_support/testing.hpp"
 #include "test_support/debug_helpers.hpp"
 
-#include <iostream>
 
 namespace
 {

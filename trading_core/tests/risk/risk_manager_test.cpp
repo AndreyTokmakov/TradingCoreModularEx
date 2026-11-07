@@ -36,12 +36,10 @@ Description : risk_manager_test.cpp
 */
 
 #include "risk/risk_manager.hpp"
-
 #include "test_support/testing.hpp"
 #include "test_support/debug_helpers.hpp"
 
 #include <cstdlib>
-#include <iostream>
 
 using trading::InstrumentId;
 using trading::OrderType;

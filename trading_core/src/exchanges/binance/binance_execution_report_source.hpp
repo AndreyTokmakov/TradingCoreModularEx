@@ -40,6 +40,7 @@ namespace trading::exchanges::binance
     {
     public:
         explicit BinanceExecutionReportSource(std::string endpoint) noexcept;
+        BinanceExecutionReportSource(std::string endpoint, std::string api_key, std::string secret_key) noexcept;
 
         BinanceExecutionReportSource(const BinanceExecutionReportSource&) = delete;
         BinanceExecutionReportSource& operator=(const BinanceExecutionReportSource&) = delete;

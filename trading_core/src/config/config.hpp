@@ -27,7 +27,8 @@ namespace trading::config
         FileOpenFailed,
         FileReadFailed,
         InvalidFormat,
-        InvalidConfiguration
+        InvalidConfiguration,
+        EnvironmentVariableNotFound
     };
 
     /**
@@ -72,6 +73,8 @@ namespace trading::config
         std::string restApiEndpoint;
         std::string executionEndpoint;
         std::string wsUserDataStreamEndpoint;
+        std::string apiKey;
+        std::string apiSecret;
     };
 
     /**

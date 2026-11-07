@@ -16,7 +16,6 @@ Description : market_data_module_test.cpp
 #include "test_support/testing.hpp"
 #include "test_support/debug_helpers.hpp"
 
-#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>

@@ -17,9 +17,6 @@ Description : StrategyExecutor unit tests.
 #include "interfaces/execution_gateway.hpp"
 #include "risk_manager.hpp"
 #include "position_manager.hpp"
-
-#include <iostream>
-
 #include "imbalance_strategy.hpp"
 
 using trading::InstrumentId;

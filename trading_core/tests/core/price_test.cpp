@@ -1,10 +1,7 @@
 #include "core/price.hpp"
-
 #include "test_support/testing.hpp"
 #include "test_support/debug_helpers.hpp"
-
 #include <cstdint>
-#include <iostream>
 #include <limits>
 
 namespace

@@ -7,7 +7,6 @@ Copyright   : Your copyright notice
 Description : execution_report_module.cpp
 ============================================================================**/
 
-#include "config/config_utils.hpp"
 #include "execution_report_module.hpp"
 
 namespace trading::execution
@@ -20,7 +19,8 @@ namespace trading::execution
     },
     executionReportSource {
         exchangeFactory.createExecutionReportSource(config)
-    } {
+    }
+    {
         executionReportSource->setReportHandler(executionReportDataHandler);
     }
 

@@ -8,11 +8,9 @@ Description : position_manager_test.cpp
 ============================================================================**/
 
 #include "position/position_manager.hpp"
-
 #include "test_support/testing.hpp"
 #include "test_support/debug_helpers.hpp"
 
-#include <iostream>
 
 using trading::ExchangeOrderId;
 using trading::ExecType;

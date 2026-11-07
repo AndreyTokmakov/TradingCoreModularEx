@@ -8,11 +8,9 @@ Description : position_test.cpp
 ============================================================================**/
 
 #include "position/position.hpp"
-
 #include "test_support/testing.hpp"
 #include "test_support/debug_helpers.hpp"
 
-#include <iostream>
 
 using trading::InstrumentId;
 using trading::Price;

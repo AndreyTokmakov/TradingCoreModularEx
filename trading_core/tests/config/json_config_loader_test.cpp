@@ -14,7 +14,6 @@ Description : Unit tests for JSON configuration loader.
 
 #include <filesystem>
 #include <fstream>
-#include <iostream>
 #include <string>
 
 using trading::InstrumentId;

@@ -38,6 +38,8 @@ namespace trading::order_book
                           common::CVQueue<recording::RecordingEvent>& recordingQueue,
                           const exchanges::IExchangeFactory& exchangeFactory) noexcept;
 
+    private:
+        friend struct Worker;
         void run();
 
     private:

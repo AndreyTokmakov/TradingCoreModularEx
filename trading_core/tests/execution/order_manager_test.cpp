@@ -1,11 +1,7 @@
 #include "execution/order_manager.hpp"
 #include "risk/risk_manager.hpp"
-
 #include "test_support/testing.hpp"
 #include "test_support/debug_helpers.hpp"
-
-#include <iostream>
-
 #include "test_support/test_execution_gateway.hpp"
 
 using trading::ExchangeOrderId;

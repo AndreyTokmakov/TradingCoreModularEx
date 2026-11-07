@@ -38,12 +38,10 @@ Description : pnl_calculator_test.cpp
 */
 
 #include "pnl/pnl_calculator.hpp"
-
 #include "test_support/testing.hpp"
 #include "test_support/debug_helpers.hpp"
 
 #include <cstdlib>
-#include <iostream>
 
 using trading::ExchangeOrderId;
 using trading::InstrumentId;

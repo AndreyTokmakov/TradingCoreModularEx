@@ -14,7 +14,6 @@ Description : book_builder_module_test.cpp
 #include "test_support/testing.hpp"
 #include "test_support/debug_helpers.hpp"
 
-#include <iostream>
 #include <memory>
 #include <utility>
 #include <variant>
@@ -220,9 +219,10 @@ namespace
         Assert(exchangeFactory.createSnapshotProviderCountValue() == 1, "snapshot provider must be created once");
 
         bookUpdateQueue.close();
-        module.run();
+        module.start();
 
         Assert(exchangeFactory.createSnapshotProviderCountValue() == 1, "snapshot provider must remain created once");
+        module.stop();
     }
 
     void testSnapshotIsRequestedOnce()
@@ -241,9 +241,12 @@ namespace
         BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory };
 
         bookUpdateQueue.close();
-        module.run();
+        module.start();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         AssertEqual(snapshotProviderPtr->getSnapshotRequestedCount(), 1UL, "snapshot must be requested exactly once");
+        module.stop();
     }
 
     void testSnapshotDoesNotProduceEvents()
@@ -260,10 +263,13 @@ namespace
         BookBuilderModule module { config, bookUpdateQueue, strategyEventQueue, recordingQueue, exchangeFactory };
 
         bookUpdateQueue.close();
-        module.run();
+        module.start();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        module.stop();
     }
 
-     void testSingleUpdateIsProcessed()
+    void testSingleUpdateIsProcessed()
     {
         Config config = createConfig();
 
@@ -279,7 +285,8 @@ namespace
         bookUpdateQueue.push(createBidUpdate(SequenceNumber { 101 }, Quantity { 200'000'000 }));
 
         stopModule(bookUpdateQueue);
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         MarketEvent marketEvent;
 
@@ -301,6 +308,8 @@ namespace
 
         AssertEqual(recordedMarketEvent.sequence, SequenceNumber { 101 }, "recorded event must preserve sequence");
         AssertEqual(recordedMarketEvent.bestBidQuantity, Quantity { 200'000'000 }, "recorded event must preserve bid quantity");
+
+        module.stop();
     }
 
     void testMultipleUpdatesInOneBatch()
@@ -335,7 +344,8 @@ namespace
         });
 
         stopModule(bookUpdateQueue);
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         MarketEvent marketEvent;
 
@@ -345,6 +355,8 @@ namespace
         AssertEqual(marketEvent.bestAskQuantity, Quantity { 150'000'000 }, "event must contain updated ask quantity");
 
         AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
+
+        module.stop();
     }
 
     void testMultipleBatchesAreProcessed()
@@ -364,7 +376,8 @@ namespace
         bookUpdateQueue.push(createAskUpdate(SequenceNumber { 102 }, Quantity { 150'000'000 }));
 
         bookUpdateQueue.close();
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         MarketEvent firstEvent;
         MarketEvent secondEvent;
@@ -377,9 +390,10 @@ namespace
         AssertEqual(secondEvent.bestAskQuantity, Quantity { 150'000'000 }, "second batch must update ask");
 
         AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
+        module.stop();
     }
 
-        void testWrongInstrumentUpdateIsIgnored()
+    void testWrongInstrumentUpdateIsIgnored()
     {
         Config config = createConfig();
 
@@ -396,7 +410,8 @@ namespace
         bookUpdateQueue.push(createBidUpdate(SequenceNumber { 101 }, Quantity { 200'000 }));
 
         stopModule(bookUpdateQueue);
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         MarketEvent marketEvent;
 
@@ -405,6 +420,7 @@ namespace
         AssertEqual(marketEvent.bestBidQuantity, Quantity { 200'000 }, "wrong instrument update must not modify book");
 
         AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
+        module.stop();
     }
 
     void testSequenceGapDoesNotProduceEvent()
@@ -423,9 +439,12 @@ namespace
         bookUpdateQueue.push(createBidUpdate(SequenceNumber { 102 }, Quantity { 200'000 }));
 
         stopModule(bookUpdateQueue);
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
+
+        module.stop();
     }
 
     void testDuplicateSequenceDoesNotProduceEvent()
@@ -445,7 +464,8 @@ namespace
         bookUpdateQueue.push(createBidUpdate(SequenceNumber { 101 }, Quantity { 300'000 }));
 
         stopModule(bookUpdateQueue);
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         MarketEvent marketEvent;
 
@@ -454,6 +474,7 @@ namespace
         AssertEqual(marketEvent.bestBidQuantity, Quantity { 200'000 }, "first update quantity must be preserved");
 
         AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
+        module.stop();
     }
 
     void testOutOfOrderUpdateDoesNotAdvanceSequence()
@@ -474,7 +495,8 @@ namespace
         bookUpdateQueue.push(createBidUpdate(SequenceNumber { 103 }, Quantity { 350'000 }));
 
         stopModule(bookUpdateQueue);
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         MarketEvent firstEvent;
         MarketEvent secondEvent;
@@ -488,6 +510,7 @@ namespace
         AssertEqual(thirdEvent.sequence, SequenceNumber { 103 }, "third event must have sequence 103");
         AssertEqual(thirdEvent.bestBidQuantity, Quantity { 350'000 }, "latest valid update must determine final quantity");
         AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
+        module.stop();
     }
 
     void testBidRemovalProducesEmptyBestBid()
@@ -505,7 +528,8 @@ namespace
         bookUpdateQueue.push(createBidUpdate(SequenceNumber { 101 }, Quantity {}));
 
         stopModule(bookUpdateQueue);
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         MarketEvent marketEvent;
 
@@ -516,6 +540,7 @@ namespace
         AssertEqual(marketEvent.bestAsk, INITIAL_ASK, "best ask must remain unchanged");
         AssertEqual(marketEvent.bestAskQuantity, INITIAL_ASK_QUANTITY, "best ask quantity must remain unchanged");
         AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
+        module.stop();
     }
 
     void testAskRemovalProducesEmptyBestAsk()
@@ -533,7 +558,8 @@ namespace
         bookUpdateQueue.push(createAskUpdate(SequenceNumber { 101 }, Quantity {}));
 
         stopModule(bookUpdateQueue);
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         MarketEvent marketEvent;
 
@@ -544,6 +570,7 @@ namespace
         AssertEqual(marketEvent.bestAsk, Price {}, "best ask must be empty after ask removal");
         AssertEqual(marketEvent.bestAskQuantity, Quantity {}, "best ask quantity must be zero after ask removal");
         AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
+        module.stop();
     }
 
     void testBothSidesCanBeUpdated()
@@ -562,7 +589,8 @@ namespace
         bookUpdateQueue.push(createSecondAskUpdate(SequenceNumber { 102 }, SECOND_ASK_QUANTITY));
 
         stopModule(bookUpdateQueue);
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         MarketEvent firstEvent;
         MarketEvent secondEvent;
@@ -576,6 +604,7 @@ namespace
         AssertEqual(secondEvent.bestBid, INITIAL_BID, "best bid must remain unchanged");
         AssertEqual(secondEvent.bestAsk, INITIAL_ASK, "initial ask must remain the best ask");
         AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
+        module.stop();
     }
 
     void testRecordingReceivesSameNumberOfEvents()
@@ -595,7 +624,8 @@ namespace
         bookUpdateQueue.push(createBidUpdate(SequenceNumber { 103 }, Quantity { 300'000 }));
 
         stopModule(bookUpdateQueue);
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         MarketEvent marketEvent;
         RecordingEvent recordingEvent;
@@ -609,6 +639,7 @@ namespace
 
         AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
         AssertEmpty(recordingQueue, "recording event queue must be empty");
+        module.stop();
     }
 
     void testInvalidSnapshotStopsProcessing()
@@ -635,10 +666,12 @@ namespace
         bookUpdateQueue.push(createBidUpdate(SequenceNumber { 101 }, Quantity { 200'000 }));
 
         stopModule(bookUpdateQueue);
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
         AssertEmpty(recordingQueue, "recording event queue must be empty");
+        module.stop();
     }
 
     void testEmptyBookUpdatesBatchDoesNotProduceEvent()
@@ -656,10 +689,12 @@ namespace
         bookUpdateQueue.push(BookUpdate {});
 
         stopModule(bookUpdateQueue);
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
         AssertEmpty(recordingQueue, "recording event queue must be empty");
+        module.stop();
     }
 
     void testMixedValidAndInvalidUpdates()
@@ -681,7 +716,8 @@ namespace
         bookUpdateQueue.push(createBidUpdate(SequenceNumber { 103 }, Quantity { 350'000 }));
 
         stopModule(bookUpdateQueue);
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         MarketEvent firstEvent;
         MarketEvent secondEvent;
@@ -696,6 +732,7 @@ namespace
         AssertEqual(thirdEvent.bestBidQuantity, Quantity { 350'000 }, "final valid update must determine final bid quantity");
 
         AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
+        module.stop();
     }
 
     void testReceiveTimestampIsGenerated()
@@ -713,13 +750,15 @@ namespace
         bookUpdateQueue.push(createBidUpdate(SequenceNumber { 101 }, Quantity { 200'000 }));
 
         stopModule(bookUpdateQueue);
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         MarketEvent marketEvent;
 
         AssertTrue(strategyEventQueue.waitPop(marketEvent), "valid update must produce market event");
         AssertNotEqual(marketEvent.receiveTimestamp, Timestamp {}, "market event must contain receive timestamp");
         AssertEmpty(strategyEventQueue, "strategy event queue must be empty");
+        module.stop();
     }
 
     void testSingleBookUpdateWithMultipleLevelUpdatesProducesOneEvent()
@@ -759,7 +798,8 @@ namespace
         });
 
         stopModule(bookUpdateQueue);
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         MarketEvent marketEvent;
 
@@ -776,6 +816,7 @@ namespace
         AssertTrue(recordingQueue.waitPop(recordingEvent),"one BookUpdate must produce one recording event");
         Assert(std::holds_alternative<MarketEvent>(recordingEvent),"recording event must contain MarketEvent");
         AssertEmpty(recordingQueue,"one BookUpdate must produce exactly one recording event");
+        module.stop();
     }
 
     /**
@@ -817,7 +858,8 @@ namespace
         bookUpdateQueue.push(createBidUpdate(SequenceNumber { 106 }, Quantity { 250'000'000 }));
 
         stopModule(bookUpdateQueue);
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         MarketEvent firstEvent;
         MarketEvent secondEvent;
@@ -828,6 +870,7 @@ namespace
         AssertEqual(secondEvent.sequence,SequenceNumber { 106 },"next update must start after sequenceRange.last");
         AssertEqual(secondEvent.bestBidQuantity, Quantity { 250'000'000 },"next update must observe previous BookUpdate");
         AssertEmpty(strategyEventQueue,"strategy event queue must be empty");
+        module.stop();
     }
 
     // TODO:
@@ -886,7 +929,8 @@ namespace
         });
 
         stopModule(bookUpdateQueue);
-        module.run();
+        module.start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         MarketEvent marketEvent;
 
@@ -895,6 +939,7 @@ namespace
         AssertEqual(marketEvent.bestBidQuantity, Quantity { 200'000'000 },"first range update must be applied");
         // TODO: Explanation above
         // AssertEmpty(strategyEventQueue,"overlapping range must not produce second event");
+        module.stop();
     }
 }
 

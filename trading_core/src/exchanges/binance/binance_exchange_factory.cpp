@@ -32,8 +32,11 @@ namespace trading::exchanges::binance
     std::unique_ptr<execution::IExecutionReportSource>
     BinanceExchangeFactory::createExecutionReportSource(const config::Config& config) const noexcept
     {
+        const config::ExchangeConfig& cfgBinance = findExchange(config, ExchangeName);
         return std::make_unique<BinanceExecutionReportSource>(
-            findExchange(config, ExchangeName).wsUserDataStreamEndpoint
+            cfgBinance.wsUserDataStreamEndpoint,
+            cfgBinance.apiKey,
+            cfgBinance.apiSecret
         );
     }
 

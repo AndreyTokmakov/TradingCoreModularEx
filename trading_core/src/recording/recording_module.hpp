@@ -23,6 +23,8 @@ namespace trading::recording
         RecordingModule(const config::RecordingConfig& recorderConfig,
                         common::Queue<RecordingEvent>& recordingQueue) noexcept;
 
+    private:
+        friend struct Worker;
         void run() const;
 
     private:

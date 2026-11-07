@@ -23,7 +23,9 @@
             "wsMarketDataEndpoint": "stream.testnet.binance.vision",
             "restApiEndpoint": "testnet.binance.vision",
             "executionEndpoint": "https://execution.example",
-            "wsUserDataStreamEndpoint": "ws-api.testnet.binance.vision"
+            "wsUserDataStreamEndpoint": "ws-api.testnet.binance.vision",
+            "apiKey": "${BINANCE_API_KEY}",
+            "apiSecret": "${BINANCE_SECRET_KEY}"
         },
         {
             "name": "test-exchange",
