@@ -8,12 +8,70 @@ Description : Binance execution report source implementation.
 ============================================================================**/
 
 #include "binance_execution_report_source.hpp"
+#include "utilities/utilities.hpp"
+
+namespace
+{
+    constexpr uint16_t Port { 443 };
+    constexpr std::string Target = "/ws-api/v3";
+    constexpr std::int64_t RecvWindow = 5000;
+
+    struct ApiCredentials
+    {
+        std::string apiKey;
+        std::string secretKey;
+    };
+
+    std::optional<std::string> getEnvironmentVariable(const std::string_view variable) {
+        if (const char* env_p = std::getenv(variable.data()))
+            return env_p;
+        return std::nullopt;
+    }
+
+    [[nodiscard]]
+    std::optional<ApiCredentials> loadApiCredentials()
+    {
+        return ApiCredentials {
+            .apiKey = getEnvironmentVariable("BINANCE_API_KEY").value_or(""),
+            .secretKey = getEnvironmentVariable("BINANCE_SECRET_KEY").value_or("")
+        };
+    }
+
+    std::optional<std::string> createSignature(const std::string_view payload,
+                                               const std::string_view secretKey)
+    {
+        if (secretKey.size() > static_cast<std::size_t>( std::numeric_limits<int>::max())) {
+            return std::nullopt;
+        }
+
+        std::array<unsigned char, EVP_MAX_MD_SIZE> digest {};
+        unsigned int digestLength = 0;
+        const unsigned char* result = HMAC(EVP_sha256(),
+                                           secretKey.data(),
+                                           static_cast<int>(secretKey.size()),
+                                           reinterpret_cast<const unsigned char*>(payload.data()),
+                                           payload.size(),
+                                           digest.data(),
+                                           &digestLength);
+        if (nullptr == result) {
+            return std::nullopt;
+        }
+        return trading::utilities::toHex(std::span { digest.data(), digestLength });
+    }
+}
+
 
 namespace trading::exchanges::binance
 {
     BinanceExecutionReportSource::BinanceExecutionReportSource(std::string endpoint) noexcept :
-        endpoint { std::move(endpoint) }
+        ioContext { 1 },
+        sslContext { boost::asio::ssl::context::tls_client },
+        wsClient    {
+            ioContext, sslContext,std::move(endpoint) ,std::to_string(Port), Target
+        }
     {
+        sslContext.set_default_verify_paths();
+        sslContext.set_verify_mode(boost::asio::ssl::verify_peer);
     }
 
     void BinanceExecutionReportSource::setReportHandler(execution::IExecutionReportHandler& handler) {
@@ -22,25 +80,53 @@ namespace trading::exchanges::binance
 
     void BinanceExecutionReportSource::start()
     {
-        if (running)
+        // TODO: Remove
+        const std::optional<ApiCredentials> creds = loadApiCredentials();
+        if (!creds.has_value()) {
             return;
-        running = true;
-
-        /*
-          Establish Binance execution WebSocket connection here.
-          Incoming Binance messages must be parsed and converted into trading::execution::ExecutionReport.
-          After successful normalization:
-              reportHandler->onExecutionReport(report);
-        */
-
-        std::string_view execReportData = "report";
-        while (false /** running **/) {
-            reportHandler->onExecutionReport(execReportData);
         }
+        apiKey = creds->apiKey;
+        secretKey = creds->secretKey;
+
+        if (apiKey.empty() || secretKey.empty()) {
+            return;
+        }
+
+        std::optional<std::string> request = createSubscribeRequest();
+        if (!request.has_value()) {
+            return;
+        }
+
+        wsClient.start([this](const std::string& message) {
+            reportHandler->onExecutionReport(message);
+        });
+        wsClient.send(std::move(*request));
+
+        ioContext.run();
+    }
+
+    std::optional<std::string> BinanceExecutionReportSource::createSubscribeRequest() const
+    {
+        const std::int64_t timestamp = utilities::unixTimestampMilliseconds();
+
+        // Binance requires parameters to be sorted alphabetically when calculating the signature.
+        const std::string payload = std::format("apiKey={}&recvWindow={}&timestamp={}", apiKey , RecvWindow, timestamp);
+        const std::optional<std::string> signature = createSignature(payload, secretKey);
+        if (!signature.has_value()) {
+            return std::nullopt;
+        }
+
+        return R"({"id":"1","method":"userDataStream.subscribe.signature","params":{)"
+               R"("apiKey":")" + apiKey +
+               R"(","recvWindow":)" + std::to_string(RecvWindow) +
+               R"(,"timestamp":)" + std::to_string(timestamp) +
+               R"(,"signature":")" + *signature +
+               R"("}})";
     }
 
     void BinanceExecutionReportSource::stop()
     {
-        running = false;
+        wsClient.stop();
+        ioContext.stop();
     }
 }

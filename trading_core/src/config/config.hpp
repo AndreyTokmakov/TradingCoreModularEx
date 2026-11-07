@@ -69,8 +69,9 @@ namespace trading::config
     {
         std::string name;
         std::string wsMarketDataEndpoint;
-        std::string executionEndpoint;
         std::string restApiEndpoint;
+        std::string executionEndpoint;
+        std::string wsUserDataStreamEndpoint;
     };
 
     /**

@@ -22,13 +22,15 @@
             "name": "binance",
             "wsMarketDataEndpoint": "stream.testnet.binance.vision",
             "restApiEndpoint": "testnet.binance.vision",
-            "executionEndpoint": "https://execution.example"
+            "executionEndpoint": "https://execution.example",
+            "wsUserDataStreamEndpoint": "ws-api.testnet.binance.vision"
         },
         {
             "name": "test-exchange",
             "wsMarketDataEndpoint": "wss://test-market.example",
             "restApiEndpoint": "api.binance.com",
-            "executionEndpoint": "https://test-execution.example"
+            "executionEndpoint": "https://test-execution.example",
+            "wsUserDataStreamEndpoint": "ws-api.testnet.example.vision"
         }
     ],
     "recording":

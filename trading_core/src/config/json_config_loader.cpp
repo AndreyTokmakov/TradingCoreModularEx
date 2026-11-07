@@ -89,7 +89,9 @@ namespace trading::config
                     if (exchangeJson.contains("executionEndpoint")) {
                         exchange.executionEndpoint = exchangeJson.at("executionEndpoint").get<std::string>();
                     }
-
+                    if (exchangeJson.contains("wsUserDataStreamEndpoint")) {
+                        exchange.wsUserDataStreamEndpoint = exchangeJson.at("wsUserDataStreamEndpoint").get<std::string>();
+                    }
                     config.exchanges.push_back(std::move(exchange));
                 }
             }

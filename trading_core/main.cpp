@@ -13,13 +13,17 @@ Description :
 #include <string_view>
 
 #include "app/application.hpp"
+#include "boost/move/unique_ptr.hpp"
 #include "exchanges/exchange_factory_registry.hpp"
 #include "exchanges/binance/binance_market_data_source.hpp"
 #include "exchanges/binance/binance_market_data_parser.hpp"
 #include "exchanges/binance/binance_snapshot_provider.hpp"
+#include "exchanges/binance/binance_execution_report_source.hpp"
+#include "execution/execution_report_module.hpp"
 #include "logging/logger_factory.hpp"
 #include "common/error_code.hpp"
 #include "config/config_utils.hpp"
+#include "exchanges/binance/binance_execution_report_source.hpp"
 #include "test_support/test_logger.hpp"
 #include "test_support/debug_helpers.hpp"
 
@@ -244,7 +248,7 @@ namespace
         const auto nullLogger = std::make_shared<trading::testing::TestLogger>(true);
         LoggerFactory::createLogger(nullLogger);
 
-        market_data_module_test();
+        json_config_loader_test();
     }
 }
 
@@ -254,8 +258,9 @@ namespace binance_tests
     namespace binance = trading::exchanges::binance;
     namespace network = trading::network;
     namespace common = trading::common;
+    namespace asio = boost::asio;
+    namespace ssl = asio::ssl;
 
-    using namespace trading::config;
     using common::ErrorCode;
     using common::CVQueue;
     using trading::recording::RecordingEvent;
@@ -265,20 +270,10 @@ namespace binance_tests
     using trading::exchanges::ExchangeFactoryRegistry;
     using trading::exchanges::ExchangeType;
 
-    namespace asio = boost::asio;
-    namespace ssl = asio::ssl;
-
+    using namespace trading::config;
     using namespace std::string_view_literals;
 
     constexpr std::string binanceApiHost { "api.binance.com" };
-
-    void testBinanceWsClient()
-    {
-        const std::unique_ptr<market_data::IMarketDataSource> marketDataSource
-            = std::make_unique<binance::BinanceMarketDataSource>(binanceApiHost);
-
-        marketDataSource->start();
-    }
 
     void testBinanceClient()
     {
@@ -287,6 +282,23 @@ namespace binance_tests
 
         const std::expected<Snapshot, ErrorCode> snapshot = snapshotProvider->getSnapshot("BTCUSDT", 40);
         std::cout << snapshot.value() << std::endl;
+    }
+
+    void testBinanceMarketDataSource()
+    {
+        const std::unique_ptr<market_data::IMarketDataSource> marketDataSource
+            = std::make_unique<binance::BinanceMarketDataSource>(binanceApiHost);
+
+        marketDataSource->start();
+    }
+
+    void testBinanceUserDataStreamWsClient()
+    {
+        // TODO:  ---> ws-api.testnet.binance.vision ---> configuration
+        const std::unique_ptr<trading::execution::IExecutionReportSource> reportSource =
+            std::make_unique<binance::BinanceExecutionReportSource>("ws-api.testnet.binance.vision");
+
+        reportSource->start();
     }
 
     void marketDataModuleTest(const std::vector<std::string_view>& parameters)
@@ -333,7 +345,35 @@ namespace binance_tests
             config, bookUpdateQueue, strategyEventQueue, recordingEventQueue, *exchangeFactory
         };
 
+        /*
+         private:
+            friend struct Worker;
+            void run() const;
+        */
         bookBuilderModule.run();
+    }
+
+    void testExecutionReportModule(const std::vector<std::string_view>& parameters)
+    {
+        using namespace trading::execution;
+
+        const auto nullLogger = std::make_shared<TestLogger>(true);
+        LoggerFactory::createLogger(nullLogger);
+
+        const std::filesystem::path configPath = parameters.empty() ?  "config.json" : parameters.front();
+        CVQueue<ExecutionWorkItem> executionQueue;
+
+        const Config config { loadConfig(configPath) };
+        const std::unique_ptr<IExchangeFactory> exchangeFactory {
+            ExchangeFactoryRegistry::createFactory(ExchangeType::Binance)
+        };
+
+        ExecutionReportModule executionReportModule { config, executionQueue, *exchangeFactory };
+        executionReportModule.start();
+
+        while (true) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(250));
+        }
     }
 
     void BookBuilder_and_MarketData_Modules(const std::vector<std::string_view>& parameters)
@@ -374,12 +414,15 @@ namespace binance_tests
     void test(const std::vector<std::string_view>& parameters)
     {
         // wsClient();
-        // testBinanceWsClient();
-        marketDataModuleTest(parameters);
+        // testBinanceMarketDataSource();
+        // marketDataModuleTest(parameters);
 
         // testRestClient();
         // testBinanceClient();
         // bookBuilderModuleTests(parameters);
+
+        // testBinanceUserDataStreamWsClient();
+        testExecutionReportModule(parameters);
 
         // BookBuilder_and_MarketData_Modules(parameters);
     }

@@ -32,6 +32,7 @@ Description : Binance execution report source.
 
 #include <string>
 #include "execution/interfaces/execution_report_source.hpp"
+#include "network/web_socket_client.hpp"
 
 namespace trading::exchanges::binance
 {
@@ -52,9 +53,18 @@ namespace trading::exchanges::binance
         void setReportHandler(execution::IExecutionReportHandler& handler) override;
 
     private:
-        std::string endpoint;
+        [[nodiscard]]
+        std::optional<std::string> createSubscribeRequest() const;
+
+    private:
         execution::IExecutionReportHandler* reportHandler { nullptr };
-        bool running { false };
+
+        std::string apiKey;
+        std::string secretKey;
+
+        boost::asio::io_context ioContext;
+        boost::asio::ssl::context sslContext;
+        network::WebSocketClient wsClient;
     };
 }
 

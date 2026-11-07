@@ -9,6 +9,7 @@ Description : execution_report_data_handler.cpp
 
 #include "execution_report_data_handler.hpp"
 #include "logging/logger_factory.hpp"
+#include <iostream>
 
 namespace trading::execution
 {
@@ -19,8 +20,9 @@ namespace trading::execution
 
     }
 
-    void ExecutionReportDataHandler::onExecutionReport(std::string_view)
+    void ExecutionReportDataHandler::onExecutionReport(const std::string_view message)
     {
+        std::cout << message << std::endl;
         // TODO:
         //  - parse message
         //  - create ExecutionReport

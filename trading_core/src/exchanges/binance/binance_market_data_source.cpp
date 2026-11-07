@@ -12,7 +12,8 @@ Description : Binance market data source implementation.
 
 namespace
 {
-    constexpr uint16_t port { 443 };
+    constexpr uint16_t Port { 443 };
+    constexpr std::string Target = "/ws";
 }
 
 namespace trading::exchanges::binance
@@ -21,7 +22,7 @@ namespace trading::exchanges::binance
         ioContext { 1 },
         sslContext { boost::asio::ssl::context::tls_client },
         wsClient    {
-            ioContext, sslContext,std::move(endpoint) ,std::to_string(port),"/ws"
+            ioContext, sslContext,std::move(endpoint) ,std::to_string(Port),Target
         }
     {
         sslContext.set_default_verify_paths();

@@ -33,7 +33,7 @@ namespace trading::exchanges::binance
     BinanceExchangeFactory::createExecutionReportSource(const config::Config& config) const noexcept
     {
         return std::make_unique<BinanceExecutionReportSource>(
-            findExchange(config, ExchangeName).executionEndpoint
+            findExchange(config, ExchangeName).wsUserDataStreamEndpoint
         );
     }
 

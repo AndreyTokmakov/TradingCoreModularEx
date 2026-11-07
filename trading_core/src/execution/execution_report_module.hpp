@@ -25,6 +25,8 @@ namespace trading::execution
         ExecutionReportModule(const config::Config& config,
                               common::Queue<ExecutionWorkItem>& executionQueue,
                               const exchanges::IExchangeFactory& exchangeFactory) noexcept;
+    private:
+        friend struct Worker;
         void run() const;
 
     private:

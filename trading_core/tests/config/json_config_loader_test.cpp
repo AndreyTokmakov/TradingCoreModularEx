@@ -97,12 +97,14 @@ namespace
                 {
                     "name": "binance",
                     "wsMarketDataEndpoint": "wss://market-data.example",
-                    "executionEndpoint": "https://execution.example"
+                    "executionEndpoint": "https://execution.example",
+                    "wsUserDataStreamEndpoint": "wss://user-data.example1"
                 },
                 {
                     "name": "test-exchange",
                     "wsMarketDataEndpoint": "wss://test-market.example",
-                    "executionEndpoint": "https://test-execution.example"
+                    "executionEndpoint": "https://test-execution.example",
+                    "wsUserDataStreamEndpoint": "wss://user-data.example2"
                 }
             ],
             "recording": {
@@ -130,7 +132,11 @@ namespace
         Assert(config.exchanges[0].name == "binance", "invalid first exchange name");
         Assert(config.exchanges[0].wsMarketDataEndpoint == "wss://market-data.example", "invalid first market data endpoint");
         Assert(config.exchanges[0].executionEndpoint == "https://execution.example", "invalid first execution endpoint");
+        Assert(config.exchanges[0].wsUserDataStreamEndpoint == "wss://user-data.example1", "invalid first user data stream endpoint");
         Assert(config.exchanges[1].name == "test-exchange", "invalid second exchange name");
+        Assert(config.exchanges[1].wsMarketDataEndpoint == "wss://test-market.example", "invalid second market data endpoint");
+        Assert(config.exchanges[1].executionEndpoint == "https://test-execution.example", "invalid second execution endpoint");
+        Assert(config.exchanges[1].wsUserDataStreamEndpoint == "wss://user-data.example2", "invalid second user data stream endpoint");
         Assert(!config.recording.enabled, "recording must be disabled");
         Assert(config.recording.directory == "/tmp/trading-records", "invalid recording directory");
     }
@@ -256,6 +262,16 @@ namespace
         Assert(result.error() == Error::InvalidConfiguration,"invalid error for invalid threshold range");
     }
 
+    struct ExchangeConfig
+    {
+        std::string name;
+        std::string wsMarketDataEndpoint;
+        std::string restApiEndpoint;
+        std::string executionEndpoint;
+        std::string wsUserDataStreamEndpoint;
+    };
+
+
 
     void testLoadMultipleExchanges()
     {
@@ -264,17 +280,23 @@ namespace
                 {
                     "name": "binance",
                     "wsMarketDataEndpoint": "market-data-1",
-                    "executionEndpoint": "execution-1"
+                    "restApiEndpoint": "rest-api-endpoint-1",
+                    "executionEndpoint": "execution-1",
+                    "wsUserDataStreamEndpoint": "ws-user-data-steam-endpoint-1"
                 },
                 {
                     "name": "test-exchange",
                     "wsMarketDataEndpoint": "market-data-2",
-                    "executionEndpoint": "execution-2"
+                    "restApiEndpoint": "rest-api-endpoint-2",
+                    "executionEndpoint": "execution-2",
+                    "wsUserDataStreamEndpoint": "ws-user-data-steam-endpoint-2"
                 },
                 {
                     "name": "third-exchange",
-                    "wsMarketDataEndpoint": "market-data-3",
-                    "executionEndpoint": "execution-3"
+                    "wsMarketDataEndpoint": "market-data-2",
+                    "restApiEndpoint": "rest-api-endpoint-3",
+                    "executionEndpoint": "execution-3",
+                    "wsUserDataStreamEndpoint": "ws-user-data-steam-endpoint-3"
                 }
             ]
         })");
@@ -291,6 +313,11 @@ namespace
         Assert( config.exchanges[0].name == "binance", "invalid first exchange");
         Assert(config.exchanges[1].name == "test-exchange","invalid second exchange");
         Assert(config.exchanges[2].name == "third-exchange","invalid third exchange");
+
+        Assert(config.exchanges[0].wsMarketDataEndpoint == "market-data-1","invalid first exchange wsMarketDataEndpoint");
+        Assert(config.exchanges[1].restApiEndpoint == "rest-api-endpoint-2","invalid second exchange restApiEndpoint");
+        Assert(config.exchanges[2].executionEndpoint == "execution-3","invalid third exchange executionEndpoint");
+        Assert(config.exchanges[2].wsUserDataStreamEndpoint == "ws-user-data-steam-endpoint-3","invalid third exchange wsUserDataStreamEndpoint");
     }
 
 
