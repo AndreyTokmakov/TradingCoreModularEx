@@ -11,7 +11,7 @@ Description : Work items processed by the execution worker.
 #define FINANCETECHNOLOGYPROJECTS_EXECUTION_WORK_ITEM_HPP
 
 #include "execution_report.hpp"
-#include "order.hpp"
+#include "order_management/model/order.hpp"
 
 #include <variant>
 

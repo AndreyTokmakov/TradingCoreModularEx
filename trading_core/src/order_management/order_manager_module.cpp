@@ -1,5 +1,5 @@
 /**============================================================================
-Name        : execution_module.cpp
+Name        : order_manager_module.cpp
 Created on  : 25.08.2026
 Author      : Andrei Tokmakov
 Version     : 1.0
@@ -7,17 +7,17 @@ Copyright   : Your copyright notice
 Description : Sends orders to the exchange on the execution thread.
 ============================================================================**/
 
-#include "execution_module.hpp"
+#include "order_manager_module.hpp"
 #include "logging/logger_factory.hpp"
 
 namespace trading::execution
 {
     using LoggerFactory = logging::LoggerFactory;
 
-    ExecutionModule::ExecutionModule(const config::Config& config,
-                                     common::Queue<ExecutionWorkItem>& executionQueue,
-                                     common::Queue<recording::RecordingEvent>& recordingQueue,
-                                     const exchanges::IExchangeFactory& exchangeFactory) noexcept:
+    OrderManagerModule::OrderManagerModule(const config::Config& config,
+                                           common::Queue<ExecutionWorkItem>& executionQueue,
+                                           common::Queue<recording::RecordingEvent>& recordingQueue,
+                                           const exchanges::IExchangeFactory& exchangeFactory) noexcept:
         positionManager{},
         riskManager {},
         executionQueue {
@@ -37,7 +37,7 @@ namespace trading::execution
         /** **/
     }
 
-    void ExecutionModule::run()
+    void OrderManagerModule::run()
     {
         ExecutionWorkItem workItem;
         while (executionQueue.waitPop(workItem))
@@ -48,7 +48,7 @@ namespace trading::execution
         }
     }
 
-    void ExecutionModule::process(const OrderRequest& request)
+    void OrderManagerModule::process(const OrderRequest& request)
     {
         metrics.increment<metrics::MetricType::OrderRequests>();
         recordingQueue.push(request);
@@ -61,7 +61,7 @@ namespace trading::execution
         metrics.increment<metrics::MetricType::OrdersSubmitted>();
     }
 
-    void ExecutionModule::process(const ExecutionReport& report)
+    void OrderManagerModule::process(const ExecutionReport& report)
     {
         metrics.increment<metrics::MetricType::ExecutionReports>();
         recordingQueue.push(report);

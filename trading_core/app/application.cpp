@@ -43,7 +43,7 @@ namespace trading::app
         strategyModule {
             config.strategy, strategyEventQueue, executionQueue
         },
-        executionModule {
+        orderManagerModule {
             config, executionQueue, recordingEventQueue, *exchangeFactory
         },
         recordingModule {
@@ -72,7 +72,7 @@ namespace trading::app
 
         strategyModule.start();
         bookBuilderModule.start();
-        executionModule.start();
+        orderManagerModule.start();
         executionReportModule.start();
         tradeModule.start();
         recordingModule.start();
@@ -91,7 +91,7 @@ namespace trading::app
         bookBuilderModule.stop();
         tradeModule.stop();
         executionReportModule.stop();
-        executionModule.stop();
+        orderManagerModule.stop();
         strategyModule.stop();
 
         running = false;

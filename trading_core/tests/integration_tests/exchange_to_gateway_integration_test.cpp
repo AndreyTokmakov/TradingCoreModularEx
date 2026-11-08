@@ -10,7 +10,7 @@ Description : exchange_to_gateway_integration_test.cpp
 #include "order_book/book_builder_module.hpp"
 #include "market_data/market_data_module.hpp"
 #include "strategy/strategy_module.hpp"
-#include "execution/execution_module.hpp"
+#include "order_management/order_manager_module.hpp"
 
 #include "test_support/testing.hpp"
 #include "test_support/debug_helpers.hpp"
@@ -108,7 +108,7 @@ namespace
         MarketDataModule marketDataModule { config, bookUpdateQueue, tradeQueue, exchangeFactory };
         BookBuilderModule bookBuilderModule { config,bookUpdateQueue, marketEventQueue, recordingQueue,exchangeFactory };
         StrategyModule strategyModule { config.strategy,marketEventQueue, executionQueue};
-        ExecutionModule executionModule { createConfig(), executionQueue, recordingQueue, exchangeFactory };
+        OrderManagerModule executionModule { createConfig(), executionQueue, recordingQueue, exchangeFactory };
 
         bookBuilderModule.start();
         strategyModule.start();

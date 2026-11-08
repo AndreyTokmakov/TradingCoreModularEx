@@ -1,16 +1,16 @@
 /**============================================================================
-Name        : execution_module.hpp
+Name        : order_manager_module.hpp
 Created on  : 25.08.2026
 Author      : Andrei Tokmakov
 Version     : 1.0
 Copyright   : Your copyright notice
-Description :  Processes order requests and execution reports on the execution thread.
+Description : Processes order requests and execution reports on the execution thread.
 ============================================================================**/
 
-#ifndef FINANCETECHNOLOGYPROJECTS_EXECUTION_MODULE_HPP
-#define FINANCETECHNOLOGYPROJECTS_EXECUTION_MODULE_HPP
+#ifndef FINANCETECHNOLOGYPROJECTS_ORDER_MANAGER_MODULE_HPP
+#define FINANCETECHNOLOGYPROJECTS_ORDER_MANAGER_MODULE_HPP
 
-#include "model/execution_work_item.hpp"
+#include "execution/model/execution_work_item.hpp"
 #include "order_manager.hpp"
 #include "common/common.hpp"
 #include "recording/recording_event.hpp"
@@ -22,13 +22,13 @@ Description :  Processes order requests and execution reports on the execution t
 
 namespace trading::execution
 {
-    class ExecutionModule final: public common::Worker<ExecutionModule>
+    class OrderManagerModule final: public common::Worker<OrderManagerModule>
     {
     public:
-        ExecutionModule(const config::Config& config,
-                        common::Queue<ExecutionWorkItem>& executionQueue,
-                        common::Queue<recording::RecordingEvent>& recordingQueue,
-                        const exchanges::IExchangeFactory& exchangeFactory) noexcept;
+        OrderManagerModule(const config::Config& config,
+                           common::Queue<ExecutionWorkItem>& executionQueue,
+                           common::Queue<recording::RecordingEvent>& recordingQueue,
+                           const exchanges::IExchangeFactory& exchangeFactory) noexcept;
 
         void run();
 
@@ -53,4 +53,4 @@ namespace trading::execution
     };
 }
 
-#endif //FINANCETECHNOLOGYPROJECTS_EXECUTION_MODULE_HPP
+#endif //FINANCETECHNOLOGYPROJECTS_ORDER_MANAGER_MODULE_HPP

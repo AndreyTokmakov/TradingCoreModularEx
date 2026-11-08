@@ -10,7 +10,7 @@ Description : Testing and Debuging
 #ifndef TRADINGCOREMODULAREX_DEBUG_HELPERS_HPP
 #define TRADINGCOREMODULAREX_DEBUG_HELPERS_HPP
 
-#include "execution/model/order.hpp"
+#include "order_management/model/order.hpp"
 #include "execution/model/execution_report.hpp"
 #include "market_data/model/market_event.hpp"
 #include "market_data/model/parse_result.hpp"

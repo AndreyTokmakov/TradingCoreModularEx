@@ -40,7 +40,7 @@ void book_builder_module_restore_book_test();
 void book_builder_module_test();
 void marketdata_bookbuilder_strategy_integrataion();
 void strategy_module_test();
-void execution_module_test();
+void order_manager_module_test();
 void trade_module_test();
 void exchange_to_gateway_integration_test();
 
@@ -121,14 +121,14 @@ bool PositionManager::applyExecution(const execution::ExecutionReport& report)
 | `RiskManager`       | `RiskChecks`                    | выполнен risk check                |
 | `RiskManager`       | `RiskAccepted`                  | risk check passed                  |
 | `RiskManager`       | `RiskRejected`                  | risk check failed                  |
-| `ExecutionModule`   | `ExecutionRequests`             | request передан на execution       |
-| `ExecutionModule`   | `ExecutionReports`              | report обработан                   |
-| `ExecutionModule`   | `ExecutionAcknowledgements`     | ACK получен                        |
-| `ExecutionModule`   | `ExecutionRejects`              | execution reject                   |
-| `ExecutionModule`   | `ExecutionFills`                | fill                               |
-| `ExecutionModule`   | `ExecutionPartiallyFilled`      | partial fill                       |
-| `ExecutionModule`   | `ExecutionFullyFilled`          | full fill                          |
-| `ExecutionModule`   | `ExecutionCancels`              | cancel report                      |
+| `OrderManagerModule`| `ExecutionRequests`             | request передан на execution       |
+| `OrderManagerModule`| `ExecutionReports`              | report обработан                   |
+| `OrderManagerModule`| `ExecutionAcknowledgements`     | ACK получен                        |
+| `OrderManagerModule`| `ExecutionRejects`              | execution reject                   |
+| `OrderManagerModule`| `ExecutionFills`                | fill                               |
+| `OrderManagerModule`| `ExecutionPartiallyFilled`      | partial fill                       |
+| `OrderManagerModule`| `ExecutionFullyFilled`          | full fill                          |
+| `OrderManagerModule`| `ExecutionCancels`              | cancel report                      |
 | `Gateway`           | `GatewayConnections`            | connection established             |
 | `Gateway`           | `GatewayDisconnections`         | connection lost                    |
 | `Gateway`           | `GatewayReconnects`             | reconnect completed                |
@@ -239,7 +239,7 @@ namespace
         market_data_module_test();
         book_builder_module_test();
         strategy_module_test();
-        execution_module_test();
+        order_manager_module_test();
         trade_module_test();
     }
 

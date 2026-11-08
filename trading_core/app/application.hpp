@@ -30,7 +30,7 @@ Description : application.hpp
 #include "config/config.hpp"
 #include "common/common.hpp"
 
-#include "execution/execution_module.hpp"
+#include "order_management/order_manager_module.hpp"
 #include "execution/execution_report_module.hpp"
 #include "order_book/book_builder_module.hpp"
 #include "market_data/market_data_module.hpp"
@@ -71,7 +71,7 @@ namespace trading::app
         market_data::MarketDataModule marketDataModule;
         order_book::BookBuilderModule bookBuilderModule;
         strategy::StrategyModule  strategyModule;
-        execution::ExecutionModule executionModule;
+        execution::OrderManagerModule orderManagerModule;
         recording::RecordingModule recordingModule;
         execution::ExecutionReportModule  executionReportModule;
         trade::TradeModule tradeModule;

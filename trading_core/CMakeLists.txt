@@ -61,6 +61,7 @@ set(MARKET_DATA ${SOURCES}/market_data)
 set(NETWORK     ${SOURCES}/network)
 set(METRICS     ${SOURCES}/metrics)
 set(ORDER_BOOK  ${SOURCES}/order_book)
+set(ORDER_MANAGEMENT  ${SOURCES}/order_management)
 set(POSITION    ${SOURCES}/position)
 set(PNL         ${SOURCES}/pnl)
 set(RECORDING   ${SOURCES}/recording)
@@ -139,22 +140,23 @@ add_executable(${PROJECT_NAME}
         ${ORDER_BOOK}/book_builder.hpp
         ${ORDER_BOOK}/book_builder.cpp
 
+        ${ORDER_MANAGEMENT}/model/order.hpp
+        ${ORDER_MANAGEMENT}/order_manager.hpp
+        ${ORDER_MANAGEMENT}/order_manager.cpp
+        ${ORDER_MANAGEMENT}/order_manager_module.cpp
+        ${ORDER_MANAGEMENT}/order_manager_module.hpp
+
         ${LOGGING}/logger.hpp
         ${LOGGING}/spdlog_logger.hpp
         ${LOGGING}/spdlog_logger.cpp
         ${LOGGING}/logger_factory.hpp
         ${LOGGING}/logger_factory.cpp
 
-        ${EXECUTION}/model/order.hpp
         ${EXECUTION}/model/execution_work_item.hpp
         ${EXECUTION}/model/execution_report.hpp
         ${EXECUTION}/interfaces/execution_gateway.hpp
         ${EXECUTION}/interfaces/execution_report_source.hpp
         ${EXECUTION}/interfaces/execution_report_handler.hpp
-        ${EXECUTION}/order_manager.hpp
-        ${EXECUTION}/order_manager.cpp
-        ${EXECUTION}/execution_module.cpp
-        ${EXECUTION}/execution_module.hpp
         ${EXECUTION}/execution_report_module.hpp
         ${EXECUTION}/execution_report_module.cpp
         ${EXECUTION}/execution_report_data_handler.hpp
@@ -229,7 +231,7 @@ add_executable(${PROJECT_NAME}
         ${TESTS}/config/json_config_loader_test.cpp
         ${TESTS}/strategy/imbalance_strategy_test.cpp
 
-        ${TESTS}/execution/order_manager_test.cpp
+        ${TESTS}/order_management/order_manager_test.cpp
         ${TESTS}/order_book/order_book_test.cpp
         ${TESTS}/order_book/book_builder_test.cpp
 
@@ -238,7 +240,7 @@ add_executable(${PROJECT_NAME}
         ${TESTS}/modules/book_builder_module_restore_book_test.cpp
         ${TESTS}/modules/market_data_module_test.cpp
         ${TESTS}/modules/strategy_module_test.cpp
-        ${TESTS}/modules/execution_module_test.cpp
+        ${TESTS}/modules/order_manager_module_test.cpp
         ${TESTS}/modules/trade_module_test.cpp
         ${TESTS}/modules/marketdata_bookbuilder_strategy_integrataion.cpp
 

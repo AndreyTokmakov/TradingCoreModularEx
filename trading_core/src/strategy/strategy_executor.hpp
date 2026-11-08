@@ -81,7 +81,7 @@ Description : Strategy signal execution component.
 #include "signal.hpp"
 #include "core/types.hpp"
 #include "core/quantity.hpp"
-#include "execution/order_manager.hpp"
+#include "order_management/order_manager.hpp"
 #include "market_data/model/market_event.hpp"
 #include "common/common.hpp"
 

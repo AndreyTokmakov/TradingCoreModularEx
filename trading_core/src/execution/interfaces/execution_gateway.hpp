@@ -85,7 +85,7 @@ Description : execution_gateway.hpp
 #ifndef FINANCETECHNOLOGYPROJECTS_EXECUTION_GATEWAY_HPP
 #define FINANCETECHNOLOGYPROJECTS_EXECUTION_GATEWAY_HPP
 
-#include "execution/model/order.hpp"
+#include "order_management/model/order.hpp"
 
 namespace trading::execution
 {

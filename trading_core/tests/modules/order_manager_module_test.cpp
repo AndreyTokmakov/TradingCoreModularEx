@@ -1,13 +1,13 @@
 /**============================================================================
-Name        : execution_module_test.cpp
+Name        : order_manager_module_test.cpp
 Created on  : 10.09.2026
 Author      : Andrei Tokmakov
 Version     : 1.0
 Copyright   : Your copyright notice
-Description : execution_module_test.cpp
+Description : order_manager_module_test.cpp
 ============================================================================**/
 
-#include "execution/execution_module.hpp"
+#include "order_management/order_manager_module.hpp"
 #include "common/common.hpp"
 #include "test_support/test_exchange_factory.hpp"
 #include "test_support/test_execution_gateway.hpp"
@@ -24,7 +24,7 @@ using trading::Price;
 using trading::Quantity;
 using trading::Side;
 using trading::common::CVQueue;
-using trading::execution::ExecutionModule;
+using trading::execution::OrderManagerModule;
 using trading::execution::ExecutionReport;
 using trading::execution::ExecutionWorkItem;
 using trading::execution::OrderRequest;
@@ -78,7 +78,7 @@ namespace
     }
 
     /**
-     * Tests that a valid OrderRequest is accepted by the ExecutionModule,
+     * Tests that a valid OrderRequest is accepted by the OrderManagerModule,
      * converted into an Order by OrderManager and sent to the execution gateway.
      *
      * Expected result:
@@ -98,7 +98,7 @@ namespace
         TestExchangeFactory exchangeFactory { TestMocks  {
             .executionGateway = std::move(gateway)
         }};
-        ExecutionModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory };
+        OrderManagerModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory };
 
         executionQueue.push(createBuyOrderRequest());
         executionQueue.close();
@@ -120,7 +120,7 @@ namespace
 
 
     /**
-     * Tests that every OrderRequest processed by the ExecutionModule is forwarded
+     * Tests that every OrderRequest processed by the OrderManagerModule is forwarded
      * to the recording queue as a RecordingEvent.
      *
      * Expected result:
@@ -137,7 +137,7 @@ namespace
         TestExchangeFactory exchangeFactory { TestMocks  {
             .executionGateway = std::move(gateway)
         }};
-        ExecutionModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory };
+        OrderManagerModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory };
 
         const OrderRequest request = createBuyOrderRequest();
 
@@ -180,7 +180,7 @@ namespace
         TestExchangeFactory exchangeFactory { TestMocks  {
             .executionGateway = std::move(gateway)
         }};
-        ExecutionModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory};
+        OrderManagerModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory};
 
         OrderRequest request = createBuyOrderRequest();
         request.quantity = Quantity { 0 };
@@ -218,7 +218,7 @@ namespace
         TestExchangeFactory exchangeFactory { TestMocks  {
             .executionGateway = std::move(gateway)
         }};
-        ExecutionModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory};
+        OrderManagerModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory};
 
         executionQueue.push(createBuyOrderRequest());
         executionQueue.push(createTradeReport());
@@ -255,7 +255,7 @@ namespace
         TestExchangeFactory exchangeFactory { TestMocks  {
             .executionGateway = std::move(gateway)
         }};
-        ExecutionModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory};
+        OrderManagerModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory};
 
         executionQueue.push(createTradeReport());
         executionQueue.close();
@@ -281,7 +281,7 @@ namespace
     }
 
     /**
-     * Tests that a Trade ExecutionReport is accepted by ExecutionModule and
+     * Tests that a Trade ExecutionReport is accepted by OrderManagerModule and
      * forwarded into the position-processing path of OrderManager.
      *
      * Expected result:
@@ -299,7 +299,7 @@ namespace
         TestExchangeFactory exchangeFactory { TestMocks  {
             .executionGateway = std::move(gateway)
         }};
-        ExecutionModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory};
+        OrderManagerModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory};
 
         executionQueue.push(createBuyOrderRequest());
         executionQueue.push(createTradeReport());
@@ -334,7 +334,7 @@ namespace
         TestExchangeFactory exchangeFactory { TestMocks  {
             .executionGateway = std::move(gateway)
         }};
-        ExecutionModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory};
+        OrderManagerModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory};
 
         ExecutionReport report = createTradeReport();
         report.clientOrderId = 999;
@@ -353,7 +353,7 @@ namespace
     }
 
     /**
-     * Tests that ExecutionModule processes multiple OrderRequests in queue order
+     * Tests that OrderManagerModule processes multiple OrderRequests in queue order
      * and creates a separate exchange order for each request.
      *
      * Expected result:
@@ -373,7 +373,7 @@ namespace
         TestExchangeFactory exchangeFactory { TestMocks  {
             .executionGateway = std::move(gateway)
         }};
-        ExecutionModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory};
+        OrderManagerModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory};
 
         const OrderRequest firstRequest = createBuyOrderRequest();
 
@@ -401,7 +401,7 @@ namespace
     }
 }
 
-void execution_module_test()
+void order_manager_module_test()
 {
     testOrderRequestCreatesAndSendsOrder();
     testOrderRequestIsRecorded();
@@ -412,5 +412,5 @@ void execution_module_test()
     testUnknownOrderExecutionDoesNotCreateOrder();
     testMultipleWorkItemsAreProcessedInOrder();
 
-    printMessage("All ExecutionModule tests: OK");
+    printMessage("All OrderManagerModule tests: OK");
 }

@@ -29,7 +29,7 @@ Description : Event passed to the recording module.
             Recorder
 
 
-        ExecutionModule
+        OrderManagerModule
                |
                | ExecutionReport
                v
@@ -54,7 +54,7 @@ Description : Event passed to the recording module.
 #define FINANCETECHNOLOGYPROJECTS_RECORDING_EVENT_HPP
 
 #include "execution/model/execution_report.hpp"
-#include "execution/model/order.hpp"
+#include "order_management/model/order.hpp"
 #include "market_data/model/market_event.hpp"
 
 #include <variant>

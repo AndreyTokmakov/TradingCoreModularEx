@@ -245,9 +245,10 @@ Description : order_manager.hpp
 #include <expected>
 #include <map>
 
-#include "interfaces/execution_gateway.hpp"
-#include "model/execution_report.hpp"
+
 #include "model/order.hpp"
+#include "execution/interfaces/execution_gateway.hpp"
+#include "execution/model/execution_report.hpp"
 #include "risk/risk_manager.hpp"
 #include "position/position_manager.hpp"
 #include "metrics/metrics_collector.hpp"
