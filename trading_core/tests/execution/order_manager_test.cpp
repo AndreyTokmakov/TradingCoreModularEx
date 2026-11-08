@@ -500,7 +500,7 @@ namespace
             .instrument = InstrumentId { 1 },
             .side = Side::Buy,
             .execType = ExecType::Cancel,
-            .status = OrderStatus::Cancelled,
+            .status = OrderStatus::Canceled,
             .price = Price { 6'500'000'000'000 },
             .quantity = Quantity { 100'000'000 },
             .filledQuantity = Quantity {}
@@ -511,7 +511,7 @@ namespace
         const Order* order = manager.find(orderId);
 
         Assert(order != nullptr, "order must exist");
-        Assert(order->status == OrderStatus::Cancelled, "order must be cancelled");
+        Assert(order->status == OrderStatus::Canceled, "order must be cancelled");
         Assert(positionManager.find(InstrumentId { 1 }) == nullptr,"cancel execution must not modify position");
     }
 

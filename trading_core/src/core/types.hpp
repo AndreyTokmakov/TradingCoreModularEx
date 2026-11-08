@@ -33,11 +33,15 @@ namespace trading
 
     enum class OrderStatus : uint8_t
     {
+        PendingNew,
         New,
         PartiallyFilled,
         Filled,
-        Cancelled,
-        Rejected
+        PendingCancel,
+        Canceled,
+        Rejected,
+        Expired,
+        Unknown
     };
 
     enum class ExecType : uint8_t

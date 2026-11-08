@@ -169,6 +169,7 @@ namespace execution
         New,
         PartiallyFilled,
         Filled,
+        PendingCancel,
         Canceled,
         Rejected,
         Expired,

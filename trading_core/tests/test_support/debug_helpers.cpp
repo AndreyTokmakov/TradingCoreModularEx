@@ -42,16 +42,24 @@ namespace trading::testing
     {
         switch (status)
         {
+            case OrderStatus::PendingNew:
+                return "PendingNew";
             case OrderStatus::New:
                 return "New";
             case OrderStatus::PartiallyFilled:
                 return "PartiallyFilled";
             case OrderStatus::Filled:
                 return "Filled";
-            case OrderStatus::Cancelled:
-                return "Cancelled";
+            case OrderStatus::PendingCancel:
+                return "PendingCancel";
+            case OrderStatus::Canceled:
+                return "Canceled";
             case OrderStatus::Rejected:
                 return "Rejected";
+            case OrderStatus::Expired:
+                return "Expired";
+            case OrderStatus::Unknown:
+                return "Unknown";
         }
         return "Unknown";
     }
