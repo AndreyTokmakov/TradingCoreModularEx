@@ -7,27 +7,49 @@ project(${PROJECT_NAME} VERSION ${PROJECT_VERSION} LANGUAGES CXX)
 
 include(FetchContent)
 
-message(STATUS "[dependency] fetching boost")
-set(BOOST_ENABLE_PYTHON OFF)
-set(BOOST_IOSTREAMS_ENABLE_ZLIB ON)
-FetchContent_Declare(boost
-        GIT_REPOSITORY https://github.com/boostorg/boost.git
-        GIT_TAG boost-1.86.0
-        GIT_SHALLOW ON
-        GIT_PROGRESS ON
-        CMAKE_ARGS  -DBOOST_IOSTREAMS_ENABLE_ZLIB=ON
-)
-FetchContent_MakeAvailable(boost)
+message(STATUS "[dependency] finding Boost")
 
-message(STATUS "[dependency] fetching OpenSSL")
-FetchContent_Declare(OpenSSL
-        GIT_REPOSITORY https://github.com/openssl/openssl.git
-        GIT_TAG        openssl-3.3.2
-        GIT_SHALLOW ON
-        GIT_PROGRESS ON
-        BUILD_COMMAND make
+find_package(Boost 1.86 QUIET COMPONENTS
+        asio
+        beast
+        json
 )
-FetchContent_MakeAvailable(OpenSSL)
+
+if(NOT Boost_FOUND)
+    message(STATUS "[dependency] Boost not found, fetching from GitHub")
+
+    set(BOOST_ENABLE_PYTHON OFF)
+    set(BOOST_IOSTREAMS_ENABLE_ZLIB ON)
+
+    FetchContent_Declare(boost
+            GIT_REPOSITORY https://github.com/boostorg/boost.git
+            GIT_TAG boost-1.86.0
+            GIT_SHALLOW ON
+            GIT_PROGRESS ON
+            CMAKE_ARGS  -DBOOST_IOSTREAMS_ENABLE_ZLIB=ON
+    )
+    FetchContent_MakeAvailable(boost)
+else()
+    message(STATUS "[dependency] using system Boost ${Boost_VERSION}")
+endif()
+
+message(STATUS "[dependency] finding OpenSSL")
+
+find_package(OpenSSL 3.3 QUIET)
+
+if(NOT OpenSSL_FOUND)
+    message(STATUS "[dependency] OpenSSL not found, fetching from GitHub")
+    FetchContent_Declare(openssl
+            GIT_REPOSITORY https://github.com/openssl/openssl.git
+            GIT_TAG openssl-3.3.2
+            GIT_SHALLOW ON
+            GIT_PROGRESS ON
+    )
+
+    FetchContent_MakeAvailable(openssl)
+else()
+    message(STATUS "[dependency] using system OpenSSL ${OPENSSL_VERSION}")
+endif()
 
 set(Boost_NO_SYSTEM_PATHS ON)
 set(CMAKE_CXX_STANDARD 26)
