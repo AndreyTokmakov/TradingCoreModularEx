@@ -407,7 +407,7 @@ namespace binance_tests
         }
     }
 
-    void test(const std::vector<std::string_view>& parameters)
+    void test([[maybe_unused]] const std::vector<std::string_view>& parameters)
     {
         // wsClient();
         // testBinanceMarketDataSource();

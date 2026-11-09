@@ -26,11 +26,11 @@ namespace trading::execution
         recordingQueue {
             recordingQueue
         },
-        executionGateway {
-            exchangeFactory.createExecutionGateway(config)
+        orderGateway {
+            exchangeFactory.createOrderGateway(config)
         },
         orderManager {
-            riskManager, positionManager, *executionGateway
+            riskManager, positionManager, *orderGateway
         },
         logger { LoggerFactory::getLogger() }
     {

@@ -33,7 +33,7 @@ Description : order_manager.hpp
            |
            | Order
            v
-        IExecutionGateway
+        IOrderGateway
            |
            v
         Exchange / Execution Venue
@@ -59,7 +59,7 @@ Description : order_manager.hpp
         - validate OrderRequest through RiskManager;
         - create and track internal Order objects;
         - assign client order identifiers;
-        - send approved orders through IExecutionGateway;
+        - send approved orders through IOrderGateway;
         - maintain the current state of tracked orders;
         - apply execution results to tracked Orders;
         - request cancellation of existing orders;
@@ -90,7 +90,7 @@ Description : order_manager.hpp
         Order
            |
            v
-        IExecutionGateway
+        IOrderGateway
            |
            v
         Exchange / Execution Venue
@@ -178,7 +178,7 @@ Description : order_manager.hpp
 
     cancel() represents an outbound cancellation request.
 
-    It requests cancellation of an existing order through IExecutionGateway.
+    It requests cancellation of an existing order through IOrderGateway.
 
     A successful cancellation request does not by itself prove that the order
     has been cancelled at the execution venue.
@@ -217,7 +217,7 @@ Description : order_manager.hpp
     OrderManager does not contain exchange-specific execution logic.
 
     Exchange-specific protocols, transport mechanisms and message formats
-    belong to concrete implementations of IExecutionGateway and the
+    belong to concrete implementations of IOrderGateway and the
     corresponding exchange adapters.
 
     OrderManager is therefore a domain-level execution component that
@@ -247,7 +247,7 @@ Description : order_manager.hpp
 
 
 #include "model/order.hpp"
-#include "execution/interfaces/execution_gateway.hpp"
+#include "interfaces/order_gateway.hpp"
 #include "execution/model/execution_report.hpp"
 #include "risk/risk_manager.hpp"
 #include "position/position_manager.hpp"
@@ -269,7 +269,7 @@ namespace trading::execution
     public:
         OrderManager(risk::RiskManager& riskManager,
                      position::PositionManager& positionManager,
-                     IExecutionGateway& gateway) noexcept;
+                     IOrderGateway& gateway) noexcept;
 
         [[nodiscard]]
         OrderCreationResult createOrder(const OrderRequest& request);
@@ -293,7 +293,7 @@ namespace trading::execution
     private:
         risk::RiskManager& riskManager;
         position::PositionManager& positionManager;
-        IExecutionGateway& gateway;
+        IOrderGateway& gateway;
 
         std::shared_ptr<logging::ILogger> logger;
         static inline thread_local metrics::Metrics& metrics  = metrics::MetricsCollector::getCollector().getThreadLocalMetrics();

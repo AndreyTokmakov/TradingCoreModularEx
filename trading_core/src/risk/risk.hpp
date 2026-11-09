@@ -21,7 +21,7 @@ Description : risk.hpp
            v
         RiskManager
            |
-           +---- Accepted ----> OrderManager -> IExecutionGateway
+           +---- Accepted ----> OrderManager -> IOrderGateway
            |
            +---- Rejected ---> caller
 

@@ -18,8 +18,8 @@ namespace trading::exchanges::binance
     {
 
         [[nodiscard]]
-        std::unique_ptr<execution::IExecutionGateway>
-        createExecutionGateway(const config::Config& config) const noexcept override;
+        std::unique_ptr<execution::IOrderGateway>
+        createOrderGateway(const config::Config& config) const noexcept override;
 
         [[nodiscard]]
         std::unique_ptr<execution::IExecutionReportSource>

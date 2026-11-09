@@ -45,7 +45,7 @@ namespace trading::execution
 {
     OrderManager::OrderManager(risk::RiskManager& riskManager,
                                position::PositionManager& positionManager,
-                               IExecutionGateway& gateway) noexcept:
+                               IOrderGateway& gateway) noexcept:
         riskManager { riskManager },
         positionManager { positionManager },
         gateway { gateway }

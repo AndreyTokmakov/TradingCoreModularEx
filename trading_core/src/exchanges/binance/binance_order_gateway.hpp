@@ -1,5 +1,5 @@
 /**============================================================================
-Name        : binance_execution_gateway.hpp
+Name        : binance_order_gateway.hpp
 Created on  : 21.08.2026
 Author      : Andrei Tokmakov
 Version     : 1.0
@@ -7,23 +7,23 @@ Copyright   : Your copyright notice
 Description : Binance implementation of the execution gateway.
 ============================================================================**/
 
-#ifndef FINANCETECHNOLOGYPROJECTS_BINANCE_EXECUTION_GATEWAY_HPP
-#define FINANCETECHNOLOGYPROJECTS_BINANCE_EXECUTION_GATEWAY_HPP
+#ifndef FINANCETECHNOLOGYPROJECTS_BINANCE_ORDER_GATEWAY_HPP
+#define FINANCETECHNOLOGYPROJECTS_BINANCE_ORDER_GATEWAY_HPP
 
-#include "execution/interfaces/execution_gateway.hpp"
+#include "order_management/interfaces/order_gateway.hpp"
 
 #include <functional>
 #include <string>
 
 /**
- * Binance implementation of IExecutionGateway.
+ * Binance implementation of IOrderGateway.
  *
- * BinanceExecutionGateway is responsible for translating internal Order
+ * BinanceOrderGateway is responsible for translating internal Order
  * and cancel requests into Binance-specific execution requests.
  *
  * The gateway belongs to the exchange integration layer. Higher-level
  * execution components such as OrderManager must depend only on the
- * IExecutionGateway interface and must not contain Binance-specific logic.
+ * IOrderGateway interface and must not contain Binance-specific logic.
  *
  * Execution flow:
  *
@@ -36,10 +36,10 @@ Description : Binance implementation of the execution gateway.
  *     OrderManager
  *         |
  *         v
- *     IExecutionGateway
+ *     IOrderGateway
  *         |
  *         v
- *     BinanceExecutionGateway
+ *     BinanceOrderGateway
  *         |
  *         v
  *     Binance execution API
@@ -64,17 +64,17 @@ Description : Binance implementation of the execution gateway.
 
 namespace trading::exchanges::binance
 {
-    class BinanceExecutionGateway final : public execution::IExecutionGateway
+    class BinanceOrderGateway final : public execution::IOrderGateway
     {
     public:
         using SendHandler   = std::function<void(const execution::Order&)>;
         using CancelHandler = std::function<void(OrderId)>;
 
-        explicit BinanceExecutionGateway(std::string endpoint) noexcept;
+        explicit BinanceOrderGateway(std::string endpoint) noexcept;
 
-        BinanceExecutionGateway(std::string endpoint,
-                                SendHandler sendHandler,
-                                CancelHandler cancelHandler) noexcept;
+        BinanceOrderGateway(std::string endpoint,
+                            SendHandler sendHandler,
+                            CancelHandler cancelHandler) noexcept;
 
         void setSendHandler(SendHandler sendHandler) noexcept;
 
@@ -91,4 +91,4 @@ namespace trading::exchanges::binance
     };
 }
 
-#endif //FINANCETECHNOLOGYPROJECTS_BINANCE_EXECUTION_GATEWAY_HPP
+#endif //FINANCETECHNOLOGYPROJECTS_BINANCE_ORDER_GATEWAY_HPP

@@ -14,7 +14,7 @@ Description : StrategyExecutor unit tests.
 
 #include "order_manager.hpp"
 #include "model/order.hpp"
-#include "interfaces/execution_gateway.hpp"
+#include "interfaces/order_gateway.hpp"
 #include "risk_manager.hpp"
 #include "position_manager.hpp"
 #include "imbalance_strategy.hpp"
@@ -27,7 +27,7 @@ using trading::Price;
 using trading::Quantity;
 using trading::Side;
 
-using trading::execution::IExecutionGateway;
+using trading::execution::IOrderGateway;
 using trading::execution::Order;
 using trading::execution::OrderManager;
 
@@ -50,7 +50,7 @@ namespace
     using testing::Assert;
 
 
-    class TestExecutionGateway final : public IExecutionGateway
+    class TestExecutionGateway final : public IOrderGateway
     {
     public:
         void send(const Order& order) override

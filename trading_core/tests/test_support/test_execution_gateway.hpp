@@ -10,15 +10,14 @@ Description : mock_execution_gateway.сpp
 #ifndef FINANCETECHNOLOGYPROJECTS_TEST_EXECUTION_GATEWAY_HPP
 #define FINANCETECHNOLOGYPROJECTS_TEST_EXECUTION_GATEWAY_HPP
 
-#include "execution/interfaces/execution_gateway.hpp"
-
+#include "order_management/interfaces/order_gateway.hpp"
+#include "test_support/debug_helpers.hpp"
 #include <vector>
 
-#include "test_support/debug_helpers.hpp"
 
 namespace trading::testing
 {
-    class TestExecutionGateway final : public execution::IExecutionGateway
+    class TestExecutionGateway final : public execution::IOrderGateway
     {
     public:
 

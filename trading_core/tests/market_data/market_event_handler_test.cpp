@@ -26,7 +26,7 @@ using trading::SequenceNumber;
 using trading::Side;
 using trading::Timestamp;
 
-using trading::execution::IExecutionGateway;
+using trading::execution::IOrderGateway;
 using trading::execution::Order;
 using trading::execution::OrderManager;
 
@@ -114,7 +114,7 @@ namespace
         const MarketEvent* lastMarketEvent { nullptr };
     };
 
-    class TestExecutionGateway final : public IExecutionGateway
+    class TestExecutionGateway final : public IOrderGateway
     {
     public:
         void send(const Order& order) override

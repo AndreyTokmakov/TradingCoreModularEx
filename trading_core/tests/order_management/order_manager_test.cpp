@@ -15,7 +15,7 @@ using trading::Quantity;
 using trading::Side;
 
 using trading::execution::ExecutionReport;
-using trading::execution::IExecutionGateway;
+using trading::execution::IOrderGateway;
 using trading::execution::Order;
 using trading::execution::OrderCreationError;
 using trading::execution::OrderCreationResult;

@@ -36,7 +36,7 @@ namespace trading::testing
     public:
         TradingTestEnvironment(const std::shared_ptr<market_data::IMarketDataSource>& testMarketDataSource,
                                const std::shared_ptr<market_data::IMarketDataParser>& testMarketDataParser,
-                               const std::shared_ptr<execution::IExecutionGateway>& testExecutionGateway,
+                               const std::shared_ptr<execution::IOrderGateway>& testExecutionGateway,
                                const TradingTestConfiguration& configuration = {});
 
         TradingTestEnvironment(const TradingTestEnvironment&) = delete;
@@ -47,7 +47,7 @@ namespace trading::testing
 
         std::shared_ptr<market_data::IMarketDataSource> marketDataSource;
         std::shared_ptr<market_data::IMarketDataParser> marketDataParser;
-        std::shared_ptr<execution::IExecutionGateway> executionGateway;
+        std::shared_ptr<execution::IOrderGateway> executionGateway;
 
         position::PositionManager positionManager;
         risk::RiskManager riskManager {};

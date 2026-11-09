@@ -9,7 +9,7 @@ Description : binance_exchange_factory.cpp
 
 #include "config/config_utils.hpp"
 #include "binance_exchange_factory.hpp"
-#include "binance_execution_gateway.hpp"
+#include "binance_order_gateway.hpp"
 #include "binance_execution_report_source.hpp"
 #include "binance_market_data_parser.hpp"
 #include "binance_market_data_source.hpp"
@@ -20,10 +20,10 @@ namespace trading::exchanges::binance
     constexpr std::string_view ExchangeName = "binance";
 
     [[nodiscard]]
-    std::unique_ptr<execution::IExecutionGateway>
-    BinanceExchangeFactory::createExecutionGateway(const config::Config& config) const noexcept
+    std::unique_ptr<execution::IOrderGateway>
+    BinanceExchangeFactory::createOrderGateway(const config::Config& config) const noexcept
     {
-        return std::make_unique<BinanceExecutionGateway>(
+        return std::make_unique<BinanceOrderGateway>(
             findExchange(config, ExchangeName).executionEndpoint
         );
     }

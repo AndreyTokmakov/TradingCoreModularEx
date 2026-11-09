@@ -16,7 +16,7 @@ namespace trading::testing
 {
     TradingTestEnvironment::TradingTestEnvironment(const std::shared_ptr<market_data::IMarketDataSource>& testMarketDataSource,
                                const std::shared_ptr<market_data::IMarketDataParser>& testMarketDataParser,
-                               const std::shared_ptr<execution::IExecutionGateway>& testExecutionGateway,
+                               const std::shared_ptr<execution::IOrderGateway>& testExecutionGateway,
                                const TradingTestConfiguration& configuration):
         marketDataSource { testMarketDataSource },
         marketDataParser { testMarketDataParser },

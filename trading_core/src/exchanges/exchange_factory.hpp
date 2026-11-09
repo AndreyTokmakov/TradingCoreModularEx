@@ -14,7 +14,7 @@ Description : exchange_factory.hpp
 #include "common/common.hpp"
 
 #include "execution/model/execution_work_item.hpp"
-#include "execution/interfaces/execution_gateway.hpp"
+#include "order_management/interfaces/order_gateway.hpp"
 #include "execution/interfaces/execution_report_source.hpp"
 #include "market_data/interfaces/market_data_parser.hpp"
 #include "market_data/interfaces/market_data_source.hpp"
@@ -27,8 +27,8 @@ namespace trading::exchanges
         virtual ~IExchangeFactory() = default;
 
         [[nodiscard]]
-        virtual std::unique_ptr<execution::IExecutionGateway>
-        createExecutionGateway(const config::Config& config) const noexcept = 0;
+        virtual std::unique_ptr<execution::IOrderGateway>
+        createOrderGateway(const config::Config& config) const noexcept = 0;
 
         [[nodiscard]]
         virtual std::unique_ptr<execution::IExecutionReportSource>

@@ -162,6 +162,7 @@ add_executable(${PROJECT_NAME}
         ${ORDER_BOOK}/book_builder.hpp
         ${ORDER_BOOK}/book_builder.cpp
 
+        ${ORDER_MANAGEMENT}/interfaces/order_gateway.hpp
         ${ORDER_MANAGEMENT}/model/order.hpp
         ${ORDER_MANAGEMENT}/order_manager.hpp
         ${ORDER_MANAGEMENT}/order_manager.cpp
@@ -176,7 +177,6 @@ add_executable(${PROJECT_NAME}
 
         ${EXECUTION}/model/execution_work_item.hpp
         ${EXECUTION}/model/execution_report.hpp
-        ${EXECUTION}/interfaces/execution_gateway.hpp
         ${EXECUTION}/interfaces/execution_report_source.hpp
         ${EXECUTION}/interfaces/execution_report_handler.hpp
         ${EXECUTION}/execution_report_module.hpp
@@ -193,8 +193,8 @@ add_executable(${PROJECT_NAME}
         ${BINANCE}/binance_market_data_source.cpp
         ${BINANCE}/binance_market_data_parser.cpp
         ${BINANCE}/binance_market_data_parser.hpp
-        ${BINANCE}/binance_execution_gateway.hpp
-        ${BINANCE}/binance_execution_gateway.cpp
+        ${BINANCE}/binance_order_gateway.hpp
+        ${BINANCE}/binance_order_gateway.cpp
         ${BINANCE}/binance_execution_report_source.hpp
         ${BINANCE}/binance_execution_report_source.cpp
         ${BINANCE}/binance_snapshot_provider.hpp

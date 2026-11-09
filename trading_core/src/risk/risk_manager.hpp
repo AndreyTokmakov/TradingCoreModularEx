@@ -29,7 +29,7 @@ Description : risk_manager.hpp
         OrderManager           caller
            |
            v
-        IExecutionGateway
+        IOrderGateway
            |
            v
         Exchange
@@ -54,7 +54,7 @@ Description : risk_manager.hpp
         - calculate PnL.
 
     The risk check is performed before the order is inserted into OrderManager
-    and before IExecutionGateway::send() is called.
+    and before IOrderGateway::send() is called.
 */
 
 #ifndef FINANCETECHNOLOGYPROJECTS_RISK_MANAGER_HPP

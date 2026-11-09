@@ -26,9 +26,9 @@ Description : Execution report source interface.
                   v
         ExecutionReportHandler
 
-    The interface represents the opposite direction to IExecutionGateway.
+    The interface represents the opposite direction to IOrderGateway.
 
-    IExecutionGateway:
+    IOrderGateway:
         Trading Core -> Exchange
 
     IExecutionReportSource:

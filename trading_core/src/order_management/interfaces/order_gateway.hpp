@@ -1,14 +1,14 @@
 /**============================================================================
-Name        : execution_gateway.hpp
+Name        : order_gateway.hpp
 Created on  : 16.08.2026
 Author      : Andrei Tokmakov
 Version     : 1.0
 Copyright   : Your copyright notice
-Description : execution_gateway.hpp
+Description : order_gateway.hpp
 ============================================================================**/
 
 /*
-    IExecutionGateway represents the execution boundary between the trading
+    IOrderGateway represents the execution boundary between the trading
     core and an external execution system.
 
     The gateway is responsible for sending orders and cancellation requests
@@ -28,7 +28,7 @@ Description : execution_gateway.hpp
            |
            | Order
            v
-        IExecutionGateway
+        IOrderGateway
            |
            | order / cancel request
            v
@@ -50,7 +50,7 @@ Description : execution_gateway.hpp
         - request cancellation of an existing order;
         - hide transport and exchange-specific execution details from the trading core.
 
-    IExecutionGateway defines a boundary, not an execution implementation.
+    IOrderGateway defines a boundary, not an execution implementation.
 
     Concrete implementations may use:
 
@@ -63,7 +63,7 @@ Description : execution_gateway.hpp
 
     Transport-specific details must remain inside the concrete gateway  implementation.
 
-    IExecutionGateway does not:
+    IOrderGateway does not:
 
         - create Orders;
         - validate trading strategy decisions;
@@ -82,20 +82,20 @@ Description : execution_gateway.hpp
     keeps the trading core independent of a particular exchange or transport.
 */
 
-#ifndef FINANCETECHNOLOGYPROJECTS_EXECUTION_GATEWAY_HPP
-#define FINANCETECHNOLOGYPROJECTS_EXECUTION_GATEWAY_HPP
+#ifndef FINANCETECHNOLOGYPROJECTS_ORDER_GATEWAY_HPP
+#define FINANCETECHNOLOGYPROJECTS_ORDER_GATEWAY_HPP
 
 #include "order_management/model/order.hpp"
 
 namespace trading::execution
 {
-    struct IExecutionGateway
+    struct IOrderGateway
     {
-        virtual ~IExecutionGateway() = default;
+        virtual ~IOrderGateway() = default;
 
         virtual void send(const Order& order) = 0;
         virtual void cancel(OrderId orderId) = 0;
     };
 }
 
-#endif //FINANCETECHNOLOGYPROJECTS_EXECUTION_GATEWAY_HPP
+#endif //FINANCETECHNOLOGYPROJECTS_ORDER_GATEWAY_HPP

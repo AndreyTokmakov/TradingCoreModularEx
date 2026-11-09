@@ -25,7 +25,7 @@ Description : risk_manager.cpp
       OrderManager     caller
           |
           v
-    IExecutionGateway
+    IOrderGateway
 
     Responsibilities:
 

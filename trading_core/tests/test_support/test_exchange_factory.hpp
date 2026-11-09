@@ -18,7 +18,7 @@ namespace trading::testing
 {
     struct TestMocks
     {
-        std::unique_ptr<execution::IExecutionGateway>      executionGateway { nullptr };
+        std::unique_ptr<execution::IOrderGateway>          executionGateway { nullptr };
         std::unique_ptr<execution::IExecutionReportSource> executionReportSource { nullptr };
         std::unique_ptr<market_data::IMarketDataParser>    marketDataParser { nullptr };
         std::unique_ptr<market_data::IMarketDataSource>    marketDataSource { nullptr };
@@ -28,15 +28,15 @@ namespace trading::testing
     class TestExchangeFactory final : public exchanges::IExchangeFactory
     {
     public:
-        explicit TestExchangeFactory(std::unique_ptr<execution::IExecutionGateway> testExecutionGateway,
+        explicit TestExchangeFactory(std::unique_ptr<execution::IOrderGateway> testExecutionGateway,
                                      std::unique_ptr<market_data::IMarketDataSource> testMarketDataSource = nullptr,
                                      std::unique_ptr<market_data::ISnapshotProvider> testSnapshotProvider = nullptr) noexcept;
 
         explicit TestExchangeFactory(TestMocks&& testMocks) noexcept;
 
         [[nodiscard]]
-        std::unique_ptr<execution::IExecutionGateway>
-        createExecutionGateway(const config::Config&) const noexcept override;
+        std::unique_ptr<execution::IOrderGateway>
+        createOrderGateway(const config::Config&) const noexcept override;
 
         [[nodiscard]]
         std::unique_ptr<execution::IExecutionReportSource>
@@ -59,7 +59,7 @@ namespace trading::testing
 
     private:
 
-        mutable std::unique_ptr<execution::IExecutionGateway> executionGateway;
+        mutable std::unique_ptr<execution::IOrderGateway>       executionGateway;
         mutable std::unique_ptr<execution::IExecutionReportSource> executionReportSource;
         mutable std::unique_ptr<market_data::IMarketDataParser> marketDataParser;
         mutable std::unique_ptr<market_data::IMarketDataSource> marketDataSource;

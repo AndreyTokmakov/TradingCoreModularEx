@@ -41,7 +41,7 @@ Description : order.hpp
         Order
            |
            v
-        IExecutionGateway
+        IOrderGateway
            |
            v
         Exchange / Execution Venue
@@ -99,7 +99,7 @@ Description : order.hpp
              +----------------------+
              |                      |
              v                      v
-      IExecutionGateway      ExecutionReport
+      IOrderGateway          ExecutionReport
              |                      |
              |                      v
              |              ExecutionReportHandler
@@ -161,7 +161,7 @@ Description : order.hpp
            Order
              |
              v
-        IExecutionGateway
+        IOrderGateway
              |
              v
         Execution Venue

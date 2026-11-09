@@ -34,7 +34,7 @@ Description : Trading strategy interface.
         - create Order objects;
         - create OrderRequest objects;
         - submit orders;
-        - communicate with IExecutionGateway;
+        - communicate with IOrderGateway;
         - perform risk validation;
         - modify positions;
         - record executions;
@@ -63,7 +63,7 @@ Description : Trading strategy interface.
         OrderManager
              |
              v
-        IExecutionGateway
+        IOrderGateway
 
     evaluate() is const because evaluating a market event should not require
     modification of the strategy's externally visible state.

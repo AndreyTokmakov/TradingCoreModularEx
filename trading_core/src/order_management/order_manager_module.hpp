@@ -45,7 +45,7 @@ namespace trading::execution
         common::Queue<ExecutionWorkItem>& executionQueue;
         common::Queue<recording::RecordingEvent>& recordingQueue;
 
-        std::unique_ptr<IExecutionGateway> executionGateway;
+        std::unique_ptr<IOrderGateway> orderGateway;
         OrderManager orderManager;
 
         std::shared_ptr<logging::ILogger> logger;

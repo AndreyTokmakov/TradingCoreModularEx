@@ -17,7 +17,7 @@ Description : test_exchange_factory.hpp
 
 namespace trading::testing
 {
-    TestExchangeFactory::TestExchangeFactory(std::unique_ptr<execution::IExecutionGateway> testExecutionGateway,
+    TestExchangeFactory::TestExchangeFactory(std::unique_ptr<execution::IOrderGateway> testExecutionGateway,
                                              std::unique_ptr<market_data::IMarketDataSource> testMarketDataSource,
                                              std::unique_ptr<market_data::ISnapshotProvider> testSnapshotProvider) noexcept :
         executionGateway { std::move(testExecutionGateway) },
@@ -38,8 +38,8 @@ namespace trading::testing
     }
 
     [[nodiscard]]
-    std::unique_ptr<execution::IExecutionGateway>
-    TestExchangeFactory::createExecutionGateway(const config::Config&) const noexcept
+    std::unique_ptr<execution::IOrderGateway>
+    TestExchangeFactory::createOrderGateway(const config::Config&) const noexcept
     {
         return std::move(executionGateway);
     }

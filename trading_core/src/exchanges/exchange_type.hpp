@@ -18,7 +18,7 @@ Description :
         - IMarketDataSource
         - IMarketDataParser
         - ISnapshotProvider
-        - IExecutionGateway
+        - IOrderGateway
         - IExecutionReportSource
 
     When support for a new exchange is added, a new value should be added to

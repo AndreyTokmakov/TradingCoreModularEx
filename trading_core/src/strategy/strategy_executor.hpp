@@ -64,7 +64,7 @@ Description : Strategy signal execution component.
         - validate order limits;
         - manage positions;
         - communicate directly with an exchange;
-        - submit orders through IExecutionGateway.
+        - submit orders through IOrderGateway.
 
     All order validation and execution remain the responsibility of
     OrderManager and the execution subsystem.
