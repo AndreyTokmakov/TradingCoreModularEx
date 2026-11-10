@@ -20,7 +20,7 @@ namespace trading::testing
     TestExchangeFactory::TestExchangeFactory(std::unique_ptr<execution::IOrderGateway> testExecutionGateway,
                                              std::unique_ptr<market_data::IMarketDataSource> testMarketDataSource,
                                              std::unique_ptr<market_data::ISnapshotProvider> testSnapshotProvider) noexcept :
-        executionGateway { std::move(testExecutionGateway) },
+        orderGateway { std::move(testExecutionGateway) },
         executionReportSource { nullptr },
         marketDataParser { std::make_unique<TestMarketDataParser>() },
         marketDataSource { std::move(testMarketDataSource) },
@@ -29,7 +29,7 @@ namespace trading::testing
     }
 
     TestExchangeFactory::TestExchangeFactory(TestMocks&& testMocks) noexcept :
-        executionGateway { std::move(testMocks.executionGateway) },
+        orderGateway { std::move(testMocks.orderGateway) },
         executionReportSource { std::move(testMocks.executionReportSource) },
         marketDataParser { std::move(testMocks.marketDataParser) },
         marketDataSource { std::move(testMocks.marketDataSource) },
@@ -41,7 +41,7 @@ namespace trading::testing
     std::unique_ptr<execution::IOrderGateway>
     TestExchangeFactory::createOrderGateway(const config::Config&) const noexcept
     {
-        return std::move(executionGateway);
+        return std::move(orderGateway);
     }
 
     [[nodiscard]]

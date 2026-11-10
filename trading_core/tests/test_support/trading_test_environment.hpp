@@ -47,7 +47,7 @@ namespace trading::testing
 
         std::shared_ptr<market_data::IMarketDataSource> marketDataSource;
         std::shared_ptr<market_data::IMarketDataParser> marketDataParser;
-        std::shared_ptr<execution::IOrderGateway> executionGateway;
+        std::shared_ptr<execution::IOrderGateway> orderGateway;
 
         position::PositionManager positionManager;
         risk::RiskManager riskManager {};

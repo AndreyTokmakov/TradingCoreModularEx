@@ -96,7 +96,7 @@ namespace
         TestExecutionGateway* gatewayPtr = gateway.get();
 
         TestExchangeFactory exchangeFactory { TestMocks  {
-            .executionGateway = std::move(gateway)
+            .orderGateway = std::move(gateway)
         }};
         OrderManagerModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory };
 
@@ -135,7 +135,7 @@ namespace
 
         auto gateway = std::make_unique<TestExecutionGateway>();
         TestExchangeFactory exchangeFactory { TestMocks  {
-            .executionGateway = std::move(gateway)
+            .orderGateway = std::move(gateway)
         }};
         OrderManagerModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory };
 
@@ -178,7 +178,7 @@ namespace
         TestExecutionGateway* gatewayPtr = gateway.get();
 
         TestExchangeFactory exchangeFactory { TestMocks  {
-            .executionGateway = std::move(gateway)
+            .orderGateway = std::move(gateway)
         }};
         OrderManagerModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory};
 
@@ -216,7 +216,7 @@ namespace
 
         auto gateway = std::make_unique<TestExecutionGateway>();
         TestExchangeFactory exchangeFactory { TestMocks  {
-            .executionGateway = std::move(gateway)
+            .orderGateway = std::move(gateway)
         }};
         OrderManagerModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory};
 
@@ -253,7 +253,7 @@ namespace
 
         auto gateway = std::make_unique<TestExecutionGateway>();
         TestExchangeFactory exchangeFactory { TestMocks  {
-            .executionGateway = std::move(gateway)
+            .orderGateway = std::move(gateway)
         }};
         OrderManagerModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory};
 
@@ -297,7 +297,7 @@ namespace
 
         auto gateway = std::make_unique<TestExecutionGateway>();
         TestExchangeFactory exchangeFactory { TestMocks  {
-            .executionGateway = std::move(gateway)
+            .orderGateway = std::move(gateway)
         }};
         OrderManagerModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory};
 
@@ -332,7 +332,7 @@ namespace
         auto* gatewayPtr = gateway.get();
 
         TestExchangeFactory exchangeFactory { TestMocks  {
-            .executionGateway = std::move(gateway)
+            .orderGateway = std::move(gateway)
         }};
         OrderManagerModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory};
 
@@ -371,7 +371,7 @@ namespace
         TestExecutionGateway* gatewayPtr = gateway.get();
 
         TestExchangeFactory exchangeFactory { TestMocks  {
-            .executionGateway = std::move(gateway)
+            .orderGateway = std::move(gateway)
         }};
         OrderManagerModule module { createConfig(), executionQueue, recordingQueue, exchangeFactory};
 

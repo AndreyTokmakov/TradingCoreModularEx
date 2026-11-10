@@ -18,7 +18,7 @@ namespace trading::testing
 {
     struct TestMocks
     {
-        std::unique_ptr<execution::IOrderGateway>          executionGateway { nullptr };
+        std::unique_ptr<execution::IOrderGateway>          orderGateway { nullptr };
         std::unique_ptr<execution::IExecutionReportSource> executionReportSource { nullptr };
         std::unique_ptr<market_data::IMarketDataParser>    marketDataParser { nullptr };
         std::unique_ptr<market_data::IMarketDataSource>    marketDataSource { nullptr };
@@ -59,7 +59,7 @@ namespace trading::testing
 
     private:
 
-        mutable std::unique_ptr<execution::IOrderGateway>       executionGateway;
+        mutable std::unique_ptr<execution::IOrderGateway>       orderGateway;
         mutable std::unique_ptr<execution::IExecutionReportSource> executionReportSource;
         mutable std::unique_ptr<market_data::IMarketDataParser> marketDataParser;
         mutable std::unique_ptr<market_data::IMarketDataSource> marketDataSource;

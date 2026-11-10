@@ -99,7 +99,7 @@ namespace
         const Snapshot snapshot = createSnapshot( InstrumentId { 1 }, SequenceNumber { 100 } );
 
         TestExchangeFactory exchangeFactory { TestMocks {
-            .executionGateway = std::move(gateway),
+            .orderGateway = std::move(gateway),
             .marketDataParser = std::make_unique<TestMarketDataParser>(),
             .marketDataSource = std::move(marketDataSource),
             .snapshotProvider = std::make_unique<TestSnapshotProvider>(snapshot)

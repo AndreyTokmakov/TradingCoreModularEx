@@ -20,13 +20,13 @@ namespace trading::testing
                                const TradingTestConfiguration& configuration):
         marketDataSource { testMarketDataSource },
         marketDataParser { testMarketDataParser },
-        executionGateway { testExecutionGateway },
+        orderGateway { testExecutionGateway },
         positionManager {},
         riskManager  {},
         recorder {},
         orderBook {},
         orderManager {
-            *executionGateway, riskManager, positionManager
+            *orderGateway, riskManager, positionManager
         },
         executionReportHandler {
             orderManager, positionManager, recorder
