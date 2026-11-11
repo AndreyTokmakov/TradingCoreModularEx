@@ -49,14 +49,14 @@ namespace trading::network
         std::string target { "/" };
         boost::beast::http::verb method { boost::beast::http::verb::get };
         std::vector<std::pair<std::string, std::string>> headers;
-        std::string body;
+        std::string body {};
     };
 
     struct HttpResponse
     {
         std::uint32_t status { 0 };
         std::vector<std::pair<std::string, std::string>> headers;
-        std::string body;
+        std::string body {};
     };
 
     class RestSession;

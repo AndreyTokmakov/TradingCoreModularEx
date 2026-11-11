@@ -11,8 +11,8 @@ Description : Binance implementation of the execution gateway.
 #define FINANCETECHNOLOGYPROJECTS_BINANCE_ORDER_GATEWAY_HPP
 
 #include "order_management/interfaces/order_gateway.hpp"
+#include "network/rest_client.hpp"
 
-#include <functional>
 #include <string>
 
 /**
@@ -64,30 +64,69 @@ Description : Binance implementation of the execution gateway.
 
 namespace trading::exchanges::binance
 {
+    enum class BinanceApiErrorCode : std::uint8_t
+    {
+        InvalidRequest,
+        SigningFailed,
+        TransportError,
+        ExchangeRejected,
+        InvalidResponse
+    };
+
+    struct BinanceApiError
+    {
+        BinanceApiErrorCode code { BinanceApiErrorCode::InvalidResponse };
+        std::int64_t exchangeErrorCode { 0 };
+        std::string message;
+    };
+
+#if 0
+    struct ApiCredentials
+    {
+        std::string apiKey;
+        std::string secretKey;
+    };
+#endif
+
     class BinanceOrderGateway final : public execution::IOrderGateway
     {
     public:
-        using SendHandler   = std::function<void(const execution::Order&)>;
-        using CancelHandler = std::function<void(OrderId)>;
-
-        explicit BinanceOrderGateway(std::string endpoint) noexcept;
 
         BinanceOrderGateway(std::string endpoint,
-                            SendHandler sendHandler,
-                            CancelHandler cancelHandler) noexcept;
+                            std::string api_key,
+                            std::string secret_keys,
+                            std::string symbol = "BTCUSDT",
+                            std::uint64_t recvWindow = 5000);
 
-        void setSendHandler(SendHandler sendHandler) noexcept;
+        BinanceOrderGateway(const BinanceOrderGateway&) = delete;
+        BinanceOrderGateway& operator=(const BinanceOrderGateway&) = delete;
 
-        void setCancelHandler(CancelHandler cancelHandler) noexcept;
 
         void send(const execution::Order& order) override;
-
-        void cancel(OrderId orderId) override;
+        void cancel(ExchangeOrderId exchangeOrderId) override;
 
     private:
+        using RestResponse = network::RestClient::Response;
+        using ApiResponse = std::expected<network::HttpResponse, BinanceApiError>;
+        using ApiResponseHandler = std::function<void(ApiResponse)>;
+
+        void asyncSignedRequest(boost::beast::http::verb method,
+                                std::string query,
+                                ApiResponseHandler handler);
+    private:
+
         std::string endpoint;
-        SendHandler sendHandler;
-        CancelHandler cancelHandler;
+
+        boost::asio::io_context ioContext;
+        boost::asio::ssl::context sslContext;
+        network::RestClient restClient;
+
+        // TODO:  --> ApiCredentials
+        std::string apiKey;
+        std::string secretKey;
+
+        std::string symbol;
+        std::uint64_t recvWindow;
     };
 }
 

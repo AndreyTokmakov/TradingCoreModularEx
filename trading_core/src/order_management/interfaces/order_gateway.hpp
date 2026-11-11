@@ -94,7 +94,7 @@ namespace trading::execution
         virtual ~IOrderGateway() = default;
 
         virtual void send(const Order& order) = 0;
-        virtual void cancel(OrderId orderId) = 0;
+        virtual void cancel(ExchangeOrderId exchangeOrderId) = 0;
     };
 }
 

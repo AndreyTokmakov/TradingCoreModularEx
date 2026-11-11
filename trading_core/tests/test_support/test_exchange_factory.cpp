@@ -17,10 +17,10 @@ Description : test_exchange_factory.hpp
 
 namespace trading::testing
 {
-    TestExchangeFactory::TestExchangeFactory(std::unique_ptr<execution::IOrderGateway> testExecutionGateway,
+    TestExchangeFactory::TestExchangeFactory(std::unique_ptr<execution::IOrderGateway> testOrderGateway,
                                              std::unique_ptr<market_data::IMarketDataSource> testMarketDataSource,
                                              std::unique_ptr<market_data::ISnapshotProvider> testSnapshotProvider) noexcept :
-        orderGateway { std::move(testExecutionGateway) },
+        orderGateway { std::move(testOrderGateway) },
         executionReportSource { nullptr },
         marketDataParser { std::make_unique<TestMarketDataParser>() },
         marketDataSource { std::move(testMarketDataSource) },

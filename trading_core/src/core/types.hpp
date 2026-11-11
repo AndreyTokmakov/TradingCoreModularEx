@@ -10,7 +10,9 @@ Description : types.hpp
 #ifndef FINANCETECHNOLOGYPROJECTS_TYPES_HPP
 #define FINANCETECHNOLOGYPROJECTS_TYPES_HPP
 
+#include <string_view>
 #include <cstdint>
+
 
 namespace trading
 {
@@ -51,6 +53,18 @@ namespace trading
         Cancel,
         Reject
     };
+
+    [[nodiscard]]
+    std::string_view toString(Side side) noexcept;
+
+    [[nodiscard]]
+    std::string_view toString(OrderType type) noexcept;
+
+    [[nodiscard]]
+    std::string_view toString(OrderStatus status) noexcept;
+
+    [[nodiscard]]
+    std::string_view toString(ExecType type) noexcept;
 }
 
 #endif //FINANCETECHNOLOGYPROJECTS_TYPES_HPP

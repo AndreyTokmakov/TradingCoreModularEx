@@ -430,7 +430,7 @@ int main([[maybe_unused]] const int argc,
     const std::vector<std::string_view> parameters(argv + 1, argv + argc);
 
     // runApp(parameters);
-    runTests(parameters);
+    // runTests(parameters);
     // runSingleTest(parameters);
     // binance_tests::test(parameters);
 

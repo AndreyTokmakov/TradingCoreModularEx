@@ -117,9 +117,10 @@ add_executable(${PROJECT_NAME}
 
         ${CORE}/price.hpp
         ${CORE}/quantity.hpp
-        ${CORE}/types.hpp
         ${CORE}/instrument.hpp
         ${CORE}/timestamp.hpp
+        ${CORE}/types.hpp
+        ${CORE}/types.cpp
 
         ${MARKET_DATA}/model/book_level.hpp
         ${MARKET_DATA}/model/book_update.hpp

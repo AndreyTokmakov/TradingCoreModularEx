@@ -66,18 +66,6 @@ namespace trading::testing
 namespace trading::testing
 {
     [[nodiscard]]
-    constexpr std::string_view toString(Side side) noexcept;
-
-    [[nodiscard]]
-    constexpr std::string_view toString(OrderType type) noexcept;
-
-    [[nodiscard]]
-    constexpr std::string_view toString(OrderStatus status) noexcept;
-
-    [[nodiscard]]
-    constexpr std::string_view toString(ExecType type) noexcept;
-
-    [[nodiscard]]
     constexpr std::string_view toString(strategy::Signal signal) noexcept;
 
     [[nodiscard]]

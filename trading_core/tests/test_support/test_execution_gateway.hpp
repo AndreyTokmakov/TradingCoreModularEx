@@ -26,9 +26,9 @@ namespace trading::testing
             sentOrders.push_back(order);
         }
 
-        void cancel(const OrderId orderId) override
+        void cancel(const ExchangeOrderId exchangeOrderId) override
         {
-            cancelledOrders.push_back(orderId);
+            cancelledOrders.push_back(exchangeOrderId);
         }
 
         [[nodiscard]]

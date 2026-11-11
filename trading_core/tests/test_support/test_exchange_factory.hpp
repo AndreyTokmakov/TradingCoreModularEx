@@ -28,7 +28,7 @@ namespace trading::testing
     class TestExchangeFactory final : public exchanges::IExchangeFactory
     {
     public:
-        explicit TestExchangeFactory(std::unique_ptr<execution::IOrderGateway> testExecutionGateway,
+        explicit TestExchangeFactory(std::unique_ptr<execution::IOrderGateway> testOrderGateway,
                                      std::unique_ptr<market_data::IMarketDataSource> testMarketDataSource = nullptr,
                                      std::unique_ptr<market_data::ISnapshotProvider> testSnapshotProvider = nullptr) noexcept;
 

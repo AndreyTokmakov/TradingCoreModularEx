@@ -23,8 +23,11 @@ namespace trading::exchanges::binance
     std::unique_ptr<execution::IOrderGateway>
     BinanceExchangeFactory::createOrderGateway(const config::Config& config) const noexcept
     {
+        const config::ExchangeConfig& cfgBinance = findExchange(config, ExchangeName);
         return std::make_unique<BinanceOrderGateway>(
-            findExchange(config, ExchangeName).executionEndpoint
+            cfgBinance.wsUserDataStreamEndpoint,
+            cfgBinance.apiKey,
+            cfgBinance.apiSecret
         );
     }
 
@@ -34,7 +37,7 @@ namespace trading::exchanges::binance
     {
         const config::ExchangeConfig& cfgBinance = findExchange(config, ExchangeName);
         return std::make_unique<BinanceExecutionReportSource>(
-            cfgBinance.wsUserDataStreamEndpoint,
+            cfgBinance.restApiEndpoint,
             cfgBinance.apiKey,
             cfgBinance.apiSecret
         );
