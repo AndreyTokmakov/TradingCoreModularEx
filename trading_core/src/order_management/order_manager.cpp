@@ -41,7 +41,7 @@ Description : order_manager.cpp
 #include "order_manager.hpp"
 #include "logging/logger_factory.hpp"
 
-namespace trading::execution
+namespace trading::order_management
 {
     OrderManager::OrderManager(risk::RiskManager& riskManager,
                                position::PositionManager& positionManager,
@@ -96,7 +96,7 @@ namespace trading::execution
         return orderId;
     }
 
-    bool OrderManager::applyExecution(const ExecutionReport& report)
+    bool OrderManager::applyExecution(const execution::ExecutionReport& report)
     {
         const auto itOrder = orders.find(report.clientOrderId);
         if (itOrder == orders.end()) {

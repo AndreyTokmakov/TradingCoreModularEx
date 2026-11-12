@@ -24,10 +24,10 @@ using trading::Price;
 using trading::Quantity;
 using trading::Side;
 using trading::common::CVQueue;
-using trading::execution::OrderManagerModule;
 using trading::execution::ExecutionReport;
 using trading::execution::ExecutionWorkItem;
-using trading::execution::OrderRequest;
+using trading::order_management::OrderManagerModule;
+using trading::order_management::OrderRequest;
 using trading::recording::RecordingEvent;
 
 namespace

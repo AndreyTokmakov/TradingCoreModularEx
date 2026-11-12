@@ -18,7 +18,7 @@ namespace trading::exchanges::binance
     {
 
         [[nodiscard]]
-        std::unique_ptr<execution::IOrderGateway>
+        std::unique_ptr<order_management::IOrderGateway>
         createOrderGateway(const config::Config& config) const noexcept override;
 
         [[nodiscard]]

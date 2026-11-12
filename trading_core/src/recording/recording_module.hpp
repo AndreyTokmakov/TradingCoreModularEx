@@ -31,7 +31,7 @@ namespace trading::recording
 
         void process(const market_data::MarketEvent& event) const;
         void process(const execution::ExecutionReport& report) const;
-        void process(const execution::OrderRequest& orderRequest) const;
+        void process(const order_management::OrderRequest& orderRequest) const;
 
     private:
 

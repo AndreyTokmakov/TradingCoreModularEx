@@ -64,6 +64,9 @@ namespace trading
     std::string_view toString(OrderStatus status) noexcept;
 
     [[nodiscard]]
+    OrderStatus toOrderStatus(std::string_view status) noexcept;
+
+    [[nodiscard]]
     std::string_view toString(ExecType type) noexcept;
 }
 

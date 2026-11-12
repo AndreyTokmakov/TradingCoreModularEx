@@ -71,7 +71,7 @@ namespace trading::app
         market_data::MarketDataModule marketDataModule;
         order_book::BookBuilderModule bookBuilderModule;
         strategy::StrategyModule  strategyModule;
-        execution::OrderManagerModule orderManagerModule;
+        order_management::OrderManagerModule orderManagerModule;
         recording::RecordingModule recordingModule;
         execution::ExecutionReportModule  executionReportModule;
         trade::TradeModule tradeModule;

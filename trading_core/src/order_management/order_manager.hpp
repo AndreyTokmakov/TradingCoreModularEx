@@ -254,7 +254,7 @@ Description : order_manager.hpp
 #include "metrics/metrics_collector.hpp"
 #include "logging/logger.hpp"
 
-namespace trading::execution
+namespace trading::order_management
 {
     enum class OrderCreationError: uint8_t
     {
@@ -278,7 +278,7 @@ namespace trading::execution
          * This method updates only Order state. Position state is updated separately
          * by PositionManager as part of inbound ExecutionReport processing. */
         [[nodiscard]]
-        bool applyExecution(const ExecutionReport& report);
+        bool applyExecution(const execution::ExecutionReport& report);
 
         [[nodiscard]]
         const Order* find(OrderId orderId) const noexcept;

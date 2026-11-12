@@ -72,10 +72,10 @@ namespace trading::testing
     constexpr std::string_view toString(market_data::ParseResult result) noexcept;
 
     [[nodiscard]]
-    std::string toString(const  execution::OrderRequest& request);
+    std::string toString(const order_management::OrderRequest& request);
 
     [[nodiscard]]
-    std::string toString(const execution::Order& order);
+    std::string toString(const order_management::Order& order);
 
     [[nodiscard]]
     std::string toString(const execution::ExecutionReport& report);
@@ -105,8 +105,8 @@ namespace trading::testing
     std::ostream& operator<<(std::ostream& stream, market_data::ParseResult result);
     std::ostream& operator<<(std::ostream& stream, strategy::Signal signal);
 
-    std::ostream& operator<<(std::ostream& stream, const execution::OrderRequest& request);
-    std::ostream& operator<<(std::ostream& stream, const execution::Order& order);
+    std::ostream& operator<<(std::ostream& stream, const order_management::OrderRequest& request);
+    std::ostream& operator<<(std::ostream& stream, const order_management::Order& order);
     std::ostream& operator<<(std::ostream& stream, const execution::ExecutionReport& report);
     std::ostream& operator<<(std::ostream& stream, const market_data::BookUpdate& update);
     std::ostream& operator<<(std::ostream& stream, const market_data::MarketEvent& event);

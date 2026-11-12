@@ -76,7 +76,7 @@ namespace trading::risk
         void setLimits(const RiskLimits& newLimits) noexcept;
 
         [[nodiscard]]
-        RiskResult checkOrder(const execution::OrderRequest& request,
+        RiskResult checkOrder(const order_management::OrderRequest& request,
                               const position::Position& position);
 
         [[nodiscard]]

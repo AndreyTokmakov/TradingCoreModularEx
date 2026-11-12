@@ -39,7 +39,7 @@ namespace trading::recording
         recorder->record(report);
     }
 
-    void RecordingModule::process(const execution::OrderRequest&) const {
+    void RecordingModule::process(const order_management::OrderRequest&) const {
     }
 
 }

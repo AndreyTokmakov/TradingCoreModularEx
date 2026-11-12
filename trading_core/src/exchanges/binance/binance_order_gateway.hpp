@@ -64,6 +64,9 @@ Description : Binance implementation of the execution gateway.
 
 namespace trading::exchanges::binance
 {
+    using order_management::OrderSubmissionResult;
+    using order_management::OrderCancellationResult;
+
     enum class BinanceApiErrorCode : std::uint8_t
     {
         InvalidRequest,
@@ -88,7 +91,7 @@ namespace trading::exchanges::binance
     };
 #endif
 
-    class BinanceOrderGateway final : public execution::IOrderGateway
+    class BinanceOrderGateway final : public order_management::IOrderGateway
     {
     public:
 
@@ -101,18 +104,21 @@ namespace trading::exchanges::binance
         BinanceOrderGateway(const BinanceOrderGateway&) = delete;
         BinanceOrderGateway& operator=(const BinanceOrderGateway&) = delete;
 
+        using OrderResponse = std::expected<OrderSubmissionResult, BinanceApiError>;
+        using CancelResponse = std::expected<OrderCancellationResult, BinanceApiError>;
 
-        void send(const execution::Order& order) override;
+        void send(const order_management::Order& order) override;
         void cancel(ExchangeOrderId exchangeOrderId) override;
 
     private:
         using RestResponse = network::RestClient::Response;
         using ApiResponse = std::expected<network::HttpResponse, BinanceApiError>;
-        using ApiResponseHandler = std::function<void(ApiResponse)>;
+
+        using Handler = void (BinanceOrderGateway::*)(ApiResponse);
 
         void asyncSignedRequest(boost::beast::http::verb method,
                                 std::string query,
-                                ApiResponseHandler handler);
+                                Handler handler);
     private:
 
         std::string endpoint;

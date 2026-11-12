@@ -47,7 +47,7 @@ using trading::Price;
 using trading::Quantity;
 using trading::Side;
 
-using trading::execution::OrderRequest;
+using trading::order_management::OrderRequest;
 using trading::position::Position;
 using trading::risk::RiskLimits;
 using trading::risk::RiskManager;

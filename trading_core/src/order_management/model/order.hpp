@@ -183,7 +183,7 @@ Description : order.hpp
 #include "core/quantity.hpp"
 #include "core/types.hpp"
 
-namespace trading::execution
+namespace trading::order_management
 {
     /*
         OrderRequest represents an instruction to create an order.

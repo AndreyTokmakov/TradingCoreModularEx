@@ -42,7 +42,6 @@ Description : risk_manager.cpp
 
 #include "risk_manager.hpp"
 
-#include <algorithm>
 
 namespace trading::risk
 {
@@ -57,7 +56,7 @@ namespace trading::risk
         }
 
         [[nodiscard]]
-        constexpr WideValue positionDelta(const execution::OrderRequest& request) noexcept
+        constexpr WideValue positionDelta(const order_management::OrderRequest& request) noexcept
         {
             const WideValue quantity = static_cast<WideValue>(request.quantity.raw());
             return request.side == trading::Side::Buy ? quantity : -quantity;
@@ -77,7 +76,7 @@ namespace trading::risk
         reason = RiskReason::None;
     }
 
-    RiskResult RiskManager::checkOrder(const execution::OrderRequest& request,
+    RiskResult RiskManager::checkOrder(const order_management::OrderRequest& request,
                                        const position::Position& position)
     {
         reason = RiskReason::None;

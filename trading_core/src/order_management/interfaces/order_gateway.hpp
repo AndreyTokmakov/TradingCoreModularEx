@@ -87,8 +87,21 @@ Description : order_gateway.hpp
 
 #include "order_management/model/order.hpp"
 
-namespace trading::execution
+namespace trading::order_management
 {
+    struct OrderSubmissionResult
+    {
+        OrderId clientOrderId { 0 };
+        ExchangeOrderId exchangeOrderId { 0 };
+        OrderStatus status { OrderStatus::New };
+    };
+
+    struct OrderCancellationResult
+    {
+        ExchangeOrderId exchangeOrderId { 0 };
+        OrderStatus status { OrderStatus::New };
+    };
+
     struct IOrderGateway
     {
         virtual ~IOrderGateway() = default;

@@ -18,7 +18,7 @@ namespace trading::testing
 {
     struct TestMocks
     {
-        std::unique_ptr<execution::IOrderGateway>          orderGateway { nullptr };
+        std::unique_ptr<order_management::IOrderGateway>   orderGateway { nullptr };
         std::unique_ptr<execution::IExecutionReportSource> executionReportSource { nullptr };
         std::unique_ptr<market_data::IMarketDataParser>    marketDataParser { nullptr };
         std::unique_ptr<market_data::IMarketDataSource>    marketDataSource { nullptr };
@@ -28,14 +28,14 @@ namespace trading::testing
     class TestExchangeFactory final : public exchanges::IExchangeFactory
     {
     public:
-        explicit TestExchangeFactory(std::unique_ptr<execution::IOrderGateway> testOrderGateway,
+        explicit TestExchangeFactory(std::unique_ptr<order_management::IOrderGateway> testOrderGateway,
                                      std::unique_ptr<market_data::IMarketDataSource> testMarketDataSource = nullptr,
                                      std::unique_ptr<market_data::ISnapshotProvider> testSnapshotProvider = nullptr) noexcept;
 
         explicit TestExchangeFactory(TestMocks&& testMocks) noexcept;
 
         [[nodiscard]]
-        std::unique_ptr<execution::IOrderGateway>
+        std::unique_ptr<order_management::IOrderGateway>
         createOrderGateway(const config::Config&) const noexcept override;
 
         [[nodiscard]]
@@ -59,7 +59,7 @@ namespace trading::testing
 
     private:
 
-        mutable std::unique_ptr<execution::IOrderGateway>       orderGateway;
+        mutable std::unique_ptr<order_management::IOrderGateway>   orderGateway;
         mutable std::unique_ptr<execution::IExecutionReportSource> executionReportSource;
         mutable std::unique_ptr<market_data::IMarketDataParser> marketDataParser;
         mutable std::unique_ptr<market_data::IMarketDataSource> marketDataSource;

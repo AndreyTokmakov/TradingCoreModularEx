@@ -17,7 +17,7 @@ Description : Work items processed by the execution worker.
 
 namespace trading::execution
 {
-    using ExecutionWorkItem = std::variant<OrderRequest, ExecutionReport>;
+    using ExecutionWorkItem = std::variant<order_management::OrderRequest, ExecutionReport>;
 }
 
 #endif //FINANCETECHNOLOGYPROJECTS_EXECUTION_WORK_ITEM_HPP

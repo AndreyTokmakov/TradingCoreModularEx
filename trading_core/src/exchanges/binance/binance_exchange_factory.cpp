@@ -20,7 +20,7 @@ namespace trading::exchanges::binance
     constexpr std::string_view ExchangeName = "binance";
 
     [[nodiscard]]
-    std::unique_ptr<execution::IOrderGateway>
+    std::unique_ptr<order_management::IOrderGateway>
     BinanceExchangeFactory::createOrderGateway(const config::Config& config) const noexcept
     {
         const config::ExchangeConfig& cfgBinance = findExchange(config, ExchangeName);

@@ -22,7 +22,7 @@ using trading::SequenceNumber;
 using trading::Side;
 using trading::common::CVQueue;
 using trading::execution::ExecutionWorkItem;
-using trading::execution::OrderRequest;
+using trading::order_management::OrderRequest;
 using trading::market_data::MarketEvent;
 using trading::strategy::StrategyModule;
 

@@ -27,7 +27,7 @@ namespace trading::exchanges
         virtual ~IExchangeFactory() = default;
 
         [[nodiscard]]
-        virtual std::unique_ptr<execution::IOrderGateway>
+        virtual std::unique_ptr<order_management::IOrderGateway>
         createOrderGateway(const config::Config& config) const noexcept = 0;
 
         [[nodiscard]]

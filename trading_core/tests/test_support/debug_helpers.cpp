@@ -90,7 +90,7 @@ namespace trading::testing
     }
 
     [[nodiscard]]
-    std::string toString(const  execution::OrderRequest& request)
+    std::string toString(const order_management::OrderRequest& request)
     {
         std::ostringstream stream;
         stream << "OrderRequest {"
@@ -103,13 +103,13 @@ namespace trading::testing
         return stream.str();
     }
 
-    std::ostream& operator<<(std::ostream& stream, const  execution::OrderRequest& request)
+    std::ostream& operator<<(std::ostream& stream, const order_management::OrderRequest& request)
     {
         return stream << toString(request);
     }
 
     [[nodiscard]]
-    std::string toString(const execution::Order& order)
+    std::string toString(const order_management::Order& order)
     {
         std::ostringstream stream;
         stream << "Order {"
@@ -126,7 +126,7 @@ namespace trading::testing
         return stream.str();
     }
 
-    std::ostream& operator<<(std::ostream& stream, const execution::Order& order)
+    std::ostream& operator<<(std::ostream& stream, const order_management::Order& order)
     {
         return stream << toString(order);
     }

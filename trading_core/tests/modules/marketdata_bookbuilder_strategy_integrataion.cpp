@@ -32,6 +32,7 @@ namespace
     using trading::Side;
     using trading::order_book::BookBuilderModule;
     using trading::common::CVQueue;
+    using trading::order_management::OrderRequest;
     using namespace trading;
     using namespace trading::execution;
     using namespace trading::market_data;

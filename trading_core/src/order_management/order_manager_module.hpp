@@ -20,13 +20,14 @@ Description : Processes order requests and execution reports on the execution th
 #include "metrics/metrics_collector.hpp"
 #include "logging/logger.hpp"
 
-namespace trading::execution
+namespace trading::order_management
 {
+
     class OrderManagerModule final: public common::Worker<OrderManagerModule>
     {
     public:
         OrderManagerModule(const config::Config& config,
-                           common::Queue<ExecutionWorkItem>& executionQueue,
+                           common::Queue<execution::ExecutionWorkItem>& executionQueue,
                            common::Queue<recording::RecordingEvent>& recordingQueue,
                            const exchanges::IExchangeFactory& exchangeFactory) noexcept;
 
@@ -35,14 +36,14 @@ namespace trading::execution
     private:
 
         void process(const OrderRequest& request);
-        void process(const ExecutionReport& report);
+        void process(const execution::ExecutionReport& report);
 
     private:
 
         position::PositionManager positionManager;
         risk::RiskManager riskManager;
 
-        common::Queue<ExecutionWorkItem>& executionQueue;
+        common::Queue<execution::ExecutionWorkItem>& executionQueue;
         common::Queue<recording::RecordingEvent>& recordingQueue;
 
         std::unique_ptr<IOrderGateway> orderGateway;

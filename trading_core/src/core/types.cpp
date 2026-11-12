@@ -61,6 +61,36 @@ namespace trading
         return "Unknown";
     }
 
+    OrderStatus toOrderStatus(const std::string_view status) noexcept
+    {
+        using namespace std::string_view_literals;
+        if (status == "PENDINF_NEW"sv) {
+            return OrderStatus::PendingNew;
+        }
+        if (status == "NEW"sv) {
+            return OrderStatus::New;
+        }
+        if (status == "PARTIALLY_FILLED"sv) {
+            return OrderStatus::PartiallyFilled;
+        }
+        if (status == "FILLED"sv) {
+            return OrderStatus::Filled;
+        }
+        if (status == "PENDING_CANCELLED"sv) {
+            return OrderStatus::PendingCancel;
+        }
+        if (status == "CANCELED"sv || status == "CANCELLED"sv) {
+            return OrderStatus::Canceled;
+        }
+        if (status == "REJECTED"sv) {
+            return OrderStatus::Rejected;
+        }
+        if (status == "UNKNOWN"sv) {
+            return OrderStatus::Unknown;
+        }
+        return OrderStatus::New;
+    }
+
     std::string_view toString(const ExecType type) noexcept
     {
         switch (type)

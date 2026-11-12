@@ -63,7 +63,7 @@ namespace trading::recording
 {
     using RecordingEvent = std::variant<
         market_data::MarketEvent,
-        execution::OrderRequest,
+        order_management::OrderRequest,
         execution::ExecutionReport
     >;
 }

@@ -10,12 +10,12 @@ Description : Sends orders to the exchange on the execution thread.
 #include "order_manager_module.hpp"
 #include "logging/logger_factory.hpp"
 
-namespace trading::execution
+namespace trading::order_management
 {
     using LoggerFactory = logging::LoggerFactory;
 
     OrderManagerModule::OrderManagerModule(const config::Config& config,
-                                           common::Queue<ExecutionWorkItem>& executionQueue,
+                                           common::Queue<execution::ExecutionWorkItem>& executionQueue,
                                            common::Queue<recording::RecordingEvent>& recordingQueue,
                                            const exchanges::IExchangeFactory& exchangeFactory) noexcept:
         positionManager{},
@@ -39,7 +39,7 @@ namespace trading::execution
 
     void OrderManagerModule::run()
     {
-        ExecutionWorkItem workItem;
+        execution::ExecutionWorkItem workItem;
         while (executionQueue.waitPop(workItem))
         {
             std::visit([this](const auto& item) {
@@ -61,7 +61,7 @@ namespace trading::execution
         metrics.increment<metrics::MetricType::OrdersSubmitted>();
     }
 
-    void OrderManagerModule::process(const ExecutionReport& report)
+    void OrderManagerModule::process(const execution::ExecutionReport& report)
     {
         metrics.increment<metrics::MetricType::ExecutionReports>();
         recordingQueue.push(report);

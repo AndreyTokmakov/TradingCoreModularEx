@@ -15,12 +15,12 @@ using trading::Quantity;
 using trading::Side;
 
 using trading::execution::ExecutionReport;
-using trading::execution::IOrderGateway;
-using trading::execution::Order;
-using trading::execution::OrderCreationError;
-using trading::execution::OrderCreationResult;
-using trading::execution::OrderManager;
-using trading::execution::OrderRequest;
+using trading::order_management::IOrderGateway;
+using trading::order_management::Order;
+using trading::order_management::OrderCreationError;
+using trading::order_management::OrderCreationResult;
+using trading::order_management::OrderManager;
+using trading::order_management::OrderRequest;
 
 using trading::position::Position;
 using trading::position::PositionManager;

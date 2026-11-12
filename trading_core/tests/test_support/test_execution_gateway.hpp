@@ -17,11 +17,11 @@ Description : mock_execution_gateway.сpp
 
 namespace trading::testing
 {
-    class TestExecutionGateway final : public execution::IOrderGateway
+    class TestExecutionGateway final : public order_management::IOrderGateway
     {
     public:
 
-        void send(const execution::Order& order) override
+        void send(const order_management::Order& order) override
         {
             sentOrders.push_back(order);
         }
@@ -38,7 +38,7 @@ namespace trading::testing
         }
 
         [[nodiscard]]
-        const execution::Order& lastSendOrder() const noexcept
+        const order_management::Order& lastSendOrder() const noexcept
         {
             return sentOrders.back();
         }
@@ -61,13 +61,13 @@ namespace trading::testing
             return cancelledOrders.size();
         }
 
-        execution::Order& getOrderByIndex(const size_t index) {
+        order_management::Order& getOrderByIndex(const size_t index) {
             return sentOrders[index];
         }
 
     private:
 
-        std::vector<execution::Order> sentOrders;
+        std::vector<order_management::Order> sentOrders;
         std::vector<OrderId> cancelledOrders;
     };
 }
