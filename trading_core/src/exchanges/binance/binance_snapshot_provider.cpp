@@ -59,27 +59,23 @@ namespace
 
 namespace trading::exchanges::binance
 {
-    BinanceSnapshotProvider::BinanceSnapshotProvider(std::string endpoint) noexcept :
+    BinanceSnapshotProvider::BinanceSnapshotProvider(std::string endpoint,
+                                                     networking::NetworkRuntime& networkRuntime) noexcept :
         endpoint { std::move(endpoint) },
-        ioContext { 1 },
-        sslContext { boost::asio::ssl::context::tls_client },
-        restClient { ioContext, sslContext }
+        restClient { networkRuntime.getIoContext(), networkRuntime.getSslContext() }
     {
     }
 
     std::expected<market_data::Snapshot, common::ErrorCode>
     BinanceSnapshotProvider::getSnapshot(const std::string_view symbol, uint32_t depth)
     {
-        if (ioContext.stopped()) {
-            ioContext.restart();
-        }
-
         network::HttpRequest request;
         request.host = endpoint;
         request.target = std::format("/api/v3/depth?symbol={}&limit={}", urlEncode(symbol), depth);
         request.method = boost::beast::http::verb::get;
 
         market_data::Snapshot snapshot;
+#if 0
         restClient.asyncRequest(request,[&snapshot](network::RestClient::Response response) mutable
         {
             if (!response) {
@@ -92,8 +88,21 @@ namespace trading::exchanges::binance
                 std::cerr << "Parse depth snapshot failed" << std::endl;
             }
         });
+#endif
 
-        const auto _ = ioContext.run();
+        const network::RestClient::Response response = restClient.request(request);
+        if (!response) {
+            // FIXME: Use Logger
+            std::cerr << response.error().message << std::endl;
+            return std::unexpected(common::ErrorCode::InternalError);
+        }
+
+        if (!parseDepthSnapshot(response->body, snapshot)) {
+            // FIXME: Use Logger
+            std::cerr << "Parse depth snapshot failed" << std::endl;
+            return std::unexpected(common::ErrorCode::ParseError);
+        }
+
         return snapshot;
     }
 }

@@ -276,41 +276,49 @@ namespace binance_tests
 
     constexpr std::string binanceApiHost { "api.binance.com" };
 
-    void testBinanceClient()
+    static void testBinanceSnapshotProvider()
     {
+        trading::networking::NetworkRuntime networkRuntime;
+
         const std::unique_ptr<market_data::ISnapshotProvider> snapshotProvider
-            = std::make_unique<binance::BinanceSnapshotProvider>(binanceApiHost);
+            = std::make_unique<binance::BinanceSnapshotProvider>(binanceApiHost, networkRuntime);
 
         const std::expected<Snapshot, ErrorCode> snapshot = snapshotProvider->getSnapshot("BTCUSDT", 40);
         std::cout << snapshot.value() << std::endl;
+
+        std::this_thread::sleep_for(std::chrono::seconds(60));
     }
 
-    void testBinanceMarketDataSource()
+    static void testBinanceMarketDataSource()
     {
+        trading::networking::NetworkRuntime networkRuntime;
         const std::unique_ptr<market_data::IMarketDataSource> marketDataSource
-            = std::make_unique<binance::BinanceMarketDataSource>(binanceApiHost);
-
+            = std::make_unique<binance::BinanceMarketDataSource>("stream.testnet.binance.vision", networkRuntime);
         marketDataSource->start();
+
+        std::this_thread::sleep_for(std::chrono::seconds(60));
     }
 
-    void testBinanceUserDataStreamWsClient()
+    static void testBinanceUserDataStreamWsClient()
     {
-        // TODO:  ---> ws-api.testnet.binance.vision ---> configuration
+        trading::networking::NetworkRuntime networkRuntime;
         const std::unique_ptr<trading::execution::IExecutionReportSource> reportSource =
-            std::make_unique<binance::BinanceExecutionReportSource>("ws-api.testnet.binance.vision");
+            std::make_unique<binance::BinanceExecutionReportSource>("ws-api.testnet.binance.vision", networkRuntime);
 
         reportSource->start();
+        std::this_thread::sleep_for(std::chrono::seconds(60));
     }
 
-    void marketDataModuleTest(const std::vector<std::string_view>& parameters)
+    static void marketDataModuleTest(const std::vector<std::string_view>& parameters)
     {
+        trading::networking::NetworkRuntime networkRuntime;
         const auto nullLogger = std::make_shared<trading::testing::TestLogger>(true);
         LoggerFactory::createLogger(nullLogger);
 
         const std::filesystem::path configPath = parameters.empty() ?  "config.json" : parameters.front();
         const Config config { loadConfig(configPath) };
         const std::unique_ptr<IExchangeFactory> exchangeFactory {
-            ExchangeFactoryRegistry::createFactory(ExchangeType::Binance)
+            ExchangeFactoryRegistry::createFactory(ExchangeType::Binance, networkRuntime)
         };
 
         CVQueue<market_data::BookUpdate> bookUpdateQueue;
@@ -327,9 +335,10 @@ namespace binance_tests
         }
     }
 
-    void bookBuilderModuleTests(const std::vector<std::string_view>& parameters)
+    static void bookBuilderModuleTests(const std::vector<std::string_view>& parameters)
     {
-        const auto nullLogger = std::make_shared<trading::testing::TestLogger>(true);
+        trading::networking::NetworkRuntime networkRuntime;
+        const auto nullLogger = std::make_shared<TestLogger>(true);
         LoggerFactory::createLogger(nullLogger);
 
         const std::filesystem::path configPath = parameters.empty() ?  "config.json" : parameters.front();
@@ -339,7 +348,7 @@ namespace binance_tests
 
         const Config config { loadConfig(configPath) };
         const std::unique_ptr<IExchangeFactory> exchangeFactory {
-            ExchangeFactoryRegistry::createFactory(ExchangeType::Binance)
+            ExchangeFactoryRegistry::createFactory(ExchangeType::Binance, networkRuntime)
         };
 
         trading::order_book::BookBuilderModule bookBuilderModule {
@@ -349,10 +358,11 @@ namespace binance_tests
         bookBuilderModule.start();
     }
 
-    void testExecutionReportModule(const std::vector<std::string_view>& parameters)
+    static void testExecutionReportModule(const std::vector<std::string_view>& parameters)
     {
         using namespace trading::execution;
 
+        trading::networking::NetworkRuntime networkRuntime;
         const auto nullLogger = std::make_shared<TestLogger>(true);
         LoggerFactory::createLogger(nullLogger);
 
@@ -361,7 +371,7 @@ namespace binance_tests
 
         const Config config { loadConfig(configPath) };
         const std::unique_ptr<IExchangeFactory> exchangeFactory {
-            ExchangeFactoryRegistry::createFactory(ExchangeType::Binance)
+            ExchangeFactoryRegistry::createFactory(ExchangeType::Binance, networkRuntime)
         };
 
         ExecutionReportModule executionReportModule { config, executionQueue, *exchangeFactory };
@@ -384,9 +394,10 @@ namespace binance_tests
         CVQueue<RecordingEvent> recordingEventQueue;
         CVQueue<market_data::Trade> tradeQueue;
 
+        trading::networking::NetworkRuntime networkRuntime;
         const Config config { loadConfig(configPath) };
         const std::unique_ptr<IExchangeFactory> exchangeFactory {
-            ExchangeFactoryRegistry::createFactory(ExchangeType::Binance)
+            ExchangeFactoryRegistry::createFactory(ExchangeType::Binance, networkRuntime)
         };
 
         market_data::MarketDataModule marketDataModule {
@@ -412,13 +423,11 @@ namespace binance_tests
         // wsClient();
         // testBinanceMarketDataSource();
         // marketDataModuleTest(parameters);
-
         // testRestClient();
-        // testBinanceClient();
+        // testBinanceSnapshotProvider();
         // bookBuilderModuleTests(parameters);
-
         // testBinanceUserDataStreamWsClient();
-        // testExecutionReportModule(parameters);
+        testExecutionReportModule(parameters);
 
         // BookBuilder_and_MarketData_Modules(parameters);
     }
@@ -432,7 +441,8 @@ int main([[maybe_unused]] const int argc,
     // runApp(parameters);
     // runTests(parameters);
     // runSingleTest(parameters);
-    // binance_tests::test(parameters);
+
+    binance_tests::test(parameters);
 
     return EXIT_SUCCESS;
 }

@@ -21,24 +21,23 @@ namespace
 
 namespace trading::exchanges::binance
 {
-    BinanceExecutionReportSource::BinanceExecutionReportSource(std::string endpoint) noexcept :
-        BinanceExecutionReportSource { std::move(endpoint), {}, {} }
+    BinanceExecutionReportSource::BinanceExecutionReportSource(std::string endpoint,
+                                                               networking::NetworkRuntime& networkRuntime) noexcept :
+        BinanceExecutionReportSource { std::move(endpoint), {}, {} , networkRuntime}
     {
     }
 
     BinanceExecutionReportSource::BinanceExecutionReportSource(std::string endpoint,
                                                                std::string api_key,
-                                                               std::string secret_key) noexcept :
+                                                               std::string secret_key,
+                                                               networking::NetworkRuntime& networkRuntime) noexcept :
         apiKey { std::move(api_key) },
         secretKey { std::move(secret_key) },
-        ioContext { 1 },
-        sslContext { boost::asio::ssl::context::tls_client },
         wsClient {
-            ioContext, sslContext,std::move(endpoint) ,std::to_string(Port), Target
+            networkRuntime.getIoContext(), networkRuntime.getSslContext(),std::move(endpoint) ,std::to_string(Port), Target
         }
     {
-        sslContext.set_default_verify_paths();
-        sslContext.set_verify_mode(boost::asio::ssl::verify_peer);
+
     }
 
     void BinanceExecutionReportSource::setReportHandler(execution::IExecutionReportHandler& handler) {
@@ -60,8 +59,6 @@ namespace trading::exchanges::binance
             reportHandler->onExecutionReport(message);
         });
         wsClient.send(std::move(*request));
-
-        ioContext.run();
     }
 
     std::optional<std::string> BinanceExecutionReportSource::createSubscribeRequest() const
@@ -86,6 +83,5 @@ namespace trading::exchanges::binance
     void BinanceExecutionReportSource::stop()
     {
         wsClient.stop();
-        ioContext.stop();
     }
 }

@@ -55,14 +55,17 @@ Description : Binance implementation of the market-data snapshot provider.
 #include "binance_market_data_parser.hpp"
 
 #include "network/rest_client.hpp"
+#include "network/network_runtime.hpp"
 #include <string>
+
 
 namespace trading::exchanges::binance
 {
     class BinanceSnapshotProvider final : public market_data::ISnapshotProvider
     {
     public:
-        explicit BinanceSnapshotProvider(std::string endpoint) noexcept;
+        explicit BinanceSnapshotProvider(std::string endpoint,
+                                         networking::NetworkRuntime& networkRuntime) noexcept;
 
         [[nodiscard]]
         std::expected<market_data::Snapshot, common::ErrorCode>
@@ -70,9 +73,6 @@ namespace trading::exchanges::binance
 
     private:
         std::string endpoint;
-
-        boost::asio::io_context ioContext;
-        boost::asio::ssl::context sslContext;
         network::RestClient restClient;
     };
 }

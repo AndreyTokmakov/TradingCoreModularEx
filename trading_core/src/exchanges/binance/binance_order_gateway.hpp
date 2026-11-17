@@ -12,7 +12,7 @@ Description : Binance implementation of the execution gateway.
 
 #include "order_management/interfaces/order_gateway.hpp"
 #include "network/rest_client.hpp"
-
+#include "network/network_runtime.hpp"
 #include <string>
 
 /**
@@ -98,6 +98,7 @@ namespace trading::exchanges::binance
         BinanceOrderGateway(std::string endpoint,
                             std::string api_key,
                             std::string secret_keys,
+                            networking::NetworkRuntime& networkRuntime,
                             std::string symbol = "BTCUSDT",
                             std::uint64_t recvWindow = 5000);
 
@@ -113,18 +114,13 @@ namespace trading::exchanges::binance
     private:
         using RestResponse = network::RestClient::Response;
         using ApiResponse = std::expected<network::HttpResponse, BinanceApiError>;
-
-        using Handler = void (BinanceOrderGateway::*)(ApiResponse);
+        using ApiResponseHandler = std::function<void(ApiResponse)>;
 
         void asyncSignedRequest(boost::beast::http::verb method,
                                 std::string query,
-                                Handler handler);
+                                ApiResponseHandler handler);
     private:
-
         std::string endpoint;
-
-        boost::asio::io_context ioContext;
-        boost::asio::ssl::context sslContext;
         network::RestClient restClient;
 
         // TODO:  --> ApiCredentials
@@ -133,6 +129,8 @@ namespace trading::exchanges::binance
 
         std::string symbol;
         std::uint64_t recvWindow;
+
+        static constexpr std::string ApiPath = "/api/v3/order";
     };
 }
 

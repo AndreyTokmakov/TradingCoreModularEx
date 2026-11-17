@@ -51,13 +51,15 @@ Description : Binance market data source.
 #include "market_data/interfaces/market_data_source.hpp"
 
 #include "network/web_socket_client.hpp"
+#include "network/network_runtime.hpp"
 
 namespace trading::exchanges::binance
 {
     class BinanceMarketDataSource final : public market_data::IMarketDataSource
     {
     public:
-        explicit BinanceMarketDataSource(std::string endpoint) noexcept;
+        explicit BinanceMarketDataSource(std::string endpoint,
+                                         networking::NetworkRuntime& networkRuntime) noexcept;
 
         void start() override;
         void stop() override;
@@ -66,9 +68,6 @@ namespace trading::exchanges::binance
 
     private:
         market_data::IMarketDataMessageHandler* messageHandler { nullptr };
-
-        boost::asio::io_context ioContext;
-        boost::asio::ssl::context sslContext;
         network::WebSocketClient wsClient;
     };
 }

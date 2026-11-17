@@ -26,14 +26,15 @@ namespace trading::app
 
     Application::Application(const std::filesystem::path& configPath):
         config { config::loadConfig(configPath) },
+        networkRuntime { 1 },
+        exchangeFactory {
+            ExchangeFactoryRegistry::createFactory(exchanges::ExchangeType::Binance, networkRuntime)
+        },
         bookUpdateQueue {},
         tradeQueue {},
         strategyEventQueue {},
         recordingEventQueue {},
         executionQueue {},
-        exchangeFactory {
-            ExchangeFactoryRegistry::createFactory(exchanges::ExchangeType::Binance)
-        },
         marketDataModule {
             config, bookUpdateQueue, tradeQueue, *exchangeFactory
         },

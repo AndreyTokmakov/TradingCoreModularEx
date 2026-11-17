@@ -12,6 +12,7 @@ Description : exchange_factory_registry.hpp
 
 #include "exchange_type.hpp"
 #include "exchange_factory.hpp"
+#include "network/network_runtime.hpp"
 
 #include <memory>
 
@@ -20,7 +21,9 @@ namespace trading::exchanges
     struct ExchangeFactoryRegistry final
     {
         [[nodiscard]]
-        static std::unique_ptr<IExchangeFactory> createFactory(ExchangeType exchangeType);
+        static std::unique_ptr<IExchangeFactory>
+        createFactory(ExchangeType exchangeType,
+                      networking::NetworkRuntime& networkRuntime);
     };
 }
 

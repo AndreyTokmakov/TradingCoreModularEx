@@ -29,6 +29,7 @@ Description : application.hpp
 
 #include "config/config.hpp"
 #include "common/common.hpp"
+#include "network/network_runtime.hpp"
 
 #include "order_management/order_manager_module.hpp"
 #include "execution/execution_report_module.hpp"
@@ -59,14 +60,14 @@ namespace trading::app
     private:
 
         config::Config config;
+        networking::NetworkRuntime networkRuntime;
+        std::unique_ptr<exchanges::IExchangeFactory> exchangeFactory;
 
         common::CVQueue<market_data::BookUpdate> bookUpdateQueue;
         common::CVQueue<market_data::Trade> tradeQueue;
         common::CVQueue<market_data::MarketEvent> strategyEventQueue;
         common::CVQueue<recording::RecordingEvent> recordingEventQueue;
         common::CVQueue<execution::ExecutionWorkItem> executionQueue;
-
-        std::unique_ptr<exchanges::IExchangeFactory> exchangeFactory;
 
         market_data::MarketDataModule marketDataModule;
         order_book::BookBuilderModule bookBuilderModule;

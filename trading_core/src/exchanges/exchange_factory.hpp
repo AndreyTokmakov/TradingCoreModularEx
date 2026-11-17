@@ -11,8 +11,6 @@ Description : exchange_factory.hpp
 #define TRADINGCOREMODULAREX_EXCHANGE_FACTORY_HPP
 
 #include "config/config.hpp"
-#include "common/common.hpp"
-
 #include "execution/model/execution_work_item.hpp"
 #include "order_management/interfaces/order_gateway.hpp"
 #include "execution/interfaces/execution_report_source.hpp"

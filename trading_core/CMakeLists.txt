@@ -143,6 +143,8 @@ add_executable(${PROJECT_NAME}
         ${NETWORK}/web_socket_client.hpp
         ${NETWORK}/rest_client.cpp
         ${NETWORK}/rest_client.hpp
+        ${NETWORK}/network_runtime.cpp
+        ${NETWORK}/network_runtime.hpp
 
         ${MARKET_DATA}/interfaces/market_data_handler.hpp
         ${MARKET_DATA}/interfaces/market_data_parser.hpp

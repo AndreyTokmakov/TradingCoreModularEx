@@ -33,14 +33,19 @@ Description : Binance execution report source.
 #include <string>
 #include "execution/interfaces/execution_report_source.hpp"
 #include "network/web_socket_client.hpp"
+#include "network/network_runtime.hpp"
 
 namespace trading::exchanges::binance
 {
     class BinanceExecutionReportSource final: public execution::IExecutionReportSource
     {
     public:
-        explicit BinanceExecutionReportSource(std::string endpoint) noexcept;
-        BinanceExecutionReportSource(std::string endpoint, std::string api_key, std::string secret_key) noexcept;
+        explicit BinanceExecutionReportSource(std::string endpoint,
+                                              networking::NetworkRuntime& networkRuntime) noexcept;
+        BinanceExecutionReportSource(std::string endpoint,
+                                     std::string api_key,
+                                     std::string secret_key,
+                                     networking::NetworkRuntime& networkRuntime) noexcept;
 
         BinanceExecutionReportSource(const BinanceExecutionReportSource&) = delete;
         BinanceExecutionReportSource& operator=(const BinanceExecutionReportSource&) = delete;
@@ -59,12 +64,8 @@ namespace trading::exchanges::binance
 
     private:
         execution::IExecutionReportHandler* reportHandler { nullptr };
-
         std::string apiKey;
         std::string secretKey;
-
-        boost::asio::io_context ioContext;
-        boost::asio::ssl::context sslContext;
         network::WebSocketClient wsClient;
     };
 }

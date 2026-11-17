@@ -26,13 +26,11 @@ namespace trading::exchanges
         return "Unknown";
     }
 
-
     std::unique_ptr<IExchangeFactory>
-    ExchangeFactoryRegistry::createFactory(const ExchangeType exchangeType)
+    ExchangeFactoryRegistry::createFactory(const ExchangeType exchangeType, networking::NetworkRuntime& networkRuntime)
     {
         if (ExchangeType::Binance == exchangeType)
-            return std::make_unique<binance::BinanceExchangeFactory>();
-
+            return std::make_unique<binance::BinanceExchangeFactory>(networkRuntime);
 
         throw std::invalid_argument {
             "Unsupported exchange: " + std::string { toString(exchangeType) }

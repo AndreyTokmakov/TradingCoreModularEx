@@ -27,7 +27,8 @@ namespace trading::exchanges::binance
         return std::make_unique<BinanceOrderGateway>(
             cfgBinance.wsUserDataStreamEndpoint,
             cfgBinance.apiKey,
-            cfgBinance.apiSecret
+            cfgBinance.apiSecret,
+            networkRuntime
         );
     }
 
@@ -37,9 +38,10 @@ namespace trading::exchanges::binance
     {
         const config::ExchangeConfig& cfgBinance = findExchange(config, ExchangeName);
         return std::make_unique<BinanceExecutionReportSource>(
-            cfgBinance.restApiEndpoint,
+            cfgBinance.wsUserDataStreamEndpoint,
             cfgBinance.apiKey,
-            cfgBinance.apiSecret
+            cfgBinance.apiSecret,
+            networkRuntime
         );
     }
 
@@ -55,7 +57,8 @@ namespace trading::exchanges::binance
     BinanceExchangeFactory::createMarketDataSource(const config::Config& config) const noexcept
     {
         return std::make_unique<BinanceMarketDataSource>(
-            config::findExchange(config, ExchangeName).wsMarketDataEndpoint
+            config::findExchange(config, ExchangeName).wsMarketDataEndpoint,
+            networkRuntime
         );
     }
 
@@ -64,7 +67,8 @@ namespace trading::exchanges::binance
     BinanceExchangeFactory::createSnapshotProvider(const config::Config& config) const noexcept
     {
         return std::make_unique<BinanceSnapshotProvider>(
-            config::findExchange(config, ExchangeName).restApiEndpoint
+            config::findExchange(config, ExchangeName).restApiEndpoint,
+            networkRuntime
         );
     }
 }

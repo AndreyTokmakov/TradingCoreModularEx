@@ -28,6 +28,9 @@ namespace
     using trading::OrderType;
     using trading::network::HttpResponse;
 
+    constexpr std::string_view OrderEndpoint = "/api/v3/order";
+    constexpr uint16_t port = 433;
+
     [[nodiscard]]
     std::string toDecimalString(const std::int64_t value, const int decimalPlaces)
     {
@@ -140,15 +143,15 @@ namespace
     }
 
     [[nodiscard]]
-    BinanceApiError makeError(const BinanceApiErrorCode code,
-                              std::string message,
-                              const std::int64_t exchangeErrorCode = 0)
+    std::unexpected<BinanceApiError> makeError(const BinanceApiErrorCode code,
+                                               std::string message,
+                                               const std::int64_t exchangeErrorCode = 0)
     {
-        return BinanceApiError {
+        return std::unexpected<BinanceApiError>(BinanceApiError {
             .code = code,
             .exchangeErrorCode = exchangeErrorCode,
             .message = std::move(message)
-        };
+        });
     }
 
     [[nodiscard]]
@@ -198,7 +201,51 @@ namespace
         };
     }
 
-    constexpr std::string ApiPath = "/api/v3/order";
+    [[nodiscard]]
+    BinanceOrderGateway::CancelResponse parseCancelResponse(const HttpResponse& response)
+    {
+        simdjson::dom::parser parser;
+        simdjson::dom::element json;
+
+        const simdjson::error_code errorCode = parser.parse(response.body).get(json);
+        if (errorCode != simdjson::SUCCESS || !json.is_object()) {
+            return std::unexpected { makeError(BinanceApiErrorCode::InvalidResponse,"Invalid Binance cancel response")};
+        }
+
+        if (response.status < 200 || response.status >= 300)
+        {
+            std::int64_t exchangeErrorCode = 0;
+            std::string message;
+
+            if (!getJsonInt64(json, "code", exchangeErrorCode)) {
+                return std::unexpected {makeError(BinanceApiErrorCode::InvalidResponse,"Failed to parse error code")};
+            }
+            if (!getJsonString(json, "msg", message)) {
+                return std::unexpected {makeError(BinanceApiErrorCode::InvalidResponse,"Failed to parse error message")};
+            }
+
+            return std::unexpected { makeError(BinanceApiErrorCode::ExchangeRejected,
+                message.empty() ? "Binance rejected cancellation" : std::move(message), exchangeErrorCode)
+            };
+        }
+
+        std::uint64_t exchangeOrderId = 0;
+        std::string status;
+
+        if (!getJsonUint64(json, "orderId", exchangeOrderId) ||
+            !getJsonString(json, "status", status) || exchangeOrderId == 0)
+        {
+            return std::unexpected {makeError(BinanceApiErrorCode::InvalidResponse,
+                          "Binance cancel response does not contain orderId or status")
+            };
+        }
+
+        const trading::OrderStatus orderStatus = trading::toOrderStatus(status);
+        return OrderCancellationResult {
+            .exchangeOrderId = exchangeOrderId,
+            .status = orderStatus
+        };
+    }
 }
 
 namespace trading::exchanges::binance
@@ -206,12 +253,11 @@ namespace trading::exchanges::binance
     BinanceOrderGateway::BinanceOrderGateway(std::string endpoint,
                                              std::string api_key,
                                              std::string secret_keys,
+                                             networking::NetworkRuntime& networkRuntime,
                                              std::string symbol,
                                              const std::uint64_t recvWindow):
         endpoint { std::move(endpoint) },
-        ioContext { 1 },
-        sslContext { boost::asio::ssl::context::tls_client },
-        restClient { ioContext, sslContext },
+        restClient { networkRuntime.getIoContext(), networkRuntime.getSslContext() },
         apiKey { std::move(api_key) },
         secretKey { std::move(secret_keys) },
         symbol { std::move(symbol) },
@@ -220,78 +266,53 @@ namespace trading::exchanges::binance
 
     }
 
-    void BinanceOrderGateway::send(const order_management::Order& order)
+    void BinanceOrderGateway::send(const order_management::Order&)
     {
-        const std::string_view side = toString(order.side);
-        const std::string_view type = toString(order.type);
-
-        if (order.clientOrderId == 0 ||
-            order.quantity.raw() <= 0 ||
-            side.empty() ||
-            type.empty() ||
-            (order.type == OrderType::Limit && order.price.raw() <= 0))
-        {
-            // handler(std::unexpected {makeError(BinanceApiErrorCode::InvalidRequest,"Invalid order parameters")});
-            return;
-        }
-
-        if (symbol.empty()) {
-            // handler(std::unexpected {makeError(BinanceApiErrorCode::InvalidRequest,"Instrument symbol is empty")});
-            return;
-        }
-
-        /*
-        const std::string query = createOrderQuery(order, symbol);
-        asyncSignedRequest(boost::beast::http::verb::post, query,[handler = std::move(handler)](ApiResponse response) mutable
-        {
-            if (!response) {
-                handler(std::unexpected { response.error() });
-                return;
-            }
-            handler(parseOrderResponse(*response, clientOrderId));
-        });
-        */
     }
 
     void BinanceOrderGateway::cancel(ExchangeOrderId)
     {
-
     }
 
     void BinanceOrderGateway::asyncSignedRequest(const boost::beast::http::verb method,
-                                                 std::string query,
-                                                 Handler handler)
+                                             std::string query,
+                                             ApiResponseHandler handler)
     {
-        if (apiKey.empty() || secretKey.empty()) {
-            std::invoke(handler, this, std::unexpected {makeError(BinanceApiErrorCode::SigningFailed, "Binance API credentials are empty")});
+        if (!handler) {
             return;
         }
+        if (apiKey.empty() || secretKey.empty()) {
+            handler(makeError(BinanceApiErrorCode::SigningFailed, "Binance API credentials are empty"));
+            return;
+        }
+
         if (!query.empty()) {
             query += '&';
         }
 
         query += std::format("recvWindow={}&timestamp={}", recvWindow, utilities::unixTimestampMilliseconds());
+
         const std::optional<std::string> signature = utilities::binance::createSignature(query, secretKey);
-        if (!signature) {
-            std::invoke(handler, this, std::unexpected { makeError(BinanceApiErrorCode::SigningFailed, "Failed to create HMAC SHA256 signature")});
+        if (!signature.has_value()) {
+            handler(makeError(BinanceApiErrorCode::SigningFailed, "Failed to create HMAC SHA256 signature"));
             return;
         }
 
         network::HttpRequest httpRequest {
-            .host = ApiPath,
-            .target = std::format("{}?{}&signature={}", endpoint, query, signature.value()),
+            .host = endpoint,
+            .port = std::to_string(port),
+            .target = std::format("{}?{}&signature={}", OrderEndpoint, query, signature.value()),
             .method = method,
             .headers = {{ "X-MBX-APIKEY", apiKey }}
         };
 
-        restClient.asyncRequest(httpRequest,[this, handler](RestResponse response) mutable
+        restClient.asyncRequest(httpRequest,[handler = std::move(handler)](RestResponse response) mutable
         {
             if (!response) {
-                std::invoke(handler, this, std::unexpected {makeError(BinanceApiErrorCode::TransportError,response.error().message)});
+                handler(makeError(BinanceApiErrorCode::TransportError,response.error().message));
                 return;
             }
-            std::invoke(handler, this, std::move(*response));
+            handler(std::move(*response));
         });
     }
-
 }
