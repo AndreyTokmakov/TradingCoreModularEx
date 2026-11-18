@@ -66,22 +66,10 @@ namespace trading::exchanges::binance
 {
     using order_management::OrderSubmissionResult;
     using order_management::OrderCancellationResult;
+    using order_management::ErrorCode;
+    using order_management::OrderGatewayError;
+    using order_management::Order;
 
-    enum class BinanceApiErrorCode : std::uint8_t
-    {
-        InvalidRequest,
-        SigningFailed,
-        TransportError,
-        ExchangeRejected,
-        InvalidResponse
-    };
-
-    struct BinanceApiError
-    {
-        BinanceApiErrorCode code { BinanceApiErrorCode::InvalidResponse };
-        std::int64_t exchangeErrorCode { 0 };
-        std::string message;
-    };
 
 #if 0
     struct ApiCredentials
@@ -105,15 +93,22 @@ namespace trading::exchanges::binance
         BinanceOrderGateway(const BinanceOrderGateway&) = delete;
         BinanceOrderGateway& operator=(const BinanceOrderGateway&) = delete;
 
-        using OrderResponse = std::expected<OrderSubmissionResult, BinanceApiError>;
-        using CancelResponse = std::expected<OrderCancellationResult, BinanceApiError>;
+        using OrderResponse = std::expected<OrderSubmissionResult, OrderGatewayError>;
+        using CancelResponse = std::expected<OrderCancellationResult, OrderGatewayError>;
 
-        void send(const order_management::Order& order) override;
+        void send(const Order& order) override;
         void cancel(ExchangeOrderId exchangeOrderId) override;
+
+        void sendAsync(const Order& order,
+                       OrderId clientOrderId,
+                       OrderHandler handler) override;
+
+        void cancelAsync(ExchangeOrderId exchangeOrderId,
+                         CancelHandler handler) override;
 
     private:
         using RestResponse = network::RestClient::Response;
-        using ApiResponse = std::expected<network::HttpResponse, BinanceApiError>;
+        using ApiResponse = std::expected<network::HttpResponse, OrderGatewayError>;
         using ApiResponseHandler = std::function<void(ApiResponse)>;
 
         void asyncSignedRequest(boost::beast::http::verb method,

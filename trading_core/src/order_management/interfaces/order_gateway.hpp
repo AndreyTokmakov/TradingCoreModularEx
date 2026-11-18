@@ -87,6 +87,9 @@ Description : order_gateway.hpp
 
 #include "order_management/model/order.hpp"
 
+#include <functional>
+#include <expected>
+
 namespace trading::order_management
 {
     struct OrderSubmissionResult
@@ -102,12 +105,41 @@ namespace trading::order_management
         OrderStatus status { OrderStatus::New };
     };
 
+    enum class ErrorCode : std::uint8_t
+    {
+        InvalidRequest,
+        SigningFailed,
+        TransportError,
+        ExchangeRejected,
+        InvalidResponse
+    };
+
+    struct OrderGatewayError
+    {
+        ErrorCode code { ErrorCode::InvalidResponse };
+        std::int64_t exchangeErrorCode { 0 };
+        std::string message;
+    };
+
+    using OrderResponse = std::expected<OrderSubmissionResult, OrderGatewayError>;
+    using CancelResponse = std::expected<OrderCancellationResult, OrderGatewayError>;
+
     struct IOrderGateway
     {
         virtual ~IOrderGateway() = default;
 
+        using OrderHandler  = std::function<void(OrderResponse)>;
+        using CancelHandler = std::function<void(CancelResponse)>;
+
         virtual void send(const Order& order) = 0;
         virtual void cancel(ExchangeOrderId exchangeOrderId) = 0;
+
+        virtual void sendAsync(const Order& order,
+                               OrderId clientOrderId,
+                               OrderHandler handler) = 0;
+
+        virtual void cancelAsync(ExchangeOrderId exchangeOrderId,
+                                CancelHandler handler) = 0;
     };
 }
 

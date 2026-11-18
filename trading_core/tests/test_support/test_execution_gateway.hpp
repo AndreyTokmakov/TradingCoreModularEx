@@ -31,6 +31,19 @@ namespace trading::testing
             cancelledOrders.push_back(exchangeOrderId);
         }
 
+        void sendAsync([[maybe_unused]] const order_management::Order& order,
+                       [[maybe_unused]] OrderId clientOrderId,
+                       [[maybe_unused]] OrderHandler handler) override
+        {
+            // TODO: To be implemented
+        }
+
+        void cancelAsync([[maybe_unused]] ExchangeOrderId exchangeOrderId,
+                         [[maybe_unused]] CancelHandler handler) override
+        {
+            // TODO: To be implemented
+        }
+
         [[nodiscard]]
         bool hasOrder() const noexcept
         {
